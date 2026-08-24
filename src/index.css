@@ -1,0 +1,213 @@
+/* Font dimuat via <link> di index.html (preconnect + stylesheet), bukan @import CSS —
+   @import memblokir render dan tidak bisa di-preconnect (impeccable audit, P3). */
+
+:root {
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  /* Skala tipografi tetap (rem-based, rasio ~1.2) — Swiss: presisi, bukan fluid */
+  --fs-2xs: 0.6875rem; /* 11px */
+  --fs-xs: 0.75rem;    /* 12px */
+  --fs-sm: 0.8125rem;  /* 13px */
+  --fs-md: 0.875rem;   /* 14px */
+  --fs-lg: 1rem;       /* 16px */
+  --fs-xl: 1.1875rem;  /* 19px */
+  --fs-2xl: 1.4375rem; /* 23px */
+
+  /* Skala z-index semantik — tidak ada angka arbitrer */
+  --z-rail: 100;
+  --z-sticky: 200;
+  --z-drawer-backdrop: 300;
+  --z-drawer: 400;
+  --z-toast: 500;
+
+  /* ===== Tema gelap (DEFAULT — dark-first) =====
+     Navy-ink dalam, satu aksen biru berkomitmen. Semua pasangan teks/permukaan
+     terverifikasi >= 4.5:1 untuk teks normal. */
+  --bg-app: #0b1220;
+  --bg-surface: #131b2c;
+  --bg-surface-hover: #1a2338;
+  --bg-surface-active: #212c45;
+  --bg-rail: #0e1524; /* lapisan netral kedua untuk sidebar/panel (register produk) */
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+
+  --border-subtle: #1e293b;
+  --border-default: #2b3a55;
+  --border-strong: #3d5074;
+
+  --accent-base: #60a5fa;
+  --accent-hover: #93c5fd;
+  --accent-bg: rgba(96, 165, 250, 0.15);
+  --accent-text: #bfdbfe;
+  --accent-on: #0b1220;
+
+  --danger-base: #f87171;
+  --danger-bg: rgba(220, 38, 38, 0.18);
+  --danger-text: #fecaca;
+
+  --warning-base: #fbbf24;
+  --warning-bg: rgba(217, 119, 6, 0.18);
+  --warning-text: #fde68a;
+
+  --success-base: #34d399;
+  --success-bg: rgba(5, 150, 105, 0.18);
+  --success-text: #a7f3d0;
+
+  /* Tint hover netral yang bekerja di atas permukaan apa pun (menggantikan
+     rgba(0,0,0,.06) hardcoded yang tak terlihat di dark mode — audit P3) */
+  --hover-tint: rgba(241, 245, 249, 0.08);
+
+  /* Chevron <select> mengikuti tema (dulu SVG stroke #6b7280 hardcoded — audit P3) */
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+
+  --focus-ring: 0 0 0 3px var(--accent-bg), 0 0 0 1px var(--accent-base);
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 10px -2px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 20px -6px rgba(0, 0, 0, 0.55), 0 4px 8px -4px rgba(0, 0, 0, 0.35);
+
+  --transition-fast: 120ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ===== Tema terang (override eksplisit — dipoles setara, bukan sekadar inversi) ===== */
+:root.light {
+  --bg-app: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f1f5f9;
+  --bg-surface-active: #e2e8f0;
+  --bg-rail: #f1f5f9;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+
+  --border-subtle: #e2e8f0;
+  --border-default: #cbd5e1;
+  --border-strong: #94a3b8;
+
+  --accent-base: #1e40af;
+  --accent-hover: #1e3a8a;
+  --accent-bg: #dbeafe;
+  --accent-text: #1e3a8a;
+  --accent-on: #ffffff;
+
+  --danger-base: #dc2626;
+  --danger-bg: #fee2e2;
+  --danger-text: #7f1d1d;
+
+  --warning-base: #d97706;
+  --warning-bg: #fef3c7;
+  --warning-text: #78350f;
+
+  --success-base: #059669;
+  --success-bg: #d1fae5;
+  --success-text: #065f46;
+
+  --hover-tint: rgba(15, 23, 42, 0.06);
+
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 10px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 20px -6px rgba(15, 23, 42, 0.12), 0 4px 8px -4px rgba(15, 23, 42, 0.06);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: var(--bg-app);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--accent-base);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  color: inherit;
+}
+
+ul, ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Placeholder wajib memenuhi kontras teks normal 4.5:1 — jangan biarkan
+   warna default browser (impeccable audit, P2) */
+::placeholder {
+  color: var(--text-tertiary);
+  opacity: 1;
+}
+
+/* Visually hidden but still in the accessibility tree — for skip text and
+   the persistent aria-live status region. Never use display:none for these:
+   it removes the node from the a11y tree entirely. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-base);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
