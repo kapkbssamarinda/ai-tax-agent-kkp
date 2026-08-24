@@ -9,7 +9,7 @@ import { formatLegalCitation } from './regulationDB.js';
 import { estimateFindingRisk } from '../tax-engine/riskScoring.js';
 import { buildSP2DKClaudePrompt } from './sp2dkService.js';
 
-export const MASTER_SYSTEM_PROMPT = `
+const MASTER_SYSTEM_PROMPT = `
 Anda adalah AI Tax Agent Indonesia yang berfungsi membantu Tax Staff, Tax Manager, Konsultan Pajak, dan Partner melakukan tax diagnostic, tax compliance review, tax reconciliation, serta tax risk assessment.
 
 TUJUAN:

@@ -23,6 +23,18 @@ const toWorksheetData = (exportData) => exportData.map(row => ({
   'Balance / Saldo': row.balance
 }));
 
+/** Post success message with standard shape */
+function postSuccess(data, format, meta, warnings = []) {
+  self.postMessage({
+    status: 'success',
+    data,
+    format,
+    warnings,
+    detectedCompanyName: meta.companyName,
+    detectedTaxYear: meta.taxYear
+  });
+}
+
 self.onmessage = async (e) => {
   const { type, fileData, exportData, fileName } = e.data;
   // Error saat ekspor tidak boleh melempar pengguna keluar dari tabel hasil,
@@ -34,25 +46,11 @@ self.onmessage = async (e) => {
       // Ekspor MYOB "General Ledger [Detail]" berbentuk teks CSV (.txt)
       const parsedData = parseMYOBTextRows(fileData);
       const meta = detectCompanyAndTaxYear({ rawText: fileData, fileName });
-      self.postMessage({
-        status: 'success',
-        data: parsedData,
-        format: 'MYOB',
-        warnings: [],
-        detectedCompanyName: meta.companyName,
-        detectedTaxYear: meta.taxYear
-      });
+      postSuccess(parsedData, 'MYOB', meta);
     } else if (type === 'ACCURATE_XML') {
       const parsedData = parseAccurateXMLSS(fileData);
       const meta = detectCompanyAndTaxYear({ rawText: fileData, fileName });
-      self.postMessage({
-        status: 'success',
-        data: parsedData,
-        format: 'ACCURATE',
-        warnings: [],
-        detectedCompanyName: meta.companyName,
-        detectedTaxYear: meta.taxYear
-      });
+      postSuccess(parsedData, 'ACCURATE', meta);
     } else if (type === 'EXCEL_BINARY') {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -87,34 +85,13 @@ self.onmessage = async (e) => {
               // Krishand: re-read dengan raw:true agar tanggal tetap sebagai serial number
               const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '', raw: true });
               const parsedData = parseKrishandExcelRows(rawRows);
-              self.postMessage({
-                status: 'success',
-                data: parsedData,
-                format: 'KRISHAND',
-                warnings: [],
-                detectedCompanyName: meta.companyName,
-                detectedTaxYear: meta.taxYear
-              });
+              postSuccess(parsedData, 'KRISHAND', meta);
            } else if (isAccurate) {
                const parsedData = parseAccurateExcelRows(rows);
-               self.postMessage({
-                 status: 'success',
-                 data: parsedData,
-                 format: 'ACCURATE',
-                 warnings: [],
-                 detectedCompanyName: meta.companyName,
-                 detectedTaxYear: meta.taxYear
-               });
+               postSuccess(parsedData, 'ACCURATE', meta);
            } else {
                const parsedData = parseMYOBExcelRows(rows);
-               self.postMessage({
-                 status: 'success',
-                 data: parsedData,
-                 format: 'MYOB',
-                 warnings: [],
-                 detectedCompanyName: meta.companyName,
-                 detectedTaxYear: meta.taxYear
-               });
+               postSuccess(parsedData, 'MYOB', meta);
            }
          } catch (err) {
            self.postMessage({ status: 'error', context: 'parse', error: err.message || String(err) });
@@ -127,14 +104,7 @@ self.onmessage = async (e) => {
       const { rows, warnings } = fileData.includes('Daftar Histori GL')
         ? parseAccuratePdfJournalText(fileData)
         : parseAccuratePdfText(fileData);
-      self.postMessage({
-        status: 'success',
-        data: rows,
-        format: 'ACCURATE',
-        warnings,
-        detectedCompanyName: meta.companyName,
-        detectedTaxYear: meta.taxYear
-      });
+      postSuccess(rows, 'ACCURATE', meta, warnings);
     } else if (type === 'EXPORT_XLSX') {
       const worksheet = XLSX.utils.json_to_sheet(toWorksheetData(exportData));
       const workbook = XLSX.utils.book_new();

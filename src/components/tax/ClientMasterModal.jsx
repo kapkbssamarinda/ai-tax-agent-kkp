@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, X, Save, Sparkles } from 'lucide-react';
+import { Building2, X, Save } from 'lucide-react';
 
 function ClientMasterModal({ isOpen, onClose, clientInfo, onSave }) {
   const [formData, setFormData] = useState(clientInfo || {

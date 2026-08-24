@@ -304,18 +304,6 @@ export const REGULATION_DATABASE = [
   }
 ];
 
-/**
- * Mencari dasar hukum relevan berdasarkan jenis pajak atau kata kunci.
- */
-export function getRegulationsByArea(taxArea) {
-  if (!taxArea || taxArea === 'ALL') return REGULATION_DATABASE;
-  const lower = taxArea.toLowerCase();
-  return REGULATION_DATABASE.filter(reg => 
-    reg.taxArea.toLowerCase().includes(lower) || 
-    reg.title.toLowerCase().includes(lower) ||
-    reg.articles.some(a => a.topic.toLowerCase().includes(lower))
-  );
-}
 
 /**
  * Format string sitasi resmi untuk dimasukkan ke dalam KKP / AI Finding.

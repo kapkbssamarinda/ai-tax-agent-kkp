@@ -1,12 +1,4 @@
-import { cleanBalance } from './utils.js';
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-/** Konversi serial tanggal Excel (angka) ke string "DD Mmm YYYY". */
-const serialToDate = (serial) => {
-  const d = new Date(Math.round((serial - 25569) * 86400 * 1000));
-  return `${String(d.getUTCDate()).padStart(2, '0')} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-};
+import { cleanBalance, excelSerialToDate } from './utils.js';
 
 /**
  * Parse rows (array-of-arrays dari XLSX.utils.sheet_to_json(..., { header: 1 }))
@@ -77,7 +69,7 @@ export const parseKrishandExcelRows = (rows) => {
       const balance = cleanBalance(row[6]);
 
       parsedData.push({
-        tanggal: serialToDate(col0),
+        tanggal: excelSerialToDate(col0),
         coa: currentCOA,
         namaAkun: currentNamaAkun,
         noBukti,

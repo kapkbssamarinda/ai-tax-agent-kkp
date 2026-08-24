@@ -28,19 +28,10 @@ import {
   CAUSE_CATEGORIES
 } from '../../services/sp2dkService';
 import { generateSP2DKResponseWithClaude } from '../../services/claudeService';
-
-function formatRupiah(num) {
-  if (num === null || num === undefined || isNaN(num)) return 'Rp 0';
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0
-  }).format(num);
-}
+import { fmtRupiah as formatRupiah } from '../../utils/formatters';
 
 export default function SP2DKResponseTab({
   clientInfo = {},
-  _glRows = [],
   taxMappings = [],
   revenueRecon = {},
   expenseRecon = {},

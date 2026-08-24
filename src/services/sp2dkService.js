@@ -4,6 +4,8 @@
  * fallback generator surat resmi deterministik, serta ekspor dokumen Word (.doc).
  */
 
+import { fmtRupiah } from '../utils/formatters.js';
+
 export const SP2DK_DEMO_PRESETS = [
   {
     id: 'DEMO_PPN_REVENUE',
@@ -270,16 +272,9 @@ export function calculateSP2DKDeadline(tanggalSuratStr, hari = 14) {
 }
 
 /**
- * Format angka Rupiah
+ * Format angka Rupiah — alias dari shared formatter
  */
-function formatRupiah(num) {
-  if (num === null || num === undefined || isNaN(num)) return 'Rp 0';
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0
-  }).format(num);
-}
+const formatRupiah = fmtRupiah;
 
 /**
  * Generator Naskah Surat Tanggapan SP2DK Standar / Deterministik (Offline Fallback)
@@ -413,8 +408,7 @@ export function buildSP2DKClaudePrompt({
   sp2dkMeta = {},
   items = [],
   revenueRecon = {},
-  expenseRecon = {},
-  taxMappings = []
+  expenseRecon = {}
 }) {
   return `
 Anda adalah Senior Tax Partner & Ahli Hukum Acara Perpajakan Indonesia (KAP Kuncara Budi Santosa & Rekan).
@@ -475,8 +469,7 @@ INSTRUKSI PENYUSUNAN SURAT:
 export function downloadSP2DKWordDocument({
   clientInfo = {},
   sp2dkMeta = {},
-  letterContent = '',
-  docList = []
+  letterContent = ''
 }) {
   const clientName = clientInfo.name || 'PT Wajib Pajak';
   const npwp = clientInfo.npwp || '-';

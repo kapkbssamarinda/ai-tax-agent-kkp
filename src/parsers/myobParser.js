@@ -1,13 +1,5 @@
 import { cleanBalance } from './utils.js';
 
-const parseNumA = (val) => {
-  if (!val) return 0;
-  let strVal = String(val).replace(/Rp/gi, '').replace(/cr/gi, '').replace(/\(Dr\)/gi, "").replace(/\(Cr\)/gi, "").trim();
-  if (strVal.includes(',') && !strVal.includes('.')) strVal = strVal.replace(/,/g, '');
-  const num = parseFloat(strVal);
-  return isNaN(num) ? 0 : num;
-};
-
 const parseNumB = (val) => {
   if (!val) return 0;
   const str = String(val).trim();
@@ -18,7 +10,7 @@ const parseNumB = (val) => {
 };
 
 
-export const parseMYOBExcelRows_A = (rows) => {
+const parseMYOBExcelRows_A = (rows) => {
   const parsedData = [];
   let currentCOA = '';
   let currentNamaAkun = '';
@@ -64,16 +56,16 @@ export const parseMYOBExcelRows_A = (rows) => {
         idTransaksi: col0,
         communication: row[2] ? String(row[2]).trim() : '-',
         partner: row[3] ? String(row[3]).trim() : '-',
-        debit: parseNumA(row[5]),
-        credit: parseNumA(row[6]),
-        balance: parseNumA(row[7])
+        debit: cleanBalance(row[5]),
+        credit: cleanBalance(row[6]),
+        balance: cleanBalance(row[7])
       });
     }
   }
   return parsedData;
 };
 
-export const parseMYOBExcelRows_B = (rows) => {
+const parseMYOBExcelRows_B = (rows) => {
   const parsedData = [];
   let currentCOA = '';
   let currentNamaAkun = '';

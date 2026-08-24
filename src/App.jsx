@@ -15,6 +15,7 @@ import TaxReconWorkbench from './components/tax/TaxReconWorkbench';
 import { buildTaxMappingFromGL } from './tax-engine/taxMapping';
 import { reconcileRevenueVsPPN, reconcileExpenseVsPPh23 } from './tax-engine/deterministicCalc';
 import { analyzeTaxFindings, generateDeterministicFindings } from './services/claudeService';
+import { downloadKKPWorkbook } from './tax-engine/kkpWorkbookGenerator';
 
 const ACCURATE_COLUMNS = [
   { key: 'tanggal', label: 'Tanggal' },
@@ -415,6 +416,17 @@ function App() {
     setFindings(prev => prev.map(f => f.findingId === findingId ? { ...f, status: newStatus } : f));
   };
 
+  const handleDownloadKKP = () => {
+    downloadKKPWorkbook({
+      clientInfo,
+      glRows: processedData,
+      taxMappings,
+      revenueRecon,
+      expenseRecon,
+      findings
+    });
+  };
+
   const selectedAccountMeta = selectedAccount
     ? accounts.find(a => a.nama === selectedAccount)
     : null;
@@ -542,8 +554,7 @@ function App() {
               revenueRecon={revenueRecon}
               expenseRecon={expenseRecon}
               clientInfo={clientInfo}
-              glRows={processedData}
-              taxMappings={taxMappings}
+              onDownloadKKP={handleDownloadKKP}
             />
           )}
         </>

@@ -37,7 +37,6 @@ export const parseAccurateXMLSS = (xmlString) => {
 
   // Default indices if we can't auto-detect
   let dateIdx = 3, coaIdx = 2, nameIdx = 9, descIdx = 19, debitIdx = 28, creditIdx = 32, balanceIdx = 36;
-  let hasAutoDetected = false;
 
   // Attempt to auto-detect columns by scanning the first 50 rows for headers
   for (let i = 0; i < Math.min(rows.length, 50); i++) {
@@ -55,7 +54,6 @@ export const parseAccurateXMLSS = (xmlString) => {
            else if (v.includes("kredit") || v.includes("credit")) creditIdx = idx;
            else if (v.includes("saldo") || v.includes("balance")) balanceIdx = idx;
         }
-        hasAutoDetected = true;
         break;
      }
   }

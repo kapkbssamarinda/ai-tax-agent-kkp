@@ -22,7 +22,7 @@ const YEAR_REGEX = /\b(202[0-9]|201[5-9]|203[0-5])\b/;
 /**
  * Membersihkan string nama perusahaan yang terdeteksi
  */
-export function sanitizeCompanyName(raw) {
+function sanitizeCompanyName(raw) {
   if (!raw || typeof raw !== 'string') return null;
   let str = raw.trim();
 
@@ -52,7 +52,7 @@ export function sanitizeCompanyName(raw) {
 /**
  * Mencoba mendeteksi tahun pajak dari teks atau baris periode
  */
-export function detectTaxYearFromStrings(stringList) {
+function detectTaxYearFromStrings(stringList) {
   for (const s of stringList) {
     if (!s || typeof s !== 'string') continue;
     // Cari pola periode seperti "01/01/2024 To 31/12/2024" atau "Januari 2024 s/d Desember 2024"

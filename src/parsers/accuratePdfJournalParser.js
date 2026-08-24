@@ -4,22 +4,14 @@
 // No. Akun / Nama Akun, two rows per journal entry - one debit leg, one credit leg) rather
 // than a per-account ledger with account-header blocks. Kept in its own file on purpose so
 // accuratePdfParser.js (and every other existing parser) stays untouched.
-import { cleanBalance } from './utils.js';
+import { cleanBalance, isAccuratePdfBoilerplate } from './utils.js';
 
 
 
 // Group: tanggal | tipe sumber | no. sumber | no. akun | "nama akun + keterangan" (blob) | debit | kredit
 const TRANSACTION_RE = /^(\d{2}\s+[A-Za-z]{3}\s+\d{4})\s+(.+?)\s+(\d+)\s+([0-9A-Za-z.\-]+)\s+(.+)\s+([\d.,]+)\s+([\d.,]+)$/;
 
-const isBoilerplate = (line, nextLine) =>
-  line === 'Daftar Histori GL' ||
-  /^Tanggal Tipe Sumber No\. Sumber No\. Akun Nama Akun Keterangan Nilai Debit Nilai Kredit$/.test(line) ||
-  /^Dari \d{2} [A-Za-z]{3} \d{4} ke \d{2} [A-Za-z]{3} \d{4}$/.test(line) ||
-  line === 'ACCURATE Accounting System Report' ||
-  /^Cetak di /.test(line) ||
-  /^\(\d+\)$/.test(line) ||
-  /^[\d.,]+\s+[\d.,]+$/.test(line) ||
-  nextLine === 'Daftar Histori GL';
+const isBoilerplate = (line, nextLine) => isAccuratePdfBoilerplate(line, nextLine, 'Daftar Histori GL');
 
 // The two (or more) lines belonging to the same journal entry (same "No. Sumber") always share
 // an identical trailing "Keterangan" — only the leading "Nama Akun" differs per account leg.

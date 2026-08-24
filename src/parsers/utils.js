@@ -12,7 +12,14 @@ export const cleanBalance = (val) => {
   return isNaN(num) ? 0 : num;
 };
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+export const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+/** Konversi serial tanggal Excel (angka) ke string "DD Mmm YYYY". */
+export const excelSerialToDate = (serial) => {
+  const d = new Date(Math.round((serial - 25569) * 86400 * 1000));
+  return `${String(d.getUTCDate()).padStart(2, '0')} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+};
+
 // Anchored at both ends: a footer timestamp like "07/08/2026 09.39.34" shares the date
 // prefix but has trailing junk — without the trailing anchor it would false-positive as
 // a transaction date and leak a garbage row into whatever account was still open.
@@ -34,3 +41,15 @@ export const normalizeAccurateDate = (cell) => {
   }
   return null;
 };
+
+/** Shared boilerplate detector for Accurate PDF parsers. */
+export const isAccuratePdfBoilerplate = (line, nextLine, reportTitle) =>
+  line === reportTitle ||
+  /^Tanggal (?:Sumber No\. Sumber Keterangan Debit Kredit Balance|Tipe Sumber No\. Sumber No\. Akun Nama Akun Keterangan Nilai Debit Nilai Kredit)$/.test(line) ||
+  /^Dari \d{2} [A-Za-z]{3} \d{4} ke \d{2} [A-Za-z]{3} \d{4}$/.test(line) ||
+  line === 'ACCURATE Accounting System Report' ||
+  /^Cetak di /.test(line) ||
+  /^\(\d+\)$/.test(line) ||
+  /^[\d.,]+\s+[\d.,]+$/.test(line) ||
+  nextLine === reportTitle;
+

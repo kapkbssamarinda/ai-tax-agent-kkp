@@ -1,31 +1,22 @@
-/**
- * Tax Risk Scoring Engine
- * Menghitung skor risiko perpajakan berbasis matriks 5x5:
- * Risk Score = Probability (1-5) x Impact (1-5)
- * Kategori:
- *   1-5   = LOW (Hijau)
- *   6-11  = MEDIUM (Kuning)
- *   12-19 = HIGH (Oranye)
- *   20-25 = CRITICAL (Merah)
- */
+import { RISK_LEVELS, RISK_THRESHOLDS, RISK_COLORS } from '../utils/constants.js';
 
 export function calculateRiskScore(probability, impact) {
   const p = Math.min(Math.max(parseInt(probability, 10) || 1, 1), 5);
   const i = Math.min(Math.max(parseInt(impact, 10) || 1, 1), 5);
   const score = p * i;
 
-  let level = 'LOW';
-  let badgeColor = '#10b981'; // Green
+  let level = RISK_LEVELS.LOW;
+  let badgeColor = RISK_COLORS.LOW;
 
-  if (score >= 20) {
-    level = 'CRITICAL';
-    badgeColor = '#ef4444'; // Red
-  } else if (score >= 12) {
-    level = 'HIGH';
-    badgeColor = '#f97316'; // Orange
-  } else if (score >= 6) {
-    level = 'MEDIUM';
-    badgeColor = '#eab308'; // Yellow
+  if (score >= RISK_THRESHOLDS.CRITICAL) {
+    level = RISK_LEVELS.CRITICAL;
+    badgeColor = RISK_COLORS.CRITICAL;
+  } else if (score >= RISK_THRESHOLDS.HIGH) {
+    level = RISK_LEVELS.HIGH;
+    badgeColor = RISK_COLORS.HIGH;
+  } else if (score >= RISK_THRESHOLDS.MEDIUM) {
+    level = RISK_LEVELS.MEDIUM;
+    badgeColor = RISK_COLORS.MEDIUM;
   }
 
   return {

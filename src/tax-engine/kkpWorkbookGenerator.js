@@ -136,24 +136,8 @@ function sc(ws, ref, value, style, opts = {}) {
   if (opts.t) ws[ref].t = opts.t;
 }
 
-/** Apply style to an existing cell */
-function applyStyle(ws, ref, style, opts = {}) {
-  if (!ws[ref]) ws[ref] = { t: 's', v: '' };
-  ws[ref].s = style;
-  if (opts.f) ws[ref].f = opts.f;
-  if (opts.z) ws[ref].z = opts.z;
-}
-
-/** Column letter from 0-based index */
-function colLetter(i) {
-  let s = '';
-  let n = i;
-  while (n >= 0) {
-    s = String.fromCharCode(65 + (n % 26)) + s;
-    n = Math.floor(n / 26) - 1;
-  }
-  return s;
-}
+/** Column letter from 0-based index (delegates to xlsx-js-style built-in) */
+const colLetter = (i) => XLSX.utils.encode_col(i);
 
 /** Write a styled title row merged across cols */
 function writeTitleRow(ws, row, text, colCount, style, merges) {

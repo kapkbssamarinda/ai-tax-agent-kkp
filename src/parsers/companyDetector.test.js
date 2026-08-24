@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectCompanyAndTaxYear, sanitizeCompanyName, detectTaxYearFromStrings } from './companyDetector';
+import { detectCompanyAndTaxYear } from './companyDetector';
 
 describe('Smart Company Name & Tax Year Detector', () => {
   it('mendeteksi nama PT dan tahun pajak dari baris header Excel (Accurate/Krishand)', () => {

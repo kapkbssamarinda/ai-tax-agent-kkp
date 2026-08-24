@@ -36,7 +36,7 @@ const KEYWORD_PRESETS = [
   }
 ];
 
-function KeywordScannerTab({ glRows = [], taxMappings = [], onUpdateTaxMapping }) {
+function KeywordScannerTab({ glRows = [], taxMappings = [] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [activePreset, setActivePreset] = useState(null);
   const [onlyMisclassified, setOnlyMisclassified] = useState(false);

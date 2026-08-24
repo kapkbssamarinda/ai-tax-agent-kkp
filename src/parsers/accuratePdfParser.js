@@ -1,5 +1,5 @@
 // Parser for Accurate's "Buku Besar - Rinci" report exported as PDF (plain text, already extracted).
-import { cleanBalance } from './utils.js';
+import { cleanBalance, isAccuratePdfBoilerplate } from './utils.js';
 // Kept separate from accurateParser.js / accurateExcelParser.js on purpose — this file only handles
 // the PDF text-layout variant and never touches the existing Excel/XML parsing paths.
 
@@ -24,15 +24,7 @@ const splitNameAndType = (rest) => {
 const ACCOUNT_HEADER_RE = /^([0-9A-Za-z.\-]{2,})\s+(.+?)\s+([\d.,]+)\s+(Dr|Cr)$/;
 const TRANSACTION_RE = /^(\d{2}\s+[A-Za-z]{3}\s+\d{4})\s+(.+?)\s+(\d+)\s+(.+?)\s+([\d.,]+)\s+([\d.,]+)\s+\((Dr|Cr)\)\s+(-?[\d.,]+)$/;
 
-const isBoilerplate = (line, nextLine) =>
-  line === 'Buku Besar - Rinci' ||
-  /^Tanggal Sumber No\. Sumber Keterangan Debit Kredit Balance$/.test(line) ||
-  /^Dari \d{2} [A-Za-z]{3} \d{4} ke \d{2} [A-Za-z]{3} \d{4}$/.test(line) ||
-  line === 'ACCURATE Accounting System Report' ||
-  /^Cetak di /.test(line) ||
-  /^\(\d+\)$/.test(line) ||
-  /^[\d.,]+\s+[\d.,]+$/.test(line) ||
-  nextLine === 'Buku Besar - Rinci';
+const isBoilerplate = (line, nextLine) => isAccuratePdfBoilerplate(line, nextLine, 'Buku Besar - Rinci');
 
 export const parseAccuratePdfText = (text) => {
   const rows = [];
