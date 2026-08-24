@@ -1433,6 +1433,19 @@
   border-bottom: 1px solid var(--border-default);
   padding-bottom: 8px;
   overflow-x: auto;
+  flex-wrap: nowrap;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-default) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tax-nav-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tax-nav-tabs::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 4px;
 }
 
 .tax-tab-btn {
@@ -1447,6 +1460,8 @@
   background: transparent;
   border: 1px solid transparent;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: all var(--transition-fast);
 }
 
@@ -2236,7 +2251,7 @@
 .scanner-search-input {
   width: 100%;
   padding-left: 40px;
-  padding-right: 70px;
+  padding-right: 170px;
   height: 42px;
   font-size: var(--fs-sm);
   background: var(--bg-app);
@@ -2247,6 +2262,21 @@
 .scanner-search-input:focus {
   border-color: var(--accent-base);
   box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
+.scanner-match-badge {
+  position: absolute;
+  right: 68px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  color: var(--accent-base);
+  background: var(--accent-bg);
+  border: 1px solid color-mix(in srgb, var(--accent-base) 30%, transparent);
+  padding: 2.5px 8px;
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .scanner-clear-btn {
@@ -3111,21 +3141,147 @@
   resize: vertical;
 }
 
-/* Print Styles */
+/* Touch device ergonomics (A11y / Impeccable Polish) */
+@media (pointer: coarse) {
+  .btn-action-sm {
+    min-height: 38px;
+    padding: 6px 12px;
+  }
+  .btn-icon-subtle {
+    min-width: 36px;
+    min-height: 36px;
+  }
+  .nav-tab-btn {
+    padding: 7px 12px;
+    min-height: 36px;
+  }
+  .tax-tab-btn {
+    padding: 10px 16px;
+    min-height: 40px;
+  }
+}
+
+/* Tablet & Mid-size Viewports Adaptation (Impeccable Adapt) */
+@media (max-width: 1024px) {
+  .workbench-top-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .banner-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .recon-summary-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .dashboard-hero-actions {
+    width: 100%;
+  }
+  .dashboard-hero-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  .recon-summary-cards {
+    grid-template-columns: 1fr;
+  }
+  .insight-scope-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Formal Print Stylesheet (Impeccable Polish) */
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 15mm 20mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+  }
+
+  /* Sembunyikan elemen shell, navigasi, toolbar, dan dialog */
   body * {
     visibility: hidden;
   }
-  .formal-letterhead-sheet, .formal-letterhead-sheet * {
+
+  .formal-letterhead-sheet,
+  .formal-letterhead-sheet * {
     visibility: visible;
   }
+
   .formal-letterhead-sheet {
     position: absolute;
     left: 0;
     top: 0;
-    width: 100%;
-    box-shadow: none;
-    padding: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 11pt !important;
+    line-height: 1.45 !important;
+  }
+
+  .letterhead-company-name {
+    color: #000000 !important;
+  }
+
+  .letterhead-company-meta {
+    color: #333333 !important;
+  }
+
+  .letterhead-double-line {
+    border-top: 3px double #000000 !important;
+  }
+
+  .letter-meta-table,
+  .letter-table-recon,
+  .letter-sign-table {
+    color: #000000 !important;
+  }
+
+  .letter-table-recon {
+    border: 1px solid #333333 !important;
+    page-break-inside: avoid;
+  }
+
+  .letter-table-recon th {
+    background-color: #f1f5f9 !important;
+    color: #000000 !important;
+    border: 1px solid #333333 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .letter-table-recon td {
+    border: 1px solid #333333 !important;
+    color: #000000 !important;
+  }
+
+  .letter-sign-section {
+    page-break-inside: avoid;
   }
 }
 

@@ -199,11 +199,17 @@ function KeywordScannerTab({ glRows = [], taxMappings = [] }) {
                 if (activePreset) setActivePreset(null);
               }}
             />
+            {(searchTerm || activePreset || onlyMisclassified) && (
+              <span className="scanner-match-badge" title="Jumlah transaksi yang cocok dengan kriteria pencarian">
+                {new Intl.NumberFormat('id-ID').format(stats.count)} baris
+              </span>
+            )}
             {searchTerm && (
               <button
                 type="button"
                 className="scanner-clear-btn"
                 onClick={() => setSearchTerm('')}
+                title="Hapus kata kunci"
               >
                 Hapus
               </button>

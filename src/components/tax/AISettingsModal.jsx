@@ -114,12 +114,18 @@ function AISettingsModal({ isOpen, onClose }) {
               value={model}
               onChange={(e) => setModel(e.target.value)}
             >
-              <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (claude-3-5-haiku-20241022 — Sangat Cepat &amp; Hemat Biaya)</option>
-              <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (claude-3-5-sonnet-20241022 — Analisis Semantik Mendalam)</option>
-              <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet (claude-3-7-sonnet-20250219 — Penalaran Pajak Canggih)</option>
-              <option value="claude-3-haiku-20240307">Claude 3 Haiku (claude-3-haiku-20240307 — Model Standar)</option>
-              <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (claude-haiku-4-5-20251001)</option>
-              <option value="claude-sonnet-4-5-20250929">Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)</option>
+              <optgroup label="Model Cepat &amp; Hemat Biaya (Rekomendasi)">
+                <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (claude-3-5-haiku-20241022 — Sangat Cepat &amp; Efisien)</option>
+                <option value="claude-3-haiku-20240307">Claude 3 Haiku (claude-3-haiku-20240307 — Standar)</option>
+              </optgroup>
+              <optgroup label="Model Penalaran Lanjutan &amp; Semantik Mendalam">
+                <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet (claude-3-7-sonnet-20250219 — Penalaran Pajak Kompleks)</option>
+                <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (claude-3-5-sonnet-20241022 — Analisis Semantik)</option>
+              </optgroup>
+              <optgroup label="Model Next-Gen Preview">
+                <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (claude-haiku-4-5-20251001)</option>
+                <option value="claude-sonnet-4-5-20250929">Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)</option>
+              </optgroup>
             </select>
           </div>
 
