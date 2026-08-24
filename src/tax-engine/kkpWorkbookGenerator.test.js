@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { generateKKPWorkbook } from './kkpWorkbookGenerator';
 
-describe('KKP 13-Sheet Styled Workbook Generator', () => {
+describe('KKP 19-Sheet Styled Workbook Generator', () => {
   const dummyData = {
     clientInfo: {
       name: 'PT Klien Uji Coba',
@@ -10,7 +10,8 @@ describe('KKP 13-Sheet Styled Workbook Generator', () => {
       partnerName: 'Budi Santosa, CPA',
       managerName: 'Viany Ramadhany',
       seniorName: 'Auditor Senior',
-      auditDate: '2025-02-15'
+      auditDate: '2025-02-15',
+      materialityThreshold: 15000000
     },
     glRows: [
       { tanggal: '01/01/2024', coa: '4101', namaAkun: 'Penjualan', debit: 0, kredit: 1000000000, balance: 1000000000 },
@@ -36,11 +37,69 @@ describe('KKP 13-Sheet Styled Workbook Generator', () => {
       totalExposure: 4480000,
       status: 'UNWITHHELD_TAX_RISK'
     },
+    purchasesRecon: {
+      glPurchaseTotal: 800000000,
+      ppnMasukanClaimedTotal: 70000000,
+      ppnRate: 0.11,
+      theoreticalPPNMasukan: 88000000,
+      difference: 18000000,
+      uncreditedPPN: 18000000,
+      overclaimedPPN: 0,
+      potentialExposure: 0,
+      status: 'UNCREDITED_PPN_FOUND'
+    },
+    payrollRecon: {
+      glPayrollTotal: 600000000,
+      pph21WithheldTotal: 25000000,
+      effectiveRateEstimate: 0.05,
+      theoreticalPPh21: 30000000,
+      shortfallTax: 5000000,
+      interestSanction: 1440000,
+      totalExposure: 6440000,
+      status: 'PPH21_SHORTFALL_RISK'
+    },
+    rentRecon: {
+      glRentPropertyTotal: 120000000,
+      pphFinalWithheldTotal: 10000000,
+      rate: 0.10,
+      theoreticalPPhFinal: 12000000,
+      unmatchedRent: 20000000,
+      potentialTax: 2000000,
+      interestSanction: 576000,
+      totalExposure: 2576000,
+      status: 'PPH_FINAL_SHORTFALL_RISK'
+    },
+    assetRecon: {
+      assetList: [
+        { namaAset: 'Kendaraan Operasional', nilaiPerolehan: 400000000, metodeKomersial: 'Garis Lurus', umurKomersial: 5, kelompokFiskal: 'Kelompok 2', tarifFiskal: 0.125 }
+      ]
+    },
+    fiscalProfitRecon: {
+      labaKomersial: 1200000000,
+      totalPositiveCorrection: 150000000,
+      totalNegativeCorrection: 50000000,
+      reportedFiscalProfit: 1250000000
+    },
+    relatedPartyRecon: {
+      tpDocStatus: { hasLocalFile: true, hasMasterFile: false, hasCbCR: false },
+      isThresholdExceeded: true,
+      relatedPartyTransactions: [
+        { namaAkun: 'Penjualan Ekspor Afiliasi', nilai: 25000000000, counterparty: 'Parent Corp SG', jenis: 'Penjualan Barang', kewajiban: 'Local & Master File', statusDoc: 'Pending PBC', risiko: 'TP Exposure' }
+      ]
+    },
     findings: [
       {
         findingId: 'TR-001',
         taxArea: 'PPN',
         account: 'Penjualan',
+        period: 'Tahun Pajak 2024',
+        condition: 'Omzet GL lebih tinggi dari DPP SPT Masa PPN.',
+        criteria: 'Pasal 7 UU PPN.',
+        cause: 'Faktur belum diterbitkan.',
+        effect: 'Potensi kurang bayar Rp 22.000.000',
+        exceptionCategory: 'a',
+        isMisclassified: false,
+        glValue: 1000000000,
         potentialExposure: 22000000,
         probability: 4,
         impact: 5,
@@ -50,12 +109,22 @@ describe('KKP 13-Sheet Styled Workbook Generator', () => {
         evidenceRequired: 'Rekapitulasi Faktur Pajak, SPT Masa PPN',
         aiAnalysis: 'Potensi DPP belum dilaporkan',
         recommendation: 'Verifikasi seluruh Faktur Pajak Keluaran',
-        status: 'REQUIRES HUMAN REVIEW'
+        managementResponse: '',
+        reviewerDecision: '',
+        status: 'PROVISIONAL'
       },
       {
         findingId: 'TR-002',
         taxArea: 'PPh 23',
         account: 'Beban Jasa Konsultan',
+        period: 'Tahun Pajak 2024',
+        condition: 'Beban jasa di GL belum dipotong PPh 23.',
+        criteria: 'Pasal 23 UU PPh.',
+        cause: 'Kelalaian pemotongan.',
+        effect: 'Potensi kurang potong Rp 4.000.000',
+        exceptionCategory: 'c',
+        isMisclassified: false,
+        glValue: 50000000,
         potentialExposure: 4000000,
         probability: 3,
         impact: 3,
@@ -63,6 +132,8 @@ describe('KKP 13-Sheet Styled Workbook Generator', () => {
         riskLevel: 'MEDIUM',
         legalBasis: 'PMK 141/2015',
         evidenceRequired: 'Kontrak Jasa Vendor',
+        managementResponse: '',
+        reviewerDecision: '',
         status: 'PROVISIONAL'
       }
     ],
@@ -74,22 +145,24 @@ describe('KKP 13-Sheet Styled Workbook Generator', () => {
     }
   };
 
-  it('menghasilkan workbook Excel dengan 13 sheet terstandarisasi', () => {
+  it('menghasilkan workbook Excel dengan 19 sheet terstandarisasi', () => {
     const wb = generateKKPWorkbook(dummyData);
 
     expect(wb).toBeDefined();
     expect(wb.SheetNames).toBeDefined();
-    expect(wb.SheetNames.length).toBe(13);
+    expect(wb.SheetNames.length).toBe(19);
 
     expect(wb.SheetNames).toEqual([
       '00_README', '01_CLIENT_MASTER', '02_GL_IMPORT', '03_TAX_MAPPING',
-      '04_RECON_REVENUE', '05_RECON_PPN', '06_RECON_PPH23', '07_TAX_RISK',
-      '08_DOC_REQUEST', '09_REGULATION_DB', '10_PARTNER_DASHBOARD',
+      '04_RECON_REVENUE', '05_RECON_PPN', '06_RECON_PPH23',
+      '06B_RECON_PPN_MASUKAN', '06C_RECON_PPH21', '06D_RECON_PPH_FINAL',
+      '06E_RECON_ASET_TETAP', '06F_RECON_LABA_FISKAL', '06G_RECON_RELATED_PARTY',
+      '07_TAX_RISK', '08_DOC_REQUEST', '09_REGULATION_DB', '10_PARTNER_DASHBOARD',
       '11_AI_OUTPUT', '12_SP2DK_AUDIT'
     ]);
   });
 
-  it('memiliki formula Excel dinamis asli pada sheet ekualisasi', () => {
+  it('memiliki formula Excel dinamis asli pada sheet ekualisasi 04, 05, 06', () => {
     const wb = generateKKPWorkbook(dummyData);
 
     // Sheet 04_RECON_REVENUE: Selisih & Status formula
@@ -108,6 +181,46 @@ describe('KKP 13-Sheet Styled Workbook Generator', () => {
     expect(wsPph23['B9'].f).toBe('=MAX(0,B7*B8)');
     expect(wsPph23['B12'].f).toBe('=B9*B10*B11');
     expect(wsPph23['B13'].f).toBe('=B9+B12');
+  });
+
+  it('memiliki formula Excel dinamis pada 6 sheet rekonsiliasi baru (06B-06G)', () => {
+    const wb = generateKKPWorkbook(dummyData);
+
+    // 06B_RECON_PPN_MASUKAN
+    const wsPpnM = wb.Sheets['06B_RECON_PPN_MASUKAN'];
+    expect(wsPpnM['B7'].f).toBe('=B5*B6');
+    expect(wsPpnM['B9'].f).toBe('=B7-B8');
+    expect(wsPpnM['B10'].f).toBe('=MAX(0,B8-B7)');
+
+    // 06C_RECON_PPH21
+    const wsPph21 = wb.Sheets['06C_RECON_PPH21'];
+    expect(wsPph21['B7'].f).toBe('=B5*B6');
+    expect(wsPph21['B9'].f).toBe('=MAX(0,B7-B8)');
+    expect(wsPph21['B10'].f).toBe('=B9*0.012*24');
+    expect(wsPph21['B11'].f).toBe('=B9+B10');
+
+    // 06D_RECON_PPH_FINAL
+    const wsPphFinal = wb.Sheets['06D_RECON_PPH_FINAL'];
+    expect(wsPphFinal['B7'].f).toBe('=B5*B6');
+    expect(wsPphFinal['B9'].f).toBe('=MAX(0,B7-B8)');
+    expect(wsPphFinal['B10'].f).toBe('=B9*0.012*24');
+    expect(wsPphFinal['B11'].f).toBe('=B9+B10');
+
+    // 06E_RECON_ASET_TETAP
+    const wsAsset = wb.Sheets['06E_RECON_ASET_TETAP'];
+    expect(wsAsset['F5'].f).toBe('=ROUND(C5/E5,0)');
+    expect(wsAsset['I5'].f).toBe('=ROUND(C5*H5,0)');
+    expect(wsAsset['J5'].f).toBe('=F5-I5');
+
+    // 06F_RECON_LABA_FISKAL
+    const wsFiscal = wb.Sheets['06F_RECON_LABA_FISKAL'];
+    expect(wsFiscal['B8'].f).toBe('=B5+B6-B7');
+    expect(wsFiscal['B10'].f).toBe('=B8-B9');
+    expect(wsFiscal['B12'].f).toBe('=MAX(0,B10*B11)');
+
+    // 06G_RECON_RELATED_PARTY
+    const wsRP = wb.Sheets['06G_RECON_RELATED_PARTY'];
+    expect(wsRP['C12'].f).toContain('SUM(');
   });
 
   it('memiliki formula Risk Score dan Level pada 07_TAX_RISK', () => {
@@ -193,10 +306,11 @@ describe('KKP 13-Sheet Styled Workbook Generator', () => {
       findings: []
     });
 
-    expect(wb.SheetNames.length).toBe(13);
+    expect(wb.SheetNames.length).toBe(19);
 
     // GL sheet should still have header + 1 empty row
     const wsGL = wb.Sheets['02_GL_IMPORT'];
     expect(wsGL).toBeDefined();
   });
 });
+

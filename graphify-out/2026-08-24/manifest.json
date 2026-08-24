@@ -84,16 +84,16 @@
     "semantic_hash": "41ae8a552052a53a59a2468b63e291b5"
   },
   "src/App.jsx": {
-    "mtime": 1787532514.2101815,
-    "seen": 1787532720.289579,
-    "ast_hash": "51a22d50785dc076ce745d9a451bc570",
+    "mtime": 1787550320.54109,
+    "seen": 1787550412.1589642,
+    "ast_hash": "ead1239c582109ce59f2ed0ef6eb081c",
     "semantic_hash": ""
   },
   "src/App.test.jsx": {
-    "mtime": 1786322232.9102647,
-    "seen": 1787496506.865317,
-    "ast_hash": "a6eb84c7b0058c53f7277e2d2f0c6f61",
-    "semantic_hash": "a6eb84c7b0058c53f7277e2d2f0c6f61"
+    "mtime": 1787550347.02789,
+    "seen": 1787550412.1589663,
+    "ast_hash": "d623fa3602749ce74c23cde7e96b950d",
+    "semantic_hash": ""
   },
   "src/components/AccountRail.jsx": {
     "mtime": 1786322232.9203415,
@@ -114,8 +114,8 @@
     "semantic_hash": "2d4cf1fabda041ce77e5a0e6882c83b3"
   },
   "src/components/Topbar.jsx": {
-    "mtime": 1787532464.8642583,
-    "seen": 1787532720.2895997,
+    "mtime": 1787532728.7385488,
+    "seen": 1787550412.1589746,
     "ast_hash": "e3d70e17a2d096a069de4fea6076837f",
     "semantic_hash": ""
   },
@@ -162,16 +162,16 @@
     "semantic_hash": "c0d8e2fa65b7b4cfc93b7dd63317230a"
   },
   "src/components/tax/SP2DKResponseTab.jsx": {
-    "mtime": 1787415591.7286277,
-    "seen": 1787496506.8653414,
-    "ast_hash": "9e0512b9ee87f77b2ba0960f141bf886",
-    "semantic_hash": "9e0512b9ee87f77b2ba0960f141bf886"
+    "mtime": 1787550427.2828393,
+    "seen": 1787550440.4733334,
+    "ast_hash": "0fb611cc2ecd4c425a8b412b0694220a",
+    "semantic_hash": ""
   },
   "src/components/tax/TaxReconWorkbench.jsx": {
-    "mtime": 1787495130.338702,
-    "seen": 1787496506.865343,
-    "ast_hash": "8ac5ac3403f2ced22ef60957f5f4365f",
-    "semantic_hash": "8ac5ac3403f2ced22ef60957f5f4365f"
+    "mtime": 1787550328.8870523,
+    "seen": 1787550412.1589923,
+    "ast_hash": "59f6cf361c647699aea27487d83449cc",
+    "semantic_hash": ""
   },
   "src/components/tax/TaxRiskRegister.jsx": {
     "mtime": 1787411087.0795724,
@@ -666,10 +666,10 @@
     "semantic_hash": "fd1fc9a0428107527a8482e5b7766dbc"
   },
   "README.md": {
-    "mtime": 1787415591.7036245,
-    "seen": 1787496506.8655078,
-    "ast_hash": "763fa0a89c987b3150bd7437b123ec4e",
-    "semantic_hash": "763fa0a89c987b3150bd7437b123ec4e"
+    "mtime": 1787539249.709434,
+    "seen": 1787550412.159154,
+    "ast_hash": "1b6e8db00ad69137caa6ecfc83b9fa8a",
+    "semantic_hash": ""
   },
   "graphify-out/converted/merger-faktur_0c974ac1.md": {
     "mtime": 1787496040.7736437,
@@ -742,5 +742,29 @@
     "seen": 1787496506.8655307,
     "ast_hash": "6d5180a782d64c8cf51ba01c2a2184d8",
     "semantic_hash": "6d5180a782d64c8cf51ba01c2a2184d8"
+  },
+  "generate_sop_pdf.py": {
+    "mtime": 1787541241.4265594,
+    "seen": 1787550412.1589572,
+    "ast_hash": "1c53fbed716856c6cebfe9424e27376f",
+    "semantic_hash": ""
+  },
+  "SOP_Panduan_Penggunaan_AI_Tax_Agent.pdf": {
+    "mtime": 1787541207.3111632,
+    "seen": 1787550412.1591613,
+    "ast_hash": "3e5adbfe05c0530f706c4273ec3c39f2",
+    "semantic_hash": ""
+  },
+  "sop_page_1.png": {
+    "mtime": 1787541207.45645,
+    "seen": 1787550412.1591702,
+    "ast_hash": "75460126387e99882723dc8ba227197e",
+    "semantic_hash": ""
+  },
+  "sop_page_2.png": {
+    "mtime": 1787541207.5327919,
+    "seen": 1787550412.1591723,
+    "ast_hash": "b7a7270e3c97167eb33f9bb38cf8f387",
+    "semantic_hash": ""
   }
 }

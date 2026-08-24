@@ -12,8 +12,23 @@ export const TAX_RATES = {
   PPH23_SERVICES: 0.02, // 2% Jasa / Sewa Harta non-tanah
   PPH23_DIVIDEND_INTEREST: 0.15, // 15%
   PPH42_RENT_PROPERTY: 0.10, // 10% Sewa Tanah / Bangunan
+  PPH42_CONSTRUCTION_PLANNING_SUPERVISION: 0.035, // 3.5% Jasa Perencanaan / Pengawasan Konstruksi
+  PPH42_CONSTRUCTION_EXECUTION: 0.0175, // 1.75% Pelaksanaan Konstruksi (Kualifikasi Kecil)
   PPH22_PURCHASES: 0.015, // 1.5% Pembelian BUMN/Pemerintah
-  PPH23_NON_NPWP_MULTIPLIER: 2.0 // 100% lebih tinggi (tarif 4%)
+  PPH22_BUMN: 0.015, // 1.5% Pembelian oleh BUMN tertentu
+  PPH22_IMPORT_API: 0.025, // 2.5% Impor dengan API
+  PPH22_IMPORT_NON_API: 0.075, // 7.5% Impor tanpa API
+  PPH22_FUEL: 0.0025, // 0.25% Penjualan BBM SPBU Pertamina
+  PPH23_NON_NPWP_MULTIPLIER: 2.0, // 100% lebih tinggi (tarif 4%)
+  PPH_BADAN_RATE: 0.22, // 22% Tarif PPh Badan (UU HPP)
+  FISCAL_DEPRECIATION: {
+    KELOMPOK_1: { years: 4, straightLine: 0.25, decliningBalance: 0.50 },
+    KELOMPOK_2: { years: 8, straightLine: 0.125, decliningBalance: 0.25 },
+    KELOMPOK_3: { years: 16, straightLine: 0.0625, decliningBalance: 0.125 },
+    KELOMPOK_4: { years: 20, straightLine: 0.05, decliningBalance: 0.10 },
+    BANGUNAN_PERMANEN: { years: 20, straightLine: 0.05, decliningBalance: 0.05 },
+    BANGUNAN_NON_PERMANEN: { years: 10, straightLine: 0.10, decliningBalance: 0.10 }
+  }
 };
 
 /**
@@ -46,7 +61,7 @@ export function calculateInterestSanction(principalTax, monthsDelayed = 12, mont
 }
 
 /**
- * Rekonsiliasi Matematis Pendapatan vs PPN Keluaran
+ * 1. Rekonsiliasi Matematis Pendapatan vs PPN Keluaran
  */
 export function reconcileRevenueVsPPN(glRevenueTotal, sptDPPTotal, ppnRate = TAX_RATES.PPN_2022_2024) {
   const difference = glRevenueTotal - sptDPPTotal;
@@ -66,7 +81,7 @@ export function reconcileRevenueVsPPN(glRevenueTotal, sptDPPTotal, ppnRate = TAX
 }
 
 /**
- * Rekonsiliasi Beban Jasa/Sewa vs PPh 23
+ * 2. Rekonsiliasi Beban Jasa/Sewa vs PPh 23
  */
 export function reconcileExpenseVsPPh23(glExpenseTotal, bupotDPPTotal, defaultRate = TAX_RATES.PPH23_SERVICES) {
   const unmatchedDPP = Math.max(0, glExpenseTotal - bupotDPPTotal);
@@ -81,6 +96,263 @@ export function reconcileExpenseVsPPh23(glExpenseTotal, bupotDPPTotal, defaultRa
     interestSanction: interest.interestSanction,
     totalExposure: interest.totalExposure,
     status: unmatchedDPP <= 0 ? "RECONCILED" : "UNWITHHELD_TAX_RISK"
+  };
+}
+
+/**
+ * 3. Rekonsiliasi Pembelian GL vs PPN Masukan yang Diklaim di SPT Masa PPN
+ */
+export function reconcilePurchasesVsPPNMasukan(glPurchaseTotal, ppnMasukanClaimedTotal, ppnRate = TAX_RATES.PPN_2022_2024) {
+  const theoreticalPPNMasukan = Math.round(glPurchaseTotal * ppnRate);
+  const difference = theoreticalPPNMasukan - ppnMasukanClaimedTotal;
+  const uncreditedPPN = Math.max(0, theoreticalPPNMasukan - ppnMasukanClaimedTotal);
+  const overclaimedPPN = Math.max(0, ppnMasukanClaimedTotal - theoreticalPPNMasukan);
+  const potentialExposure = overclaimedPPN;
+
+  let status = "RECONCILED";
+  if (Math.abs(difference) >= 1000) {
+    status = difference > 0 ? "UNCREDITED_PPN_RISK" : "OVERCLAIM_PPN_MASUKAN_RISK";
+  }
+
+  return {
+    glPurchaseTotal,
+    ppnMasukanClaimedTotal,
+    ppnRate,
+    theoreticalPPNMasukan,
+    difference,
+    uncreditedPPN,
+    overclaimedPPN,
+    potentialExposure,
+    status
+  };
+}
+
+/**
+ * 4. Rekonsiliasi Biaya Payroll/Gaji/Honor vs PPh 21
+ */
+export function reconcilePayrollVsPPh21(glPayrollTotal, pph21WithheldTotal, effectiveRateEstimate = 0.05) {
+  const theoreticalPPh21 = Math.round(glPayrollTotal * effectiveRateEstimate);
+  const impliedPayrollBase = effectiveRateEstimate > 0 ? Math.round(pph21WithheldTotal / effectiveRateEstimate) : 0;
+  const unmatchedBase = Math.max(0, glPayrollTotal - impliedPayrollBase);
+  const shortfallTax = Math.max(0, theoreticalPPh21 - pph21WithheldTotal);
+  const interest = calculateInterestSanction(shortfallTax, 12, 0.012);
+
+  const status = shortfallTax <= 0 || Math.abs(glPayrollTotal - impliedPayrollBase) < 1000
+    ? "RECONCILED"
+    : "UNWITHHELD_PPH21_RISK";
+
+  return {
+    glPayrollTotal,
+    pph21WithheldTotal,
+    effectiveRateEstimate,
+    theoreticalPPh21,
+    impliedPayrollBase,
+    unmatchedBase,
+    shortfallTax,
+    potentialTax: shortfallTax,
+    interestSanction: interest.interestSanction,
+    totalExposure: shortfallTax + interest.interestSanction,
+    status
+  };
+}
+
+/**
+ * 5. Rekonsiliasi Biaya Sewa Tanah/Bangunan & Konstruksi vs PPh Final 4(2)
+ */
+export function reconcileRentVsPPhFinal(glRentPropertyTotal, pphFinalWithheldTotal, rate = TAX_RATES.PPH42_RENT_PROPERTY) {
+  const theoreticalPPhFinal = Math.round(glRentPropertyTotal * rate);
+  const impliedRentBase = rate > 0 ? Math.round(pphFinalWithheldTotal / rate) : 0;
+  const unmatchedRent = Math.max(0, glRentPropertyTotal - impliedRentBase);
+  const potentialTax = Math.max(0, theoreticalPPhFinal - pphFinalWithheldTotal);
+  const interest = calculateInterestSanction(potentialTax, 12, 0.012);
+
+  const status = potentialTax <= 0 || Math.abs(glRentPropertyTotal - impliedRentBase) < 1000
+    ? "RECONCILED"
+    : "UNWITHHELD_PPH_FINAL_RISK";
+
+  return {
+    glRentPropertyTotal,
+    pphFinalWithheldTotal,
+    rate,
+    theoreticalPPhFinal,
+    impliedRentBase,
+    unmatchedRent,
+    potentialTax,
+    interestSanction: interest.interestSanction,
+    totalExposure: potentialTax + interest.interestSanction,
+    status
+  };
+}
+
+/**
+ * 6. Rekonsiliasi Penyusutan Aset Tetap Komersial vs Fiskal
+ */
+export function reconcileFixedAssetCommercialVsFiscal(assetList = []) {
+  let totalCommercialDepreciation = 0;
+  let totalFiscalDepreciation = 0;
+
+  const assetResults = assetList.map((asset, idx) => {
+    const cost = Number(asset.nilaiPerolehan) || 0;
+    const commercialLife = Number(asset.umurKomersial) || 0;
+
+    // Commercial depreciation (default garis lurus)
+    const commercialDepr = commercialLife > 0 ? Math.round(cost / commercialLife) : 0;
+
+    // Fiscal depreciation lookup (PMK 72/2023 jo. UU PPh Pasal 11)
+    let fiscalRate = 0.25; // default Kelompok 1
+    const group = String(asset.kelompokFiskal || '').toUpperCase();
+    const isDeclining = String(asset.metodePenyusutanFiskal || '').toLowerCase().includes('declining') ||
+                        String(asset.metodePenyusutanFiskal || '').toLowerCase().includes('menurun');
+
+    if (group.includes('1') || group.includes('I') && !group.includes('II') && !group.includes('IV')) {
+      fiscalRate = isDeclining ? TAX_RATES.FISCAL_DEPRECIATION.KELOMPOK_1.decliningBalance : TAX_RATES.FISCAL_DEPRECIATION.KELOMPOK_1.straightLine;
+    } else if (group.includes('2') || group.includes('II') && !group.includes('III')) {
+      fiscalRate = isDeclining ? TAX_RATES.FISCAL_DEPRECIATION.KELOMPOK_2.decliningBalance : TAX_RATES.FISCAL_DEPRECIATION.KELOMPOK_2.straightLine;
+    } else if (group.includes('3') || group.includes('III')) {
+      fiscalRate = isDeclining ? TAX_RATES.FISCAL_DEPRECIATION.KELOMPOK_3.decliningBalance : TAX_RATES.FISCAL_DEPRECIATION.KELOMPOK_3.straightLine;
+    } else if (group.includes('4') || group.includes('IV')) {
+      fiscalRate = isDeclining ? TAX_RATES.FISCAL_DEPRECIATION.KELOMPOK_4.decliningBalance : TAX_RATES.FISCAL_DEPRECIATION.KELOMPOK_4.straightLine;
+    } else if (group.includes('NON') || group.includes('TIDAK PERMANEN')) {
+      fiscalRate = TAX_RATES.FISCAL_DEPRECIATION.BANGUNAN_NON_PERMANEN.straightLine;
+    } else if (group.includes('BANGUNAN') || group.includes('PERMANEN')) {
+      fiscalRate = TAX_RATES.FISCAL_DEPRECIATION.BANGUNAN_PERMANEN.straightLine;
+    }
+
+    const fiscalDepr = Math.round(cost * fiscalRate);
+    const fiscalDifference = commercialDepr - fiscalDepr; // Positif = Koreksi Fiskal Positif, Negatif = Koreksi Fiskal Negatif
+
+    totalCommercialDepreciation += commercialDepr;
+    totalFiscalDepreciation += fiscalDepr;
+
+    return {
+      index: idx + 1,
+      namaAset: asset.namaAset || `Aset ${idx + 1}`,
+      nilaiPerolehan: cost,
+      metodeKomersial: asset.metodePenyusutanKomersial || 'Garis Lurus',
+      umurKomersial: commercialLife,
+      kelompokFiskal: asset.kelompokFiskal || 'Kelompok 1',
+      tarifFiskal: fiscalRate,
+      commercialDepreciation: commercialDepr,
+      fiscalDepreciation: fiscalDepr,
+      fiscalDifference,
+      correctionType: fiscalDifference > 0 ? "KOREKSI_POSITIF" : (fiscalDifference < 0 ? "KOREKSI_NEGATIF" : "NIHIL")
+    };
+  });
+
+  const fiscalCorrectionTotal = totalCommercialDepreciation - totalFiscalDepreciation;
+  const positiveFiscalCorrection = assetResults.filter(a => a.fiscalDifference > 0).reduce((acc, a) => acc + a.fiscalDifference, 0);
+  const negativeFiscalCorrection = assetResults.filter(a => a.fiscalDifference < 0).reduce((acc, a) => acc + Math.abs(a.fiscalDifference), 0);
+  const potentialTaxImpact = Math.round(Math.abs(fiscalCorrectionTotal) * TAX_RATES.PPH_BADAN_RATE);
+
+  const status = Math.abs(fiscalCorrectionTotal) < 1000
+    ? "RECONCILED"
+    : (fiscalCorrectionTotal > 0 ? "POSITIVE_FISCAL_CORRECTION_RISK" : "NEGATIVE_FISCAL_CORRECTION_RISK");
+
+  return {
+    assetResults,
+    totalCommercialDepreciation,
+    totalFiscalDepreciation,
+    fiscalCorrectionTotal,
+    positiveFiscalCorrection,
+    negativeFiscalCorrection,
+    potentialTaxImpact,
+    status
+  };
+}
+
+/**
+ * 7. Rekonsiliasi Laba Akuntansi Komersial vs Laba Fiskal SPT Tahunan Badan
+ */
+export function reconcileCommercialVsFiscalProfit(labaKomersial = 0, koreksiPositifList = [], koreksiNegatifList = [], laporanFiskalSPT = null) {
+  const totalPositiveCorrection = koreksiPositifList.reduce((acc, item) => {
+    return acc + (typeof item === 'number' ? item : (Number(item?.nilai) || 0));
+  }, 0);
+
+  const totalNegativeCorrection = koreksiNegatifList.reduce((acc, item) => {
+    return acc + (typeof item === 'number' ? item : (Number(item?.nilai) || 0));
+  }, 0);
+
+  const calculatedFiscalProfit = labaKomersial + totalPositiveCorrection - totalNegativeCorrection;
+  
+  let difference = 0;
+  let potentialTaxExposure = 0;
+  let status = "CALCULATED";
+
+  if (laporanFiskalSPT !== null && laporanFiskalSPT !== undefined) {
+    difference = calculatedFiscalProfit - Number(laporanFiskalSPT);
+    potentialTaxExposure = difference > 0 ? Math.round(difference * TAX_RATES.PPH_BADAN_RATE) : 0;
+    status = Math.abs(difference) < 1000
+      ? "RECONCILED"
+      : (difference > 0 ? "UNDERREPORTED_FISCAL_PROFIT_RISK" : "OVERREPORTED_FISCAL_PROFIT");
+  }
+
+  return {
+    labaKomersial,
+    koreksiPositifList,
+    koreksiNegatifList,
+    totalPositiveCorrection,
+    totalNegativeCorrection,
+    calculatedFiscalProfit,
+    reportedFiscalProfit: laporanFiskalSPT,
+    difference,
+    potentialTaxExposure,
+    status
+  };
+}
+
+/**
+ * 8. Rekonsiliasi Transaksi Pihak Berelasi vs TP Documentation (PMK 172/2023)
+ */
+export function reconcileRelatedPartyVsTPDoc(relatedPartyTransactions = [], tpDocStatus = {}) {
+  const totalRelatedPartyValue = relatedPartyTransactions.reduce((acc, t) => acc + (Number(t?.nilai) || 0), 0);
+  const transactionsCount = relatedPartyTransactions.length;
+
+  // Evaluasi Threshold PMK 172/2023 (omzet > 50M, barang > 20M, jasa/bunga/royalti > 5M)
+  const isThresholdExceeded = Boolean(
+    tpDocStatus.thresholdExceeded ||
+    totalRelatedPartyValue >= 5000000000 ||
+    relatedPartyTransactions.some(t => (Number(t?.nilai) || 0) >= 5000000000)
+  );
+
+  const hasLocalFile = Boolean(tpDocStatus.hasLocalFile);
+  const hasMasterFile = Boolean(tpDocStatus.hasMasterFile);
+  const hasCbCR = Boolean(tpDocStatus.hasCbCR);
+
+  const riskFlags = [];
+
+  if (isThresholdExceeded) {
+    if (!hasLocalFile) {
+      riskFlags.push("Local File TP Documentation belum tersedia untuk transaksi afiliasi > threshold PMK 172/2023.");
+    }
+    if (!hasMasterFile) {
+      riskFlags.push("Master File TP Documentation belum tersedia.");
+    }
+  }
+
+  if (transactionsCount > 0 && !tpDocStatus.armsLengthAnalyzed) {
+    riskFlags.push("Analisis Kesebandingan & Prinsip Kewajaran dan Kelaziman Usaha (PKKU) belum didokumentasikan.");
+  }
+
+  const isCompliant = (!isThresholdExceeded || (hasLocalFile && hasMasterFile)) && riskFlags.length === 0;
+
+  const status = isCompliant
+    ? "RECONCILED"
+    : "TP_DOC_NON_COMPLIANCE_RISK";
+
+  return {
+    totalRelatedPartyValue,
+    transactionsCount,
+    relatedPartyTransactions,
+    tpDocStatus: {
+      hasLocalFile,
+      hasMasterFile,
+      hasCbCR,
+      thresholdExceeded: isThresholdExceeded
+    },
+    isThresholdExceeded,
+    isCompliant,
+    riskFlags,
+    status
   };
 }
 
@@ -138,3 +410,4 @@ export function calculatePartnerDashboardMetrics(findings = []) {
     overallLevel
   };
 }
+

@@ -19,22 +19,34 @@ Anda BUKAN pengambil keputusan pajak final. Semua kesimpulan material wajib mela
 PROSEDUR AUDIT & ANALISIS:
 1. DATA VALIDATION: Validasi konsistensi entitas, kelengkapan data, missing value, anomali.
 2. TAX MAPPING: Petakan akun menjadi Revenue, PPN, PPh 21, PPh 22, PPh 23, PPh Final, PPh Badan, Fiscal Correction, Related Party, Non-tax.
-3. RECONCILIATION: Identifikasi selisih antara GL dan dokumen perpajakan (Omzet vs PPN, Beban Jasa vs PPh 23).
-4. SEMANTIC MISCLASSIFICATION SCAN (SALAH KAMAR):
-   - Periksa uraian transaksi (memo/keterangan/vendor) berdasarkan prinsip "Substance Over Form".
-   - Identifikasi transaksi yang substansinya adalah objek pemotongan pajak (Jasa Teknik/Konsultan/Manajemen PPh 23, Sewa Properti PPh 4(2), Jamuan/Entertainment NDE) namun keliru dibukukan ke akun non-pajak atau akun penampung umum (seperti "Biaya Lain-Lain", "Biaya Umum", "Biaya Operasional", "Uang Muka", "Kasbon").
-   - Tandai dengan flag "isMisclassified": true dan sebutkan nama akun asli serta pos pajak yang seharusnya.
+3. RECONCILIATION: Identifikasi selisih antara GL dan dokumen perpajakan (Omzet vs PPN, Beban Jasa vs PPh 23, Pembelian vs PPN Masukan, Payroll vs PPh 21, Sewa vs PPh Final, Penyusutan Aset Tetap, Laba Komersial vs Fiskal, Related Party vs TP Doc).
+4. EXCEPTION DETECTION & SEMANTIC SCAN:
+   Cari dan tandai:
+   a. Selisih material antar akun terkait (>materialitas yang dikonfigurasi klien)
+   b. Transaksi tanpa dokumen pendukung
+   c. Transaksi objek potong tanpa bukti potong
+   d. Akun tidak lazim / akun penampung ("Lain-lain", "Suspense", "Uang Muka")
+   e. Transaksi dengan pihak berelasi
+   f. Journal entry bernilai material di luar siklus transaksi normal
+   g. Transaksi pada akhir periode pajak (potensi cut-off issue)
+   h. Pembayaran bernilai besar (>threshold materialitas)
+   i. Vendor/customer yang tidak dapat diidentifikasi dari GL
+   j. Potensi non-deductible expense
+   k. Potensi objek pajak yang belum dilaporkan (unreported taxable event)
+   l. [Existing] Semantic Misclassification / Salah Kamar
 5. TAX RISK ASSESSMENT: Tentukan Probability (1-5), Impact (1-5), Risk Score (1-25), Kategori LOW/MEDIUM/HIGH/CRITICAL.
-6. LEGAL RESEARCH: Gunakan regulasi resmi Indonesia (UU HPP, PMK 141/2015, Pasal 23 UU PPh, Coretax PER-11/PJ/2025, PMK 172/2023, PMK 02/2010). Jangan mengarang pasal!
+6. LEGAL RESEARCH: Gunakan regulasi resmi Indonesia (UU HPP, PMK 141/2015, Pasal 23 UU PPh, Coretax PER-11/PJ/2025, PMK 172/2023, PMK 02/2010, PP 58/2023, PMK 34/2017, PMK 72/2023). Jangan mengarang pasal! Jika dasar hukum belum dapat dipastikan, gunakan teks persis "LEGAL BASIS REQUIRES HUMAN VERIFICATION".
 7. TAX EXPOSURE: Pisahkan Principal Tax dan Sanksi Bunga administrasi.
-8. OUTPUT: Keluarkan data dalam format JSON array terstruktur.
+8. OUTPUT: Keluarkan data dalam format JSON array terstruktur dengan field lengkap (Period, Condition, Criteria, Cause, Effect, Exception Category, Management Response, Reviewer Decision).
 
 CONTROL RULES:
 - Jangan mengubah data sumber.
 - Jangan mengarang bukti atau pasal.
 - Setiap angka harus dapat ditelusuri kembali ke source data.
 - Gunakan istilah status: CONFIRMED, PROVISIONAL, REQUIRES DOCUMENT, REQUIRES LEGAL VERIFICATION, REQUIRES PARTNER JUDGMENT.
+- Field managementResponse dan reviewerDecision WAJIB bernilai string kosong "" dari AI (akan diisi manusia di review workflow).
 `;
+
 
 const LOCAL_STORAGE_KEY = 'gl_claude_api_key';
 const LOCAL_STORAGE_MODEL_KEY = 'gl_claude_model';
@@ -341,21 +353,27 @@ async function callClaudeTaxAnalysis({ apiKey, model, glRows, taxMappings, reven
     }
   });
 
+  const materialityThreshold = Number(clientInfo?.materialityThreshold) || 10000000;
+
   const userPrompt = `
 Klien: ${clientInfo?.name || 'PT Klien Demo'} (Tahun Pajak: ${clientInfo?.taxYear || '2024'})
+Parameter Materialitas Audit: Rp ${new Intl.NumberFormat('id-ID').format(materialityThreshold)}
+
 Ringkasan Ekualisasi Deterministik:
 - Total Omzet GL: Rp ${new Intl.NumberFormat('id-ID').format(revenueRecon?.glRevenueTotal || 0)}
 - Selisih Revenue GL vs PPN: Rp ${new Intl.NumberFormat('id-ID').format(revenueRecon?.difference || 0)}
 - Total Beban Jasa GL: Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon?.glExpenseTotal || 0)}
 - Unmatched Beban Jasa vs PPh 23: Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon?.unmatchedDPP || 0)}
 
-Sample Transaksi Buku Besar (GL) Terseleksi untuk Audit Semantik:
+Sample Transaksi Buku Besar (GL) Terseleksi untuk Audit Semantik & Exception Detection:
 ${JSON.stringify(selectedSamples, null, 2)}
 
 Tugas Khusus Anda:
-1. Analisis Ekualisasi PPN & PPh 23.
-2. Analisis Semantik "Salah Kamar" (Misclassification): Cari transaksi yang uraiannya mencerminkan jasa teknik/manajemen/konsultan, sewa harta/gedung, atau biaya jamuan namun dibukukan ke akun non-pajak / akun lain-lain.
+1. Lakukan Exception Detection & Semantic Scan mencakup 11 kategori exception (a s.d. l).
+2. Tentukan Period, Condition, Criteria, Cause, dan Effect untuk setiap temuan.
 3. Buat daftar Tax Finding Register terstruktur sesuai format standar KKP (Finding ID: TR-001, TR-002, dst.).
+4. Nilai legalBasis wajib merujuk pasal/peraturan resmi Indonesia, atau jika tidak yakin isi persis "LEGAL BASIS REQUIRES HUMAN VERIFICATION".
+5. Field managementResponse dan reviewerDecision wajib bernilai string kosong "".
 
 PENTING: Output Anda HANYA berupa array JSON murni tanpa kata pembuka, tanpa kata penutup, dan tanpa tag markdown. Mulai langsung dengan '[' dan akhiri dengan ']'.
 
@@ -363,9 +381,15 @@ Format objek temuan:
 [
   {
     "findingId": "TR-001",
-    "taxArea": "PPh Pasal 23" | "PPN" | "PPh Final 4(2)" | "PPh Badan" | "Fiscal Correction",
+    "taxArea": "PPh Pasal 23" | "PPN" | "PPh Final 4(2)" | "PPh 21" | "PPh 22" | "PPh Badan" | "Fiscal Correction" | "Transfer Pricing",
     "account": "Nama Akun di GL",
-    "substanceCategory": "Kategori Pajak Sebenarnya",
+    "period": "Masa Pajak Jan 2026 / Tahun Pajak 2025",
+    "condition": "Kondisi faktual yang ditemukan di data",
+    "criteria": "Ketentuan/standar perpajakan yang seharusnya berlaku",
+    "cause": "Penyebab terjadinya selisih/anomali",
+    "effect": "Dampak/akibat dari temuan (termasuk potensi exposure)",
+    "substanceCategory": "Kategori Objek Pajak Sebenarnya",
+    "exceptionCategory": "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l",
     "isMisclassified": boolean,
     "glValue": number,
     "identifiedValue": number,
@@ -375,11 +399,14 @@ Format objek temuan:
     "impact": 1-5,
     "riskScore": 1-25,
     "riskLevel": "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
-    "legalBasis": "Sitasi pasal, UU HPP & PMK resmi",
-    "aiAnalysis": "Penjelasan rinci mengapa transaksi ini berisiko atau salah kamar",
+    "legalBasis": "Sitasi pasal resmi ATAU 'LEGAL BASIS REQUIRES HUMAN VERIFICATION'",
+    "aiAnalysis": "Penjelasan rinci mengapa transaksi ini berisiko",
     "evidenceRequired": "Dokumen bukti yang harus diminta ke klien",
+    "evidenceMissing": "Dokumen bukti yang saat ini belum ada",
     "recommendation": "Rekomendasi tindakan taktis auditor",
-    "status": "REQUIRES HUMAN REVIEW" | "REQUIRES DOCUMENT" | "PROVISIONAL"
+    "managementResponse": "",
+    "reviewerDecision": "",
+    "status": "CONFIRMED" | "PROVISIONAL" | "REQUIRES DOCUMENT" | "REQUIRES LEGAL VERIFICATION" | "REQUIRES PARTNER JUDGMENT"
   }
 ]
 `;
@@ -424,9 +451,14 @@ Format objek temuan:
           findingId: f.findingId || `TR-${String(idx + 1).padStart(3, '0')}`,
           taxArea: f.taxArea || 'Pajak Terkait',
           account: f.account || 'Akun Buku Besar',
+          period: f.period || (clientInfo?.taxYear ? `Tahun Pajak ${clientInfo.taxYear}` : 'Tahun Berjalan'),
+          condition: f.condition || f.aiAnalysis || 'Kondisi faktual teridentifikasi di Buku Besar.',
+          criteria: f.criteria || f.legalBasis || 'Ketentuan perundang-undangan perpajakan yang berlaku.',
+          cause: f.cause || (f.isMisclassified ? 'Salah kamar pembukuan akun' : 'Perbedaan pengakuan transaksi / kelalaian pemotongan'),
+          effect: f.effect || (f.potentialExposure ? `Potensi eksposur perpajakan sebesar Rp ${new Intl.NumberFormat('id-ID').format(f.potentialExposure)}` : 'Potensi sanksi kepatuhan formal'),
           substanceCategory: f.substanceCategory || 'Substansi Objek Pajak',
+          exceptionCategory: f.exceptionCategory || (f.isMisclassified ? 'l' : 'a'),
           isMisclassified: !!f.isMisclassified,
-          period: f.period || 'Tahun Berjalan',
           glValue: Number(f.glValue) || 0,
           identifiedValue: Number(f.identifiedValue) || 0,
           unmatchedValue: Number(f.unmatchedValue) || 0,
@@ -435,11 +467,14 @@ Format objek temuan:
           impact: Number(f.impact) || 3,
           riskScore: Number(f.riskScore) || ((Number(f.probability) || 3) * (Number(f.impact) || 3)),
           riskLevel: f.riskLevel || 'MEDIUM',
-          legalBasis: f.legalBasis || 'UU Perpajakan Indonesia',
+          legalBasis: f.legalBasis || 'LEGAL BASIS REQUIRES HUMAN VERIFICATION',
           aiAnalysis: f.aiAnalysis || 'Hasil analisis semantik AI Claude.',
           evidenceRequired: f.evidenceRequired || 'Dokumen pendukung transaksi.',
+          evidenceMissing: f.evidenceMissing || '',
           recommendation: f.recommendation || 'Verifikasi dokumen dan konfirmasi klien.',
-          status: f.status || 'REQUIRES HUMAN REVIEW',
+          managementResponse: '',
+          reviewerDecision: '',
+          status: f.status || 'PROVISIONAL',
           sourceEngine: 'AI_CLAUDE',
           engineLabel: modelLabel
         }));
@@ -455,9 +490,10 @@ Format objek temuan:
 /**
  * Generator Temuan Deterministik Lokal (Fallback tanpa API)
  */
-export function generateDeterministicFindings({ glRows = [], taxMappings = [], revenueRecon, expenseRecon }) {
+export function generateDeterministicFindings({ glRows = [], taxMappings = [], revenueRecon, expenseRecon, clientInfo = {} }) {
   const findings = [];
   let counter = 1;
+  const currentPeriod = clientInfo?.taxYear ? `Tahun Pajak ${clientInfo.taxYear}` : 'Tahun Berjalan';
 
   // 1. Temuan dari Ekualisasi Pendapatan vs PPN
   if (revenueRecon && Math.abs(revenueRecon.difference) > 100000) {
@@ -469,11 +505,20 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
       findingId: `TR-${String(counter++).padStart(3, '0')}`,
       taxArea: 'PPN (Pajak Pertambahan Nilai)',
       account: 'Akun Penjualan / Peredaran Usaha',
+      period: currentPeriod,
+      condition: isUnreported
+        ? `Peredaran usaha di GL (Rp ${new Intl.NumberFormat('id-ID').format(revenueRecon.glRevenueTotal)}) lebih besar dari DPP SPT Masa PPN (Rp ${new Intl.NumberFormat('id-ID').format(revenueRecon.sptDPPTotal)}) dengan selisih Rp ${new Intl.NumberFormat('id-ID').format(revenueRecon.difference)}.`
+        : `DPP SPT Masa PPN (Rp ${new Intl.NumberFormat('id-ID').format(revenueRecon.sptDPPTotal)}) lebih besar Rp ${new Intl.NumberFormat('id-ID').format(Math.abs(revenueRecon.difference))} dari omzet GL.`,
+      criteria: 'Pasal 7 ayat (1) UU PPN jo. UU HPP No. 7 Tahun 2021 (Seluruh penyerahan BKP/JKP wajib dipungut PPN).',
+      cause: isUnreported
+        ? 'Penyerahan BKP/JKP belum diterbitkan Faktur Pajak Keluaran atau terdapat perbedaan cut-off pengakuan pendapatan.'
+        : 'Penerbitan Faktur Pajak atas Uang Muka Penjualan atau penyerahan antar cabang.',
+      effect: `Potensi pokok kurang bayar PPN sebesar Rp ${new Intl.NumberFormat('id-ID').format(exposure)} beserta sanksi bunga Pasal 13 KUP.`,
       substanceCategory: 'Revenue / Omzet (Objek PPN)',
+      exceptionCategory: 'a',
       isMisclassified: false,
       sourceEngine: 'DETERMINISTIC',
       engineLabel: 'Sistem Deterministik (Non-AI)',
-      period: 'Tahun Berjalan',
       glValue: revenueRecon.glRevenueTotal,
       identifiedValue: revenueRecon.sptDPPTotal,
       unmatchedValue: Math.abs(revenueRecon.difference),
@@ -487,11 +532,11 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
         ? `Terdapat peredaran usaha di Buku Besar sebesar Rp ${new Intl.NumberFormat('id-ID').format(revenueRecon.difference)} yang belum dilaporkan dalam DPP SPT Masa PPN (potensi under-reporting / timing difference).`
         : `DPP PPN lebih tinggi sebesar Rp ${new Intl.NumberFormat('id-ID').format(Math.abs(revenueRecon.difference))} dari GL (kemungkinan Faktur Pajak Uang Muka Penjualan atau penyerahan cabang).`,
       evidenceRequired: 'SPT Masa PPN Induk & Lampiran 1111 A2, Faktur Pajak Keluaran, Invoice Penjualan, Kontrak Kerja.',
-      evidenceMissing: ['Rekonsiliasi Faktur Uang Muka', 'Ledger Uang Muka Pelanggan'],
+      evidenceMissing: 'Rekonsiliasi Faktur Uang Muka, Ledger Uang Muka Pelanggan',
       recommendation: 'Lakukan penelusuran apakah terdapat penerbitan Faktur Pajak yang belum diakui sebagai revenue di GL atau sebaliknya.',
-      managementResponse: '-',
-      reviewerDecision: 'Pending Review',
-      status: 'REQUIRES HUMAN REVIEW'
+      managementResponse: '',
+      reviewerDecision: '',
+      status: 'PROVISIONAL'
     });
   }
 
@@ -504,11 +549,16 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
       findingId: `TR-${String(counter++).padStart(3, '0')}`,
       taxArea: 'PPh Pasal 23',
       account: 'Akun Beban Jasa / Pemeliharaan / Sewa Alat',
+      period: currentPeriod,
+      condition: `Beban jasa di GL sebesar Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon.glExpenseTotal)} belum didukung bukti pemotongan e-Bupot PPh 23 (unmatched DPP Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon.unmatchedDPP)}).`,
+      criteria: 'Pasal 23 ayat (1) huruf c UU PPh jo. PMK 141/PMK.03/2015 (Pemotongan PPh 23 sebesar 2% atas imbalan jasa).',
+      cause: 'Transaksi jasa dibayarkan ke vendor tanpa dilakukan pemotongan PPh Pasal 23 atau bukti potong belum diterbitkan di e-Bupot.',
+      effect: `Potensi kewajiban pajak kurang potong PPh 23 sebesar Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon.potentialTax)} dan sanksi bunga Pasal 19 KUP sebesar Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon.interestSanction || 0)} (Total Exposure: Rp ${new Intl.NumberFormat('id-ID').format(exposure)}).`,
       substanceCategory: 'Objek PPh 23 (Jasa & Sewa)',
+      exceptionCategory: 'c',
       isMisclassified: false,
       sourceEngine: 'DETERMINISTIC',
       engineLabel: 'Sistem Deterministik (Non-AI)',
-      period: 'Tahun Berjalan',
       glValue: expenseRecon.glExpenseTotal,
       identifiedValue: expenseRecon.bupotDPPTotal,
       unmatchedValue: expenseRecon.unmatchedDPP,
@@ -522,10 +572,10 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
       legalBasis: formatLegalCitation('REG-PPH23-01', 'Objek Jasa Lain & Tarif 2%'),
       aiAnalysis: `Ditemukan beban jasa operasional sebesar Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon.unmatchedDPP)} yang belum didukung bukti pemotongan PPh 23 (potensi unwithheld tax liability).`,
       evidenceRequired: 'Daftar Bukti Potong e-Bupot Unifikasi, Invoice Vendor, Kontrak Jasa, Bukti Bayar/Bank Statement.',
-      evidenceMissing: ['Bukti Potong PPh 23 Vendor', 'Surat Bebas Potong / SKB (jika ada)'],
+      evidenceMissing: 'Bukti Potong PPh 23 Vendor, Surat Bebas Potong / SKB (jika ada)',
       recommendation: 'Konfirmasi ketersediaan bukti potong kepada vendor atau siapkan pencadangan pajak terutang beserta sanksi bunga Pasal 19 KUP.',
-      managementResponse: '-',
-      reviewerDecision: 'Pending Review',
+      managementResponse: '',
+      reviewerDecision: '',
       status: 'REQUIRES DOCUMENT'
     });
   }
@@ -557,11 +607,16 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
       findingId: `TR-${String(counter++).padStart(3, '0')}`,
       taxArea: 'PPh Pasal 23 (Deteksi Salah Kamar)',
       account: `Multiple (${misclassifiedRows.length} Transaksi Terdeteksi)`,
+      period: currentPeriod,
+      condition: `Terdapat ${misclassifiedRows.length} transaksi senilai Rp ${new Intl.NumberFormat('id-ID').format(totalMisclassifiedAmount)} yang uraiannya mencerminkan jasa teknik/manajemen/pemeliharaan namun dibukukan pada akun penampung umum/non-PPh 23.`,
+      criteria: 'Prinsip Substance Over Form & PMK 141/PMK.03/2015 (Kewajiban pemotongan pajak melekat pada hakikat transaksi, bukan judul akun pembukuan).',
+      cause: 'Kesalahan klasifikasi akun (misclassification) saat penginputan jurnal akuntansi di GL.',
+      effect: `Potensi koreksi fiskal kurang potong PPh 23 sebesar Rp ${new Intl.NumberFormat('id-ID').format(potentialTax)} bila diperiksa DJP.`,
       substanceCategory: 'Objek PPh 23 Jasa/Sewa Terselubung',
+      exceptionCategory: 'l',
       isMisclassified: true,
       sourceEngine: 'DETERMINISTIC',
       engineLabel: 'Sistem Deterministik (Non-AI)',
-      period: 'Tahun Berjalan',
       glValue: totalMisclassifiedAmount,
       identifiedValue: 0,
       unmatchedValue: totalMisclassifiedAmount,
@@ -571,13 +626,13 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
       impact: risk.impact,
       riskScore: 4 * risk.impact,
       riskLevel: (4 * risk.impact) >= 12 ? 'HIGH' : 'MEDIUM',
-      legalBasis: 'Pasal 23 UU PPh jo. PMK 141/PMK.03/2015 (Substansi Pemotongan Jasa)',
+      legalBasis: formatLegalCitation('REG-PPH23-01', 'Objek Jasa Lain & Tarif 2%'),
       aiAnalysis: `Ditemukan ${misclassifiedRows.length} transaksi senilai total Rp ${new Intl.NumberFormat('id-ID').format(totalMisclassifiedAmount)} yang memuat uraian jasa/konsultan/pemeliharaan namun dicatat pada akun non-PPh 23 (seperti Biaya Lain-lain/Biaya Umum). Berpotensi memicu koreksi kurang potong PPh 23 saat pemeriksaan.`,
       evidenceRequired: 'Invoice vendor terkait, Surat Perjanjian Kerja / SPK, Bukti Pemotongan PPh 23, Surat Bebas Potong.',
-      evidenceMissing: ['Bukti Potong PPh 23 Vendor'],
+      evidenceMissing: 'Bukti Potong PPh 23 Vendor',
       recommendation: 'Lakukan reklasifikasi transaksi ke pos objek PPh 23 dan verifikasi kelengkapan bukti potong e-Bupot.',
-      managementResponse: '-',
-      reviewerDecision: 'Pending Review',
+      managementResponse: '',
+      reviewerDecision: '',
       status: 'REQUIRES DOCUMENT'
     });
   }
@@ -594,11 +649,16 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
         findingId: `TR-${String(counter++).padStart(3, '0')}`,
         taxArea: 'PPh Badan (Koreksi Fiskal Positif)',
         account: `${acc.coa} - ${acc.namaAkun}`,
+        period: currentPeriod,
+        condition: `Terdapat pembebanan akuntansi pada akun ${acc.namaAkun} sebesar Rp ${new Intl.NumberFormat('id-ID').format(acc.totalDebit)} yang terindikasi sebagai Non-Deductible Expense (NDE).`,
+        criteria: 'Pasal 9 ayat (1) UU PPh jo. PMK 02/PMK.03/2010 (Biaya entertainment/jamuan wajib disertai Daftar Nominatif sah untuk dapat dibiayakan secara fiskal).',
+        cause: 'Biaya entertainment, jamuan, atau sumbangan belum dipisahkan ke pos koreksi fiskal positif.',
+        effect: `Potensi kurang bayar PPh Badan sebesar 22% (Rp ${new Intl.NumberFormat('id-ID').format(exposure)}) jika tidak dikoreksi positif pada SPT Tahunan 1771.`,
         substanceCategory: 'Non-Deductible Expense (NDE)',
+        exceptionCategory: 'j',
         isMisclassified: false,
         sourceEngine: 'DETERMINISTIC',
         engineLabel: 'Sistem Deterministik (Non-AI)',
-        period: 'Tahun Berjalan',
         glValue: acc.totalDebit,
         identifiedValue: 0,
         unmatchedValue: acc.totalDebit,
@@ -607,13 +667,13 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
         impact: risk.impact,
         riskScore: 4 * risk.impact,
         riskLevel: (4 * risk.impact) >= 12 ? 'HIGH' : 'MEDIUM',
-        legalBasis: 'Pasal 9 ayat (1) UU PPh jo. PMK 02/PMK.03/2010 (Daftar Nominatif Biaya Promosi/Jamuan)',
+        legalBasis: formatLegalCitation('REG-FISCAL-01', 'Koreksi Fiskal Positif & Negatif'),
         aiAnalysis: `Akun ${acc.namaAkun} berpotensi menjadi Non-Deductible Expense (NDE) apabila tidak dilengkapi Daftar Nominatif yang sah sesuai peraturan perpajakan.`,
         evidenceRequired: 'Daftar Nominatif Jamuan/Entertainment, Bukti Kwitansi Asli, Surat Undangan/Agenda Pertemuan.',
-        evidenceMissing: ['Daftar Nominatif Terlampir di SPT'],
+        evidenceMissing: 'Daftar Nominatif Terlampir di SPT',
         recommendation: 'Verifikasi kelengkapan daftar nominatif. Bila tidak ada, lakukan koreksi fiskal positif pada SPT Tahunan PPh Badan 1771.',
-        managementResponse: '-',
-        reviewerDecision: 'Pending Review',
+        managementResponse: '',
+        reviewerDecision: '',
         status: 'REQUIRES DOCUMENT'
       });
     }
@@ -621,6 +681,7 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
 
   return findings;
 }
+
 
 /**
  * Menghasilkan draf surat tanggapan SP2DK resmi dengan Claude AI (BYOK).

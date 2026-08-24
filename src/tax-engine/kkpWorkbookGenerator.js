@@ -216,12 +216,19 @@ export function generateKKPWorkbook({
     partnerName: 'Budi Santosa, CPA',
     managerName: 'Viany Ramadhany',
     seniorName: 'Auditor Senior',
-    auditDate: new Date().toISOString().split('T')[0]
+    auditDate: new Date().toISOString().split('T')[0],
+    materialityThreshold: 10000000
   },
   glRows = [],
   taxMappings = [],
   revenueRecon = {},
   expenseRecon = {},
+  purchasesRecon = {},
+  payrollRecon = {},
+  rentRecon = {},
+  assetRecon = {},
+  fiscalProfitRecon = {},
+  relatedPartyRecon = {},
   findings = [],
   sp2dkData = null
 }) {
@@ -242,35 +249,41 @@ export function generateKKPWorkbook({
     writeTitleRow(ws, r++, 'STANDAR OPERASIONAL PROSEDUR (SOP) & PANDUAN AUDIT PERPAJAKAN:', COLS, STYLES.sectionRow, merges);
 
     const sopItems = [
-      '1. File KKP ini dihasilkan secara otomatis oleh AI Tax Agent & KKP Engine v2.1.0.',
+      '1. File KKP ini dihasilkan secara otomatis oleh AI Tax Agent & KKP Engine v2.2.0 (Phase 1 Compliance Full 9-Reconciliations).',
       '2. Perhitungan tarif, pokok pajak, dan sanksi bunga menggunakan Deterministic Calculation Engine presisi 100%.',
       '3. Analisis semantik "Salah Kamar" (Substance Over Form) dan kutipan hukum dihasilkan oleh Anthropic Claude AI.',
       '4. Seluruh temuan AI bersifat PROVISIONAL dan WAJIB melalui verifikasi dokumen bukti serta persetujuan Partner.',
-      '5. Regulasi perpajakan disinkronisasikan dengan Coretax DJP PER-11/PJ/2025 dan UU HPP.',
+      '5. Regulasi perpajakan disinkronisasikan dengan Coretax DJP PER-11/PJ/2025, UU HPP, dan PMK perpajakan terkait.',
     ];
     sopItems.forEach(text => {
       writeTitleRow(ws, r++, text, COLS, STYLES.noteText, merges);
     });
 
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
-    writeTitleRow(ws, r++, 'DAFTAR INDEKS SHEET KERJA AUDIT (13 SHEETS):', COLS, STYLES.sectionRow, merges);
+    writeTitleRow(ws, r++, 'DAFTAR INDEKS SHEET KERJA AUDIT (19 SHEETS):', COLS, STYLES.sectionRow, merges);
 
     writeHeaderRow(ws, r++, ['No.', 'Nama Sheet', 'Fungsi & Ruang Lingkup', 'Formula & Sumber Data', 'Status'], STYLES.headerCell);
 
     const sheetIndex = [
-      ['00', '00_README',           'SOP, petunjuk teknis audit, dan indeks KKP',             'SOP KAP',                    'COMPLETED'],
-      ['01', '01_CLIENT_MASTER',    'Profil master data entitas, NPWP, tim pemeriksa',        'Master Data Klien',          'COMPLETED'],
-      ['02', '02_GL_IMPORT',        'Data transaksi General Ledger hasil standardisasi',      'Formula =SUM(Debit/Kredit)', 'COMPLETED'],
-      ['03', '03_TAX_MAPPING',      'Matriks klasifikasi akun GL ke pos objek pajak',         'Formula =SUM(Total Akun)',   'COMPLETED'],
-      ['04', '04_RECON_REVENUE',    'Ekualisasi peredaran usaha GL vs SPT Tahunan',           'Formula =B5-B6 & IF',        'COMPLETED'],
-      ['05', '05_RECON_PPN',        'Ekualisasi omzet GL vs DPP SPT Masa PPN',                'Formula =B7*Tarif PPN',      'COMPLETED'],
-      ['06', '06_RECON_PPH23',      'Ekualisasi beban jasa GL vs e-Bupot PPh 23',             'Formula Pokok + Sanksi',     'COMPLETED'],
-      ['07', '07_TAX_RISK',         'Tax Risk Register dengan scoring risiko',                 'Formula =P×I & =IF',         'COMPLETED'],
-      ['08', '08_DOC_REQUEST',      'Daftar permintaan dokumen bukti ke klien (PBC)',          'Dari Temuan AI',             'ACTIVE'],
-      ['09', '09_REGULATION_DB',    'Basis data dasar hukum perpajakan Indonesia',             'Database UU HPP / PMK',      'COMPLETED'],
-      ['10', '10_PARTNER_DASHBOARD','Ringkasan eksekutif KPI risiko untuk Partner',            '=SUM & =COUNTIF',            'COMPLETED'],
-      ['11', '11_AI_OUTPUT',        'Log analisis semantik AI Claude & rekomendasi',            'AI Claude Reasoning',        'COMPLETED'],
-      ['12', '12_SP2DK_AUDIT',      'Rekapitulasi analisis SP2DK & sanggahan DJP',             'Data SP2DK & Tanggapan',     'ACTIVE'],
+      ['00', '00_README',              'SOP, petunjuk teknis audit, dan indeks KKP',               'SOP KAP',                    'COMPLETED'],
+      ['01', '01_CLIENT_MASTER',       'Profil master data entitas, NPWP, tim pemeriksa, materialitas', 'Master Data Klien',    'COMPLETED'],
+      ['02', '02_GL_IMPORT',           'Data transaksi General Ledger hasil standardisasi',        'Formula =SUM(Debit/Kredit)', 'COMPLETED'],
+      ['03', '03_TAX_MAPPING',         'Matriks klasifikasi akun GL ke pos objek pajak',           'Formula =SUM(Total Akun)',   'COMPLETED'],
+      ['04', '04_RECON_REVENUE',       'Ekualisasi peredaran usaha GL vs SPT Tahunan 1771',         'Formula =B5-B6 & IF',        'COMPLETED'],
+      ['05', '05_RECON_PPN',           'Ekualisasi omzet GL vs DPP SPT Masa PPN 1111',             'Formula =B7*Tarif PPN',      'COMPLETED'],
+      ['06', '06_RECON_PPH23',         'Ekualisasi beban jasa GL vs e-Bupot PPh 23',               'Formula Pokok + Sanksi',     'COMPLETED'],
+      ['06B','06B_RECON_PPN_MASUKAN',   'Ekualisasi pembelian GL vs PPN Masukan e-Faktur',          'Formula =B7-B8 & IF',        'COMPLETED'],
+      ['06C','06C_RECON_PPH21',        'Ekualisasi biaya payroll GL vs bukti potong PPh 21',       'Formula Pokok + Sanksi',     'COMPLETED'],
+      ['06D','06D_RECON_PPH_FINAL',    'Ekualisasi biaya sewa & konstruksi vs PPh Final 4(2)',     'Formula Pokok + Sanksi',     'COMPLETED'],
+      ['06E','06E_RECON_ASET_TETAP',   'Ekualisasi penyusutan komersial vs fiskal (PMK 72/2023)',  'Formula =F-I & SUM',         'COMPLETED'],
+      ['06F','06F_RECON_LABA_FISKAL',  'Rekonsiliasi laba akuntansi komersial vs laba fiskal SPT', 'Formula =B5+B6-B7 & =B8-B9','COMPLETED'],
+      ['06G','06G_RECON_RELATED_PARTY','Pengujian transaksi afiliasi & kepatuhan TP Doc PMK 172', 'Formula =SUM(Transaksi)',   'COMPLETED'],
+      ['07', '07_TAX_RISK',            'Tax Risk Register dengan scoring risiko',                   'Formula =P×I & =IF',         'COMPLETED'],
+      ['08', '08_DOC_REQUEST',         'Daftar permintaan dokumen bukti ke klien (PBC)',            'Dari Temuan AI',             'ACTIVE'],
+      ['09', '09_REGULATION_DB',       'Basis data dasar hukum perpajakan Indonesia',               'Database UU HPP / PMK',      'COMPLETED'],
+      ['10', '10_PARTNER_DASHBOARD',   'Ringkasan eksekutif KPI risiko untuk Partner',              '=SUM & =COUNTIF',            'COMPLETED'],
+      ['11', '11_AI_OUTPUT',           'Log analisis semantik AI Claude & exception scan',         'AI Claude Reasoning',        'COMPLETED'],
+      ['12', '12_SP2DK_AUDIT',         'Rekapitulasi analisis SP2DK & sanggahan DJP',               'Data SP2DK & Tanggapan',     'ACTIVE'],
     ];
     sheetIndex.forEach((row, idx) => {
       const isActive = row[4] === 'ACTIVE';
@@ -283,7 +296,7 @@ export function generateKKPWorkbook({
 
     ws['!ref'] = `A1:E${r - 1}`;
     ws['!merges'] = merges;
-    setSheetColWidths(ws, [8, 26, 46, 30, 16]);
+    setSheetColWidths(ws, [8, 28, 48, 30, 16]);
     setRowHeights(ws, { 0: 28, 1: 22, 3: 22, 10: 22 });
     XLSX.utils.book_append_sheet(wb, ws, '00_README');
   }
@@ -306,6 +319,7 @@ export function generateKKPWorkbook({
       ['NPWP (15/16 Digit)',                    clientInfo.npwp || '01.234.567.8-012.000',                              'Kartu NPWP / Masterfile DJP'],
       ['Tahun Pajak / Periode Pemeriksaan',     taxYear,                                                                'Surat Perintah Kerja (SPK)'],
       ['Tanggal Pelaksanaan Pemeriksaan',       clientInfo.auditDate || new Date().toISOString().split('T')[0],          'Audit Log'],
+      ['Parameter Materialitas Audit (Configurable)', `Rp ${new Intl.NumberFormat('id-ID').format(clientInfo.materialityThreshold || 10000000)}`, 'Kebijakan Materialitas KAP / Klien'],
       ['Partner In Charge (CPA)',               clientInfo.partnerName || 'Budi Santosa, CPA',                          'Penetapan Penugasan KAP'],
       ['Audit Manager',                         clientInfo.managerName || 'Viany Ramadhany',                            'Penetapan Penugasan KAP'],
       ['Senior Auditor',                        clientInfo.seniorName || 'Auditor Senior',                              'Penetapan Penugasan KAP'],
@@ -326,6 +340,7 @@ export function generateKKPWorkbook({
     setRowHeights(ws, { 0: 28, 1: 22 });
     XLSX.utils.book_append_sheet(wb, ws, '01_CLIENT_MASTER');
   }
+
 
   // ── Sheet 02: 02_GL_IMPORT ──────────────────────────────────────
   {
@@ -628,6 +643,442 @@ export function generateKKPWorkbook({
     XLSX.utils.book_append_sheet(wb, ws, '06_RECON_PPH23');
   }
 
+  // ── Sheet 06B: 06B_RECON_PPN_MASUKAN ──────────────────────────
+  {
+    const COLS = 3;
+    const ws = {};
+    const merges = [];
+    let r = 1;
+    const glPurchases = Number(purchasesRecon.glPurchaseTotal) || 0;
+    const ppnClaimed = Number(purchasesRecon.ppnMasukanClaimedTotal) || 0;
+
+    writeTitleRow(ws, r++, 'EKUALISASI PEMBELIAN BUKU BESAR vs PPN MASUKAN SPT MASA PPN 1111 (E-FAKTUR)', COLS, STYLES.titleRow, merges);
+    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
+    writeHeaderRow(ws, r++, ['Uraian Komponen Ekualisasi PPN Masukan', 'Nilai / Formula', 'Keterangan & Rujukan Regulasi'], STYLES.headerLeft);
+
+    // r=5: Total Pembelian GL
+    sc(ws, `A${r}`, 'Total Pembelian Bahan Baku / Barang Dagang / Biaya di GL', STYLES.labelBold);
+    sc(ws, `B${r}`, glPurchases, STYLES.formulaCell, { z: '#,##0' });
+    sc(ws, `C${r}`, 'Buku Besar Pembelian / COGS & Persediaan', STYLES.dataCell);
+    r++;
+
+    // r=6: Tarif PPN
+    sc(ws, `A${r}`, 'Tarif PPN Masukan Standar (UU HPP)', STYLES.labelBold);
+    sc(ws, `B${r}`, 0.11, STYLES.formulaCell, { z: '0.0%' });
+    sc(ws, `C${r}`, 'Pasal 7 ayat (1) jo. Pasal 9 UU PPN', STYLES.dataCell);
+    r++;
+
+    // r=7: Estimasi PPN Masukan Teoritis
+    sc(ws, `A${r}`, 'Estimasi PPN Masukan Teoritis (GL x Tarif)', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, STYLES.totalRow, { f: '=B5*B6', z: '#,##0' });
+    sc(ws, `C${r}`, 'Potensi Pajak Masukan Maksimal', STYLES.totalRow);
+    r++;
+
+    // r=8: PPN Masukan Diklaim di SPT
+    sc(ws, `A${r}`, 'Total PPN Masukan Dikreditkan di SPT Masa PPN (Jan-Des)', STYLES.labelBold);
+    sc(ws, `B${r}`, ppnClaimed, STYLES.formulaCell, { z: '#,##0' });
+    sc(ws, `C${r}`, 'Formulir 1111 Induk Bagian II.B (e-Faktur)', STYLES.dataCell);
+    r++;
+
+    // r=9: Selisih PPN Masukan
+    sc(ws, `A${r}`, 'Selisih PPN Masukan (Teoritis - SPT Dikreditkan)', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, STYLES.totalRow, { f: '=B7-B8', z: '#,##0' });
+    sc(ws, `C${r}`, 'Pajak Masukan Belum Dikreditkan / Non-Creditable', STYLES.totalRow);
+    r++;
+
+    // r=10: Potensi Risiko Overclaim
+    sc(ws, `A${r}`, 'Potensi Pajak Masukan Tidak Dapat Dikreditkan / Overclaim', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, { ...STYLES.totalRow, font: FONTS.riskCritical }, { f: '=MAX(0,B8-B7)', z: '#,##0' });
+    sc(ws, `C${r}`, 'Koreksi Pajak Masukan Pasal 9 ayat (8) UU PPN', STYLES.totalRow);
+    r++;
+
+    // r=11: Status
+    sc(ws, `A${r}`, 'Status Kepatuhan Pajak Masukan', STYLES.labelBold);
+    sc(ws, `B${r}`, '', STYLES.formulaCell, { f: '=IF(B9=0,"RECONCILED - LENGKAP",IF(B9>0,"PPN MASUKAN BELUM DIKREDITKAN","POTENSI OVERCLAIM PPN MASUKAN"))', t: 's' });
+    sc(ws, `C${r}`, 'Evaluasi AI & Tim Audit', STYLES.dataCell);
+    r++;
+
+    writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
+    writeTitleRow(ws, r++, 'CATATAN PEMERIKSAAN PPN MASUKAN:', COLS, STYLES.sectionRow, merges);
+
+    ['1. Faktur Pajak Masukan yang tidak memenuhi ketentuan formal/material tidak dapat dikreditkan (Pasal 9 ayat 8).',
+     '2. Pengkreditan Pajak Masukan paling lama 3 (tiga) Masa Pajak setelah berakhirnya Masa Pajak saat Faktur dibuat.',
+     '3. Pastikan Faktur Pajak Masukan telah divalidasi melalui QR Code / Coretax e-Faktur terintegrasi.'
+    ].forEach(n => writeTitleRow(ws, r++, n, COLS, STYLES.noteText, merges));
+
+    ws['!ref'] = `A1:C${r - 1}`;
+    ws['!merges'] = merges;
+    setSheetColWidths(ws, [52, 28, 44]);
+    setRowHeights(ws, { 0: 28, 1: 22 });
+    XLSX.utils.book_append_sheet(wb, ws, '06B_RECON_PPN_MASUKAN');
+  }
+
+  // ── Sheet 06C: 06C_RECON_PPH21 ──────────────────────────────────
+  {
+    const COLS = 3;
+    const ws = {};
+    const merges = [];
+    let r = 1;
+    const glPayroll = Number(payrollRecon.glPayrollTotal) || 0;
+    const pph21Withheld = Number(payrollRecon.pph21WithheldTotal) || 0;
+
+    writeTitleRow(ws, r++, 'EKUALISASI BIAYA GAJI & IMBALAN KERJA GL vs BUKTI POTONG PPH PASAL 21', COLS, STYLES.titleRow, merges);
+    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
+    writeHeaderRow(ws, r++, ['Komponen Ekualisasi PPh Pasal 21', 'Nilai / Formula', 'Keterangan & Rujukan Regulasi'], STYLES.headerLeft);
+
+    // r=5: Total Beban Payroll GL
+    sc(ws, `A${r}`, 'Total Beban Gaji, Upah, Honorarium, THR & Bonus di GL', STYLES.labelBold);
+    sc(ws, `B${r}`, glPayroll, STYLES.formulaCell, { z: '#,##0' });
+    sc(ws, `C${r}`, 'Akun Buku Besar Beban Personalia (Kategori PPH21)', STYLES.dataCell);
+    r++;
+
+    // r=6: Estimasi TER Rate
+    sc(ws, `A${r}`, 'Estimasi Tarif Efektif Rata-rata (TER) / Pasal 17', STYLES.labelBold);
+    sc(ws, `B${r}`, 0.05, STYLES.formulaCell, { z: '0.0%' });
+    sc(ws, `C${r}`, 'PP 58/2023 jo. PMK 168/2023 (TER PPh 21)', STYLES.dataCell);
+    r++;
+
+    // r=7: PPh 21 Teoritis
+    sc(ws, `A${r}`, 'Estimasi Kewajiban PPh 21 Terutang (Teoritis)', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, STYLES.totalRow, { f: '=B5*B6', z: '#,##0' });
+    sc(ws, `C${r}`, 'Kewajiban Pemotongan Pajak Karyawan & Bukan Pegawai', STYLES.totalRow);
+    r++;
+
+    // r=8: PPh 21 Telah Dipotong
+    sc(ws, `A${r}`, 'Total PPh 21 Telah Dipotong (SPT Masa 1721 / e-Bupot 21)', STYLES.labelBold);
+    sc(ws, `B${r}`, pph21Withheld, STYLES.formulaCell, { z: '#,##0' });
+    sc(ws, `C${r}`, 'Formulir 1721 Induk & Bukti Potong 1721-VI/VIII', STYLES.dataCell);
+    r++;
+
+    // r=9: Selisih Kurang Potong
+    sc(ws, `A${r}`, 'Estimasi Pokok PPh 21 Kurang Potong (Shortfall)', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, STYLES.totalRow, { f: '=MAX(0,B7-B8)', z: '#,##0' });
+    sc(ws, `C${r}`, 'Selisih Objek Gaji Tanpa Bukti Potong', STYLES.totalRow);
+    r++;
+
+    // r=10: Sanksi Bunga
+    sc(ws, `A${r}`, 'Sanksi Administrasi Bunga Keterlambatan Pasal 19 KUP', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, STYLES.totalRow, { f: '=B9*0.012*24', z: '#,##0' });
+    sc(ws, `C${r}`, 'Maksimal 24 Bulan x 1.2% per bulan', STYLES.totalRow);
+    r++;
+
+    // r=11: Total Exposure
+    sc(ws, `A${r}`, 'TOTAL POTENTIAL EXPOSURE PPh 21 (Pokok + Sanksi)', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, { ...STYLES.totalRow, font: FONTS.riskCritical }, { f: '=B9+B10', z: '#,##0' });
+    sc(ws, `C${r}`, 'Total Estimasi Kurang Potong PPh 21', STYLES.totalRow);
+    r++;
+
+    // r=12: Status
+    sc(ws, `A${r}`, 'Status Evaluasi Kepatuhan PPh 21', STYLES.labelBold);
+    sc(ws, `B${r}`, '', STYLES.formulaCell, { f: '=IF(B9<=0,"RECONCILED - COMPLIANT","POTENSI UNWITHHELD PPH 21")', t: 's' });
+    sc(ws, `C${r}`, 'Evaluasi AI & Tim Audit', STYLES.dataCell);
+    r++;
+
+    writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
+    writeTitleRow(ws, r++, 'CATATAN PEMERIKSAAN BUKTI POTONG PPH 21:', COLS, STYLES.sectionRow, merges);
+
+    ['1. Tunjangan PPh 21 (Gross-Up) dapat dibiayakan secara fiskal, sedangkan PPh 21 ditanggung perusahaan (non-gross-up) adalah NDE.',
+     '2. Pembayaran imbalan kepada tenaga ahli / komisaris non-aktif wajib dipotong PPh 21 bukan pegawai berkesinambungan/tidak.',
+     '3. Pemberian Natura & Kenikmatan wajib diuji sesuai PMK 66/2023 (objek PPh 21 vs non-objek).'
+    ].forEach(n => writeTitleRow(ws, r++, n, COLS, STYLES.noteText, merges));
+
+    ws['!ref'] = `A1:C${r - 1}`;
+    ws['!merges'] = merges;
+    setSheetColWidths(ws, [52, 28, 44]);
+    setRowHeights(ws, { 0: 28, 1: 22 });
+    XLSX.utils.book_append_sheet(wb, ws, '06C_RECON_PPH21');
+  }
+
+  // ── Sheet 06D: 06D_RECON_PPH_FINAL ──────────────────────────────
+  {
+    const COLS = 3;
+    const ws = {};
+    const merges = [];
+    let r = 1;
+    const glRent = Number(rentRecon.glRentPropertyTotal) || 0;
+    const pphFinalWithheld = Number(rentRecon.pphFinalWithheldTotal) || 0;
+
+    writeTitleRow(ws, r++, 'EKUALISASI BIAYA SEWA & KONSTRUKSI GL vs BUPOT PPH FINAL PASAL 4(2)', COLS, STYLES.titleRow, merges);
+    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
+    writeHeaderRow(ws, r++, ['Komponen Ekualisasi PPh Final 4(2)', 'Nilai / Formula', 'Keterangan & Rujukan Regulasi'], STYLES.headerLeft);
+
+    // r=5: Total Biaya Sewa/Konstruksi GL
+    sc(ws, `A${r}`, 'Total Biaya Sewa Tanah/Bangunan & Konstruksi di GL', STYLES.labelBold);
+    sc(ws, `B${r}`, glRent, STYLES.formulaCell, { z: '#,##0' });
+    sc(ws, `C${r}`, 'Akun Biaya Sewa Gedung/Kantor & Renovasi (Kategori PPH42)', STYLES.dataCell);
+    r++;
+
+    // r=6: Tarif PPh Final
+    sc(ws, `A${r}`, 'Tarif Standar PPh Final Sewa Tanah / Bangunan', STYLES.labelBold);
+    sc(ws, `B${r}`, 0.10, STYLES.formulaCell, { z: '0.0%' });
+    sc(ws, `C${r}`, 'PP No. 34 Tahun 2017 (Tarif 10% Final)', STYLES.dataCell);
+    r++;
+
+    // r=7: PPh Final Teoritis
+    sc(ws, `A${r}`, 'Kewajiban PPh Final Pasal 4(2) Terutang (Teoritis)', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, STYLES.totalRow, { f: '=B5*B6', z: '#,##0' });
+    sc(ws, `C${r}`, 'Kewajiban Pemotongan Pajak Final', STYLES.totalRow);
+    r++;
+
+    // r=8: PPh Final Telah Dipotong
+    sc(ws, `A${r}`, 'Total PPh Final 4(2) Telah Dipotong di e-Bupot Unifikasi', STYLES.labelBold);
+    sc(ws, `B${r}`, pphFinalWithheld, STYLES.formulaCell, { z: '#,##0' });
+    sc(ws, `C${r}`, 'Daftar Bukti Pemotongan Unifikasi PPh Final', STYLES.dataCell);
+    r++;
+
+    // r=9: Selisih Kurang Potong
+    sc(ws, `A${r}`, 'Potensi Pokok PPh Final Kurang Potong (Shortfall)', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, STYLES.totalRow, { f: '=MAX(0,B7-B8)', z: '#,##0' });
+    sc(ws, `C${r}`, 'Biaya Sewa Tanpa Bukti Potong Final', STYLES.totalRow);
+    r++;
+
+    // r=10: Sanksi Bunga
+    sc(ws, `A${r}`, 'Sanksi Administrasi Bunga Keterlambatan Pasal 19 KUP', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, STYLES.totalRow, { f: '=B9*0.012*24', z: '#,##0' });
+    sc(ws, `C${r}`, 'Maksimal 24 Bulan x 1.2% per bulan', STYLES.totalRow);
+    r++;
+
+    // r=11: Total Exposure
+    sc(ws, `A${r}`, 'TOTAL POTENTIAL EXPOSURE PPh Final 4(2)', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, { ...STYLES.totalRow, font: FONTS.riskCritical }, { f: '=B9+B10', z: '#,##0' });
+    sc(ws, `C${r}`, 'Total Estimasi Kurang Potong PPh Final + Sanksi', STYLES.totalRow);
+    r++;
+
+    // r=12: Status
+    sc(ws, `A${r}`, 'Status Evaluasi Kepatuhan PPh Final 4(2)', STYLES.labelBold);
+    sc(ws, `B${r}`, '', STYLES.formulaCell, { f: '=IF(B9<=0,"RECONCILED - COMPLIANT","POTENSI UNWITHHELD PPH FINAL 4(2)")', t: 's' });
+    sc(ws, `C${r}`, 'Evaluasi AI & Tim Audit', STYLES.dataCell);
+    r++;
+
+    writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
+    writeTitleRow(ws, r++, 'CATATAN PEMERIKSAAN BUKTI POTONG PPH FINAL 4(2):', COLS, STYLES.sectionRow, merges);
+
+    ['1. Biaya service charge sewa gedung perkantoran termasuk dalam objek pemotongan PPh Final 10% (SE-14/PJ.53/2003).',
+     '2. Jasa pelaksanaan konstruksi dikenakan tarif 1.75% s.d. 4% sesuai kualifikasi sertifikat badan usaha (LPJK/KemenPUPR).',
+     '3. Jika pihak yang menyewakan adalah Orang Pribadi non-PKP, pihak penyewa badan wajib memotong dan menyetorkan PPh Final.'
+    ].forEach(n => writeTitleRow(ws, r++, n, COLS, STYLES.noteText, merges));
+
+    ws['!ref'] = `A1:C${r - 1}`;
+    ws['!merges'] = merges;
+    setSheetColWidths(ws, [52, 28, 44]);
+    setRowHeights(ws, { 0: 28, 1: 22 });
+    XLSX.utils.book_append_sheet(wb, ws, '06D_RECON_PPH_FINAL');
+  }
+
+  // ── Sheet 06E: 06E_RECON_ASET_TETAP ──────────────────────────────
+  {
+    const headers = ['No', 'Nama Aset Tetap', 'Nilai Perolehan', 'Metode Komersial', 'Umur Komersial (Thn)', 'Penyusutan Komersial', 'Kelompok Fiskal', 'Tarif Fiskal', 'Penyusutan Fiskal', 'Koreksi Fiskal (Selisih)', 'Jenis Koreksi'];
+    const COLS = headers.length;
+    const ws = {};
+    const merges = [];
+    let r = 1;
+
+    writeTitleRow(ws, r++, 'EKUALISASI PENYUSUTAN ASET TETAP KOMERSIAL vs FISKAL (PMK 72/2023)', COLS, STYLES.titleRow, merges);
+    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
+    writeHeaderRow(ws, r++, headers, STYLES.headerCell);
+
+    const assetItems = assetRecon.assetList || [
+      { namaAset: 'Kendaraan Operasional Direksi', nilaiPerolehan: 400000000, metodeKomersial: 'Garis Lurus', umurKomersial: 5, kelompokFiskal: 'Kelompok 2', tarifFiskal: 0.125 },
+      { namaAset: 'Mesin & Peralatan Komputer', nilaiPerolehan: 150000000, metodeKomersial: 'Garis Lurus', umurKomersial: 3, kelompokFiskal: 'Kelompok 1', tarifFiskal: 0.25 },
+      { namaAset: 'Bangunan Kantor Permanen', nilaiPerolehan: 1200000000, metodeKomersial: 'Garis Lurus', umurKomersial: 30, kelompokFiskal: 'Bangunan Permanen', tarifFiskal: 0.05 }
+    ];
+
+    assetItems.forEach((asset, idx) => {
+      const isAlt = idx % 2 === 1;
+      const rowNum = r;
+      writeDataRow(ws, r, [
+        idx + 1,
+        asset.namaAset,
+        Number(asset.nilaiPerolehan) || 0,
+        asset.metodeKomersial || 'Garis Lurus',
+        Number(asset.umurKomersial) || 5,
+        0, // formula komersial
+        asset.kelompokFiskal || 'Kelompok 1',
+        Number(asset.tarifFiskal) || 0.25,
+        0, // formula fiskal
+        0, // formula selisih
+        '' // formula status
+      ], isAlt, {
+        formulas: {
+          5: `=ROUND(C${rowNum}/E${rowNum},0)`,
+          8: `=ROUND(C${rowNum}*H${rowNum},0)`,
+          9: `=F${rowNum}-I${rowNum}`,
+          10: `=IF(J${rowNum}>0,"KOREKSI POSITIF",IF(J${rowNum}<0,"KOREKSI NEGATIF","NIHIL"))`
+        }
+      });
+      ws[`H${r}`].z = '0.0%';
+      r++;
+    });
+
+    // Total Row
+    headers.forEach((_, i) => sc(ws, `${colLetter(i)}${r}`, '', STYLES.totalRow));
+    sc(ws, `B${r}`, 'TOTAL PENYUSUTAN & KOREKSI:', STYLES.totalLabel);
+    sc(ws, `C${r}`, 0, STYLES.totalRow, { f: `=SUM(C5:C${r - 1})`, z: '#,##0' });
+    sc(ws, `F${r}`, 0, STYLES.totalRow, { f: `=SUM(F5:F${r - 1})`, z: '#,##0' });
+    sc(ws, `I${r}`, 0, STYLES.totalRow, { f: `=SUM(I5:I${r - 1})`, z: '#,##0' });
+    sc(ws, `J${r}`, 0, { ...STYLES.totalRow, font: FONTS.riskCritical }, { f: `=SUM(J5:J${r - 1})`, z: '#,##0' });
+    r++;
+
+    ws['!ref'] = `A1:K${r - 1}`;
+    ws['!merges'] = merges;
+    setSheetColWidths(ws, [6, 32, 20, 18, 20, 22, 20, 14, 20, 22, 18]);
+    setRowHeights(ws, { 0: 28, 1: 22, 3: 24 });
+    XLSX.utils.book_append_sheet(wb, ws, '06E_RECON_ASET_TETAP');
+  }
+
+  // ── Sheet 06F: 06F_RECON_LABA_FISKAL ──────────────────────────────
+  {
+    const COLS = 3;
+    const ws = {};
+    const merges = [];
+    let r = 1;
+    const labaKomersial = Number(fiscalProfitRecon.labaKomersial) || 0;
+    const posCorrection = Number(fiscalProfitRecon.totalPositiveCorrection) || 0;
+    const negCorrection = Number(fiscalProfitRecon.totalNegativeCorrection) || 0;
+    const reportedSPT = Number(fiscalProfitRecon.reportedFiscalProfit) || 0;
+
+    writeTitleRow(ws, r++, 'REKONSILIASI LABA AKUNTANSI KOMERSIAL KE LABA FISKAL (SPT 1771)', COLS, STYLES.titleRow, merges);
+    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
+    writeHeaderRow(ws, r++, ['Uraian Rekonsiliasi Fiskal Laba Rugi', 'Nilai (Rupiah)', 'Dasar Regulasi & Keterangan'], STYLES.headerLeft);
+
+    // r=5: Laba Komersial
+    sc(ws, `A${r}`, 'Laba Bersih Akuntansi Komersial Sebelum Pajak', STYLES.labelBold);
+    sc(ws, `B${r}`, labaKomersial, STYLES.formulaCell, { z: '#,##0' });
+    sc(ws, `C${r}`, 'Laporan Laba Rugi Komersial Audited', STYLES.dataCell);
+    r++;
+
+    // r=6: Koreksi Fiskal Positif
+    sc(ws, `A${r}`, 'Total Koreksi Fiskal Positif (Non-Deductible Expense)', STYLES.labelBold);
+    sc(ws, `B${r}`, posCorrection, STYLES.formulaCell, { z: '#,##0' });
+    sc(ws, `C${r}`, 'Pasal 9 ayat (1) UU PPh (Jamuan, Denda, Natura, Bunga Afiliasi)', STYLES.dataCell);
+    r++;
+
+    // r=7: Koreksi Fiskal Negatif
+    sc(ws, `A${r}`, 'Total Koreksi Fiskal Negatif (PPh Final & Non-Objek)', STYLES.labelBold);
+    sc(ws, `B${r}`, negCorrection, STYLES.formulaCell, { z: '#,##0' });
+    sc(ws, `C${r}`, 'Pasal 4 ayat (2) & (3) UU PPh (Bunga Deposito, Dividen)', STYLES.dataCell);
+    r++;
+
+    // r=8: Laba Fiskal Hasil Rekonsiliasi
+    sc(ws, `A${r}`, 'Penghasilan Neto Fiskal Hasil Rekonsiliasi Audit', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, STYLES.totalRow, { f: '=B5+B6-B7', z: '#,##0' });
+    sc(ws, `C${r}`, 'Laba Fiskal Menurut Perhitungan Audit', STYLES.totalRow);
+    r++;
+
+    // r=9: Laba Fiskal SPT
+    sc(ws, `A${r}`, 'Penghasilan Neto Fiskal Dilaporkan di SPT Tahunan 1771', STYLES.labelBold);
+    sc(ws, `B${r}`, reportedSPT, STYLES.formulaCell, { z: '#,##0' });
+    sc(ws, `C${r}`, 'Formulir 1771-I Angka 8 (DJP)', STYLES.dataCell);
+    r++;
+
+    // r=10: Selisih Laba Fiskal
+    sc(ws, `A${r}`, 'Selisih Laba Fiskal (Audit vs SPT Dilaporkan)', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, STYLES.totalRow, { f: '=B8-B9', z: '#,##0' });
+    sc(ws, `C${r}`, 'Potensi Koreksi Penghasilan Kena Pajak', STYLES.totalRow);
+    r++;
+
+    // r=11: Tarif PPh Badan
+    sc(ws, `A${r}`, 'Tarif PPh Badan Efektif (UU HPP)', STYLES.labelBold);
+    sc(ws, `B${r}`, 0.22, STYLES.formulaCell, { z: '0.0%' });
+    sc(ws, `C${r}`, 'Pasal 17 ayat (1) huruf b UU PPh jo. UU HPP (22%)', STYLES.dataCell);
+    r++;
+
+    // r=12: Potensi PPh Badan
+    sc(ws, `A${r}`, 'Potensi Pokok PPh Badan Kurang Bayar (Exposure)', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, { ...STYLES.totalRow, font: FONTS.riskCritical }, { f: '=MAX(0,B10*B11)', z: '#,##0' });
+    sc(ws, `C${r}`, 'Potensi SKPKB PPh Badan', STYLES.totalRow);
+    r++;
+
+    // r=13: Status
+    sc(ws, `A${r}`, 'Status Kepatuhan Rekonsiliasi Fiskal', STYLES.labelBold);
+    sc(ws, `B${r}`, '', STYLES.formulaCell, { f: '=IF(B10=0,"RECONCILED - NIHIL",IF(B10>0,"POTENSI UNDERREPORTED FISCAL PROFIT","POTENSI OVERREPORTED FISCAL PROFIT"))', t: 's' });
+    sc(ws, `C${r}`, 'Evaluasi AI & Tim Audit', STYLES.dataCell);
+    r++;
+
+    writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
+    writeTitleRow(ws, r++, 'CATATAN REKONSILIASI FISKAL:', COLS, STYLES.sectionRow, merges);
+
+    ['1. Koreksi Fiskal Positif menambah penghasilan kena pajak (biaya non-deductible).',
+     '2. Koreksi Fiskal Negatif mengurangi laba komersial atas pos yang telah dikenai pajak final atau bukan objek pajak.',
+     '3. Fasilitas pengurangan tarif Pasal 31E UU PPh berlaku untuk omzet sampai dengan Rp 50 Miliar.'
+    ].forEach(n => writeTitleRow(ws, r++, n, COLS, STYLES.noteText, merges));
+
+    ws['!ref'] = `A1:C${r - 1}`;
+    ws['!merges'] = merges;
+    setSheetColWidths(ws, [54, 28, 44]);
+    setRowHeights(ws, { 0: 28, 1: 22 });
+    XLSX.utils.book_append_sheet(wb, ws, '06F_RECON_LABA_FISKAL');
+  }
+
+  // ── Sheet 06G: 06G_RECON_RELATED_PARTY ──────────────────────────
+  {
+    const headers = ['No', 'Akun Transaksi GL', 'Nilai Transaksi (Rp)', 'Pihak Afiliasi / Berelasi', 'Jenis Hubungan / Transaksi', 'Kewajiban TP Doc', 'Status Dokumentasi', 'Evaluasi Risiko'];
+    const COLS = headers.length;
+    const ws = {};
+    const merges = [];
+    let r = 1;
+
+    writeTitleRow(ws, r++, 'PENGUJIAN TRANSAKSI PIHAK BERELASI & KEPATUHAN TP DOC (PMK 172/2023)', COLS, STYLES.titleRow, merges);
+    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
+
+    // Metadata TP Doc Parameters
+    const tpParams = [
+      ['Status Local File TP Doc',          relatedPartyRecon.tpDocStatus?.hasLocalFile ? 'TERSEDIA' : 'BELUM TERSEDIA / PBC', 'PMK 172/2023 Pasal 3'],
+      ['Status Master File TP Doc',         relatedPartyRecon.tpDocStatus?.hasMasterFile ? 'TERSEDIA' : 'BELUM TERSEDIA / PBC', 'PMK 172/2023 Pasal 4'],
+      ['Status CbCR (Country-by-Country)',  relatedPartyRecon.tpDocStatus?.hasCbCR ? 'TERSEDIA' : 'TIDAK WAJIB / BELUM ADA', 'PMK 172/2023 Pasal 5'],
+      ['Threshold PMK 172/2023',            relatedPartyRecon.isThresholdExceeded ? 'MELEBIHI THRESHOLD (WAJIB TP DOC)' : 'DI BAWAH THRESHOLD', 'Omzet > 50M / Transaksi > 5M/20M']
+    ];
+    tpParams.forEach(p => {
+      sc(ws, `A${r}`, p[0], STYLES.labelBold);
+      sc(ws, `B${r}`, p[1], String(p[1]).includes('BELUM') ? STYLES.riskHigh : STYLES.dataCell);
+      sc(ws, `C${r}`, p[2], STYLES.noteText);
+      for (let c = 3; c < COLS; c++) sc(ws, `${colLetter(c)}${r}`, '', STYLES.empty);
+      r++;
+    });
+
+    writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
+    writeTitleRow(ws, r++, 'RINCIAN TRANSAKSI DENGAN PIHAK BERELASI / AFILIASI:', COLS, STYLES.sectionRow, merges);
+    writeHeaderRow(ws, r++, headers, STYLES.headerCell);
+
+    const rpItems = relatedPartyRecon.relatedPartyTransactions || [
+      { namaAkun: 'Penjualan Barang Afiliasi', nilai: 15000000000, counterparty: 'PT Induk Holding Nusantara', jenis: 'Penyerahan Barang Dagang', kewajiban: 'Local & Master File', statusDoc: 'Pending PBC', risiko: 'Arm\'s Length Pricing' }
+    ];
+
+    rpItems.forEach((itm, idx) => {
+      const isAlt = idx % 2 === 1;
+      writeDataRow(ws, r, [
+        idx + 1,
+        itm.namaAkun || '-',
+        Number(itm.nilai) || 0,
+        itm.counterparty || 'Pihak Afiliasi',
+        itm.jenis || 'Transaksi Afiliasi',
+        itm.kewajiban || 'Local File',
+        itm.statusDoc || 'Pending Review',
+        itm.risiko || 'PKKU / Arm\'s Length Principle'
+      ], isAlt);
+      r++;
+    });
+
+    // Total Row
+    headers.forEach((_, i) => sc(ws, `${colLetter(i)}${r}`, '', STYLES.totalRow));
+    sc(ws, `B${r}`, 'TOTAL TRANSAKSI AFILIASI:', STYLES.totalLabel);
+    sc(ws, `C${r}`, 0, STYLES.totalRow, { f: `=SUM(C11:C${r - 1})`, z: '#,##0' });
+    r++;
+
+    ws['!ref'] = `A1:H${r - 1}`;
+    ws['!merges'] = merges;
+    setSheetColWidths(ws, [6, 28, 22, 30, 24, 20, 20, 26]);
+    setRowHeights(ws, { 0: 28, 1: 22 });
+    XLSX.utils.book_append_sheet(wb, ws, '06G_RECON_RELATED_PARTY');
+  }
+
+
   // ── Sheet 07: 07_TAX_RISK ───────────────────────────────────────
   {
     const headers = ['No', 'Finding ID', 'Sumber Analisis', 'Area Pajak', 'Akun GL / Transaksi', 'Substansi Temuan', 'Salah Kamar?', 'Nilai GL (DPP)', 'Unmatched Amount', 'Principal Tax', 'Potential Exposure', 'Probabilitas (1-5)', 'Dampak (1-5)', 'Risk Score', 'Risk Level', 'Dasar Hukum Resmi', 'Status Review'];
@@ -844,13 +1295,13 @@ export function generateKKPWorkbook({
 
   // ── Sheet 11: 11_AI_OUTPUT ──────────────────────────────────────
   {
-    const headers = ['No', 'Finding ID', 'Sumber Mesin', 'Area Pajak', 'Akun GL', 'Analisis Semantik AI (Substance Over Form)', 'Rekomendasi Audit', 'Dokumen Bukti Diperlukan', 'Dasar Hukum Resmi', 'Keputusan Reviewer', 'Status'];
+    const headers = ['No', 'Finding ID', 'Sumber Mesin', 'Area Pajak', 'Akun GL', 'Period', 'Condition (Kondisi Faktual)', 'Criteria (Dasar Regulasi)', 'Cause (Penyebab)', 'Effect (Dampak & Exposure)', 'Exception Cat', 'Salah Kamar?', 'Nilai GL (DPP)', 'Potential Exposure', 'Rekomendasi Audit', 'Dokumen Bukti Diperlukan', 'Tanggapan Manajemen', 'Keputusan Reviewer', 'Status Review'];
     const COLS = headers.length;
     const ws = {};
     const merges = [];
     let r = 1;
 
-    writeTitleRow(ws, r++, 'LOG ANALISIS SEMANTIK AI CLAUDE & REKOMENDASI AUDIT', COLS, STYLES.titleRow, merges);
+    writeTitleRow(ws, r++, 'LOG ANALISIS SEMANTIK AI CLAUDE & EXCEPTION SCAN (STEP 8 KKP AUDIT)', COLS, STYLES.titleRow, merges);
     writeHeaderRow(ws, r++, headers, STYLES.headerCell);
 
     if (findings.length > 0) {
@@ -859,23 +1310,41 @@ export function generateKKPWorkbook({
           idx + 1,
           f.findingId || '-',
           f.engineLabel || (f.sourceEngine === 'AI_CLAUDE' ? 'AI Claude Haiku' : 'Deterministik'),
-          f.taxArea || '-', f.account || '-',
-          f.aiAnalysis || '-', f.recommendation || '-', f.evidenceRequired || '-',
-          f.legalBasis || '-', f.reviewerDecision || 'Pending Review', f.status || '-'
-        ], idx % 2 === 1);
+          f.taxArea || '-',
+          f.account || '-',
+          f.period || (taxYear ? `Tahun Pajak ${taxYear}` : 'Tahun Berjalan'),
+          f.condition || f.aiAnalysis || '-',
+          f.criteria || f.legalBasis || 'Ketentuan perpajakan resmi',
+          f.cause || (f.isMisclassified ? 'Salah klasifikasi pembukuan' : 'Perbedaan pengakuan transaksi'),
+          f.effect || (f.potentialExposure ? `Potensi eksposur Rp ${new Intl.NumberFormat('id-ID').format(f.potentialExposure)}` : '-'),
+          f.exceptionCategory || (f.isMisclassified ? 'l' : 'a'),
+          f.isMisclassified ? 'YA' : 'TIDAK',
+          Number(f.glValue) || 0,
+          Number(f.potentialExposure) || 0,
+          f.recommendation || '-',
+          f.evidenceRequired || '-',
+          f.managementResponse || '',
+          f.reviewerDecision || '',
+          f.status || 'PROVISIONAL'
+        ], idx % 2 === 1, {
+          styles: {
+            11: f.isMisclassified ? STYLES.riskHigh : (idx % 2 === 1 ? STYLES.dataCellAlt : STYLES.dataCell)
+          }
+        });
         r++;
       });
     } else {
-      writeDataRow(ws, r, [1, 'TR-000', '-', '-', '-', 'Belum ada log AI', '-', '-', '-', '-', 'CLEARED'], false);
+      writeDataRow(ws, r, [1, 'TR-000', '-', '-', '-', '-', 'Belum ada log AI', '-', '-', '-', '-', '-', 0, 0, '-', '-', '', '', 'CLEARED'], false);
       r++;
     }
 
-    ws['!ref'] = `A1:K${r - 1}`;
+    ws['!ref'] = `A1:S${r - 1}`;
     ws['!merges'] = merges;
-    setSheetColWidths(ws, [6, 12, 18, 14, 24, 44, 34, 30, 28, 18, 16]);
+    setSheetColWidths(ws, [6, 12, 18, 16, 22, 16, 40, 36, 32, 32, 12, 12, 18, 20, 34, 30, 24, 20, 18]);
     setRowHeights(ws, { 0: 26 });
     XLSX.utils.book_append_sheet(wb, ws, '11_AI_OUTPUT');
   }
+
 
   // ── Sheet 12: 12_SP2DK_AUDIT ────────────────────────────────────
   {

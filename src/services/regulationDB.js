@@ -211,6 +211,96 @@ export const REGULATION_DATABASE = [
     ],
     officialSource: "JDIH Kemenkeu PMK 18/2021",
     lastVerified: "2026-01-15"
+  },
+  {
+    id: "REG-PPH22-01",
+    taxArea: "PPh Pasal 22",
+    type: "PMK",
+    number: "34/PMK.010/2017",
+    year: "2017",
+    title: "Pemungutan Pajak Penghasilan Pasal 22 Sehubungan Dengan Pembayaran Atas Penyerahan Barang dan Kegiatan di Bidang Impor atau Kegiatan Usaha di Bidang Lain",
+    effectiveDate: "2017-03-01",
+    status: "BERLAKU",
+    articles: [
+      {
+        article: "Pasal 1 ayat (1) huruf b",
+        topic: "Pembelian oleh BUMN & Badan Tertentu (1.5%)",
+        content: "Pemungutan PPh Pasal 22 sebesar 1,5% dari harga pembelian atas pembelian barang oleh badan usaha milik negara tertentu.",
+        rate: 0.015
+      },
+      {
+        article: "Pasal 2 ayat (1) huruf a",
+        topic: "Impor Barang (API & Non-API)",
+        content: "Pemungutan PPh Pasal 22 atas impor barang menggunakan Angka Pengenal Importir (API) sebesar 2,5% dan tanpa API sebesar 7,5% dari nilai impor.",
+        rate: 0.025
+      },
+      {
+        article: "Pasal 1 ayat (1) huruf g",
+        topic: "Bahan Bakar Minyak & Gas (BBM)",
+        content: "Pemungutan PPh Pasal 22 atas penjualan bahan bakar minyak dan gas oleh produsen/importir sebesar 0,25% s.d. 0,3% dari penjualan.",
+        rate: 0.0025
+      }
+    ],
+    officialSource: "JDIH Kemenkeu PMK 34/PMK.010/2017 jo. PMK 41/PMK.010/2022",
+    lastVerified: "2026-01-15"
+  },
+  {
+    id: "REG-PPH21-01",
+    taxArea: "PPh Pasal 21",
+    type: "Peraturan Pemerintah",
+    number: "58",
+    year: "2023",
+    title: "Tarif Pemotongan Pajak Penghasilan Pasal 21 atas Penghasilan Sehubungan dengan Pekerjaan, Jasa, atau Kegiatan Wajib Pajak Orang Pribadi",
+    effectiveDate: "2024-01-01",
+    status: "BERLAKU",
+    articles: [
+      {
+        article: "Pasal 2 & 3 jo. PMK 168/2023",
+        topic: "Tarif Efektif Bulanan (TER) & Pasal 17",
+        content: "Pemotongan PPh 21 Masa selain Masa Pajak Terakhir menggunakan Tarif Efektif Rata-rata (TER Kategori A, B, C) atas penghasilan bruto. Masa Pajak Terakhir (Desember) menggunakan tarif Pasal 17 ayat (1) huruf a UU PPh."
+      }
+    ],
+    officialSource: "JDIH Kemenkeu PP 58/2023 jo. PMK 168/2023",
+    lastVerified: "2026-01-15"
+  },
+  {
+    id: "REG-ASSET-01",
+    taxArea: "PPh Badan / Penyusutan Fiskal",
+    type: "PMK",
+    number: "72",
+    year: "2023",
+    title: "Penyusutan Harta Berwujud dan/atau Amortisasi Harta Tak Berwujud untuk Keperluan Perpajakan",
+    effectiveDate: "2023-07-17",
+    status: "BERLAKU",
+    articles: [
+      {
+        article: "Pasal 6 ayat (1) & (2) jo. Pasal 11 UU PPh",
+        topic: "Kelompok Harta Berwujud & Masa Manfaat Fiskal",
+        content: "Kelompok I (4 tahun - tarif 25% garis lurus / 50% saldo menurun), Kelompok II (8 tahun - 12,5% / 25%), Kelompok III (16 tahun - 6,25% / 12,5%), Kelompok IV (20 tahun - 5% / 10%), Bangunan Permanen (20 tahun - 5%), Bangunan Tidak Permanen (10 tahun - 10%)."
+      }
+    ],
+    officialSource: "JDIH Kemenkeu PMK 72/2023",
+    lastVerified: "2026-01-15"
+  },
+  {
+    id: "REG-FISCAL-01",
+    taxArea: "PPh Badan / Rekonsiliasi Fiskal",
+    type: "Undang-Undang",
+    number: "7",
+    year: "2021",
+    title: "Harmonisasi Peraturan Perpajakan (UU HPP) - Pengurang Penghasilan Bruto (Deductibility & NDE)",
+    effectiveDate: "2021-10-29",
+    status: "BERLAKU",
+    articles: [
+      {
+        article: "Pasal 6 & Pasal 9 UU PPh jo. UU HPP",
+        topic: "Koreksi Fiskal Positif & Negatif",
+        content: "Biaya untuk 3M (Mendapatkan, Menagih, Memelihara penghasilan) dapat dibebankan (deductible). Pengeluaran untuk kepentingan pribadi, sanksi administrasi pajak, premi asuransi pribadi pemegang saham, dan jamuan/entertainment tanpa daftar nominatif sah tidak dapat dikurangkan (koreksi fiskal positif NDE).",
+        rate: 0.22
+      }
+    ],
+    officialSource: "JDIH Kemenkeu UU No. 7 Tahun 2021",
+    lastVerified: "2026-01-15"
   }
 ];
 

@@ -84,15 +84,15 @@
     "semantic_hash": "41ae8a552052a53a59a2468b63e291b5"
   },
   "src/App.jsx": {
-    "mtime": 1787550320.54109,
-    "seen": 1787550412.1589642,
+    "mtime": 1787550479.3527944,
+    "seen": 1787552357.7285192,
     "ast_hash": "ead1239c582109ce59f2ed0ef6eb081c",
     "semantic_hash": ""
   },
   "src/App.test.jsx": {
-    "mtime": 1787550347.02789,
-    "seen": 1787550412.1589663,
-    "ast_hash": "d623fa3602749ce74c23cde7e96b950d",
+    "mtime": 1787552080.3761525,
+    "seen": 1787552357.7285237,
+    "ast_hash": "3c8a7ff42c79597529da9bfd98333669",
     "semantic_hash": ""
   },
   "src/components/AccountRail.jsx": {
@@ -162,14 +162,14 @@
     "semantic_hash": "c0d8e2fa65b7b4cfc93b7dd63317230a"
   },
   "src/components/tax/SP2DKResponseTab.jsx": {
-    "mtime": 1787550427.2828393,
-    "seen": 1787550440.4733334,
+    "mtime": 1787550479.3527944,
+    "seen": 1787552357.728562,
     "ast_hash": "0fb611cc2ecd4c425a8b412b0694220a",
     "semantic_hash": ""
   },
   "src/components/tax/TaxReconWorkbench.jsx": {
-    "mtime": 1787550328.8870523,
-    "seen": 1787550412.1589923,
+    "mtime": 1787550479.3537943,
+    "seen": 1787552357.728565,
     "ast_hash": "59f6cf361c647699aea27487d83449cc",
     "semantic_hash": ""
   },
@@ -276,16 +276,16 @@
     "semantic_hash": "022c8c2e64d570d95e59cf394bcab638"
   },
   "src/services/claudeService.js": {
-    "mtime": 1787415591.7446227,
-    "seen": 1787496506.8653781,
-    "ast_hash": "cf9c4dc98705e12a420ccd37384b1525",
-    "semantic_hash": "cf9c4dc98705e12a420ccd37384b1525"
+    "mtime": 1787552200.8612802,
+    "seen": 1787552357.7286203,
+    "ast_hash": "716c751c99671ebeafbc59edcd60f8fd",
+    "semantic_hash": ""
   },
   "src/services/regulationDB.js": {
-    "mtime": 1787415591.7456236,
-    "seen": 1787496506.86538,
-    "ast_hash": "faa17883059cd87002b25e0cfa7dc0d9",
-    "semantic_hash": "faa17883059cd87002b25e0cfa7dc0d9"
+    "mtime": 1787552091.1339836,
+    "seen": 1787552357.7286232,
+    "ast_hash": "31ac6c6e4c4c3fe5d2d55c6364e980c5",
+    "semantic_hash": ""
   },
   "src/services/sp2dkService.js": {
     "mtime": 1787415591.7806265,
@@ -306,28 +306,28 @@
     "semantic_hash": "39529208dfc584ff87969cf460d5f8e5"
   },
   "src/tax-engine/deterministicCalc.js": {
-    "mtime": 1787279895.4952004,
-    "seen": 1787496506.8653874,
-    "ast_hash": "608db7405e95bf7d2993502d06c218a9",
-    "semantic_hash": "608db7405e95bf7d2993502d06c218a9"
+    "mtime": 1787552113.8204806,
+    "seen": 1787552357.7286348,
+    "ast_hash": "56f5262a64603304aa9edaff645c627c",
+    "semantic_hash": ""
   },
   "src/tax-engine/deterministicCalc.test.js": {
-    "mtime": 1787280003.343151,
-    "seen": 1787496506.865389,
-    "ast_hash": "bf8f632853b67228e2466b8890552b7d",
-    "semantic_hash": "bf8f632853b67228e2466b8890552b7d"
+    "mtime": 1787552135.6519313,
+    "seen": 1787552357.7286372,
+    "ast_hash": "0b79486d5ba51e21231dce031247f568",
+    "semantic_hash": ""
   },
   "src/tax-engine/kkpWorkbookGenerator.js": {
-    "mtime": 1787417456.6887317,
-    "seen": 1787496506.865391,
-    "ast_hash": "8ee00c6666c48736c578024d071713f1",
-    "semantic_hash": "8ee00c6666c48736c578024d071713f1"
+    "mtime": 1787552280.9970734,
+    "seen": 1787552357.7286398,
+    "ast_hash": "a9222b911d6348f2d775c3a1b47c6740",
+    "semantic_hash": ""
   },
   "src/tax-engine/kkpWorkbookGenerator.test.js": {
-    "mtime": 1787417502.26755,
-    "seen": 1787496506.865393,
-    "ast_hash": "39a2b8f8dbf27672173a32e7fa31946a",
-    "semantic_hash": "39a2b8f8dbf27672173a32e7fa31946a"
+    "mtime": 1787552296.6457498,
+    "seen": 1787552357.7286427,
+    "ast_hash": "d175e83556cb6a3c85c3932ee729cb89",
+    "semantic_hash": ""
   },
   "src/tax-engine/riskScoring.js": {
     "mtime": 1787279909.3938823,
@@ -342,22 +342,22 @@
     "semantic_hash": "0c7eb983c32c07375f723f5bfd5ab08b"
   },
   "src/tax-engine/taxMapping.js": {
-    "mtime": 1787279905.2050729,
-    "seen": 1787496506.8653986,
-    "ast_hash": "d09e8397a2e9496f80e08f6e14215343",
-    "semantic_hash": "d09e8397a2e9496f80e08f6e14215343"
+    "mtime": 1787552142.0849364,
+    "seen": 1787552357.728651,
+    "ast_hash": "bc070dec2881f294d8f15bcfde069db9",
+    "semantic_hash": ""
   },
   "src/tax-engine/taxMapping.test.js": {
-    "mtime": 1787280006.8695195,
-    "seen": 1787496506.8654003,
-    "ast_hash": "5659c1b3fd2ac4d5a7ee3f41d43e8fca",
-    "semantic_hash": "5659c1b3fd2ac4d5a7ee3f41d43e8fca"
+    "mtime": 1787552149.5469747,
+    "seen": 1787552357.728654,
+    "ast_hash": "84f4aafdc1af5cc0ee506ac61c960214",
+    "semantic_hash": ""
   },
   "vite.config.js": {
-    "mtime": 1786322232.9323874,
-    "seen": 1787496506.8654022,
-    "ast_hash": "a90b82e835da685a287e6d75aa9a67a4",
-    "semantic_hash": "a90b82e835da685a287e6d75aa9a67a4"
+    "mtime": 1787552077.5355432,
+    "seen": 1787552357.7286563,
+    "ast_hash": "2f4ff4ce442b64145ffb2c6e6d9bc168",
+    "semantic_hash": ""
   },
   ".agents/rules/graphify.md": {
     "mtime": 1787495853.3044736,

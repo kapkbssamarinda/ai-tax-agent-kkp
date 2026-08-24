@@ -39,7 +39,7 @@ describe('AI Analysis Notification & Reset Lifecycle', () => {
 
     expect(screen.getByText(/Analisis Semantik AI \(Claude Haiku\) Selesai!/i)).toBeInTheDocument();
     expect(screen.getByText(/14:30:00 WIB/i)).toBeInTheDocument();
-    expect(screen.getByText(/5 Temuan/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/5 Temuan/i).length).toBeGreaterThanOrEqual(1);
   });
 
   it('memanggil onDismissAISummary saat tombol tutup diklik', () => {

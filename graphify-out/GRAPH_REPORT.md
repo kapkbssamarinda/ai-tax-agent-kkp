@@ -1,16 +1,16 @@
 # Graph Report - ai-tax-agent  (2026-08-24)
 
 ## Corpus Check
-- 109 files · ~120,416 words
+- 109 files · ~126,331 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 553 nodes · 776 edges · 43 communities (31 shown, 12 thin omitted)
+- 559 nodes · 790 edges · 43 communities (31 shown, 12 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 14 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7ec753dd`
+- Built from commit: `1e1d988e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -20,7 +20,7 @@
 - Caveman Prompt & Rules Engine
 - parserWorker.js
 - Compression Token Benchmarks
-- claudeService.js
+- SP2DKResponseTab.jsx
 - kkpWorkbookGenerator.js
 - Cavecrew Subagent Framework
 - UI & PDF Dependencies
@@ -93,8 +93,8 @@
 ## Communities (43 total, 12 thin omitted)
 
 ### Community 0 - "App.jsx"
-Cohesion: 0.10
-Nodes (25): plugins, oxc, react, ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS (+17 more)
+Cohesion: 0.07
+Nodes (41): react, ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail() (+33 more)
 
 ### Community 1 - "Caveman CLI & Compression Engine"
 Cohesion: 0.10
@@ -112,13 +112,13 @@ Nodes (23): parseAccurateExcelRows(), parseAccurateXMLSS(), commonSuffixLength()
 Cohesion: 0.11
 Nodes (28): benchmark_pair(), count_tokens(), main(), print_table(), Path, count_bullets(), extract_code_blocks(), extract_fenced_spans() (+20 more)
 
-### Community 5 - "claudeService.js"
-Cohesion: 0.14
-Nodes (27): AISettingsModal(), formatRupiah(), SP2DKResponseTab(), analyzeTaxFindings(), callClaudeTaxAnalysis(), extractAndParseClaudeJson(), extractObjectsFromIncompleteJson(), FALLBACK_MODELS (+19 more)
+### Community 5 - "SP2DKResponseTab.jsx"
+Cohesion: 0.37
+Nodes (9): formatRupiah(), SP2DKResponseTab(), calculateSP2DKDeadline(), CAUSE_CATEGORIES, downloadSP2DKWordDocument(), formatRupiah(), generateFallbackSP2DKResponse(), parseSP2DKText() (+1 more)
 
 ### Community 6 - "kkpWorkbookGenerator.js"
-Cohesion: 0.11
-Nodes (22): FakturPajakImportTab(), KEYWORD_PRESETS, KeywordScannerTab(), extractTaxBadge(), TaxReconWorkbench(), TaxRiskRegister(), REGULATION_DATABASE, ALIGN (+14 more)
+Cohesion: 0.13
+Nodes (28): PartnerDashboard(), calculateInterestSanction(), calculatePartnerDashboardMetrics(), calculatePPh23Exposure(), reconcileCommercialVsFiscalProfit(), reconcileExpenseVsPPh23(), reconcileFixedAssetCommercialVsFiscal(), reconcilePayrollVsPPh21() (+20 more)
 
 ### Community 7 - "Cavecrew Subagent Framework"
 Cohesion: 0.08
@@ -157,8 +157,8 @@ Cohesion: 0.09
 Nodes (22): A. Ekualisasi Omzet vs PPN (Tab 1: `Ekualisasi Omzet vs PPN`), A. Menjalankan Analisis AI Claude (Opsional / Jika Ada API Key), B. Ekualisasi Biaya vs PPh 23 (Tab 2: `Ekualisasi Biaya vs PPh 23`), B. Mengubah Status Telaah Reviewer, 🎯 Checklist & Tips Menghindari Kesalahan Input (Do's & Don'ts), 📑 Daftar Isi, 📌 Gambaran Umum Alur Input, Langkah-langkah Input: (+14 more)
 
 ### Community 16 - ".oxlintrc.json"
-Cohesion: 0.33
-Nodes (5): rules, react/only-export-components, react/rules-of-hooks, $schema, warn
+Cohesion: 0.25
+Nodes (7): plugins, rules, react/only-export-components, react/rules-of-hooks, $schema, oxc, warn
 
 ### Community 17 - "Caveman Memory & Learning"
 Cohesion: 0.29
@@ -208,16 +208,16 @@ Nodes (3): detectCompanyAndTaxYear(), detectTaxYearFromStrings(), sanitizeCompan
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `App.jsx` to `claudeService.js`, `kkpWorkbookGenerator.js`?**
-  _High betweenness centrality (0.008) - this node is a cross-community bridge._
-- **Why does `plugins` connect `App.jsx` to `.oxlintrc.json`?**
+- **Why does `react` connect `App.jsx` to `.oxlintrc.json`, `SP2DKResponseTab.jsx`, `kkpWorkbookGenerator.js`?**
+  _High betweenness centrality (0.009) - this node is a cross-community bridge._
+- **Why does `plugins` connect `.oxlintrc.json` to `App.jsx`?**
   _High betweenness centrality (0.005) - this node is a cross-community bridge._
 - **Why does `validate()` connect `Compression Token Benchmarks` to `Caveman CLI & Compression Engine`?**
-  _High betweenness centrality (0.005) - this node is a cross-community bridge._
+  _High betweenness centrality (0.004) - this node is a cross-community bridge._
 - **What connects `name`, `version`, `license` to the rest of the system?**
   _212 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `App.jsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.10121457489878542 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06758832565284179 - nodes in this community are weakly interconnected._
 - **Should `Caveman CLI & Compression Engine` be split into smaller, more focused modules?**
   _Cohesion score 0.0951219512195122 - nodes in this community are weakly interconnected._
 - **Should `Caveman Prompt & Rules Engine` be split into smaller, more focused modules?**

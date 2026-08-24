@@ -73,9 +73,15 @@ export function autoClassifyAccount(coa, namaAkun) {
 
   // 7. PPN Masukan / Keluaran
   if (name.includes('ppn masukan') || name.includes('vat in')) return 'PPN_IN';
-  if (name.includes('ppn keluaran') || name.includes('vat out')) return 'PPN_OUT';
+  // 8. PPh 22 (Pembelian dari BUMN tertentu, Impor, Bahan Bakar, Industri Semen/Baja/Kertas/Otomotif/Farmasi)
+  if (name.includes('impor') || name.includes('import') ||
+      name.includes('bbm') || name.includes('bahan bakar') ||
+      name.includes('pembelian bumn') || name.includes('pertamina') ||
+      name.includes('pln') || name.includes('bulog')) {
+    return 'PPH22';
+  }
 
-  // 8. Default: Biaya kepala 5 & 6 selain di atas bisa masuk PPH23 atau Non-tax
+  // 9. Default: Biaya kepala 5 & 6 selain di atas bisa masuk PPH23 atau Non-tax
   if (code.startsWith('5') || code.startsWith('6')) {
     return 'PPH23'; // Asumsi awal biaya operasional perlu direview
   }

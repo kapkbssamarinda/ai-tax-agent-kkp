@@ -26,6 +26,17 @@ describe('Tax Mapping Engine', () => {
     expect(autoClassifyAccount('6199', 'Sanksi Denda Pajak')).toBe('FISCAL_CORRECTION');
   });
 
+  it('mengklasifikasikan akun PPh 22 (Pembelian Impor, BBM, BUMN)', () => {
+    expect(autoClassifyAccount('5101', 'Biaya Pembelian Impor Mesin')).toBe('PPH22');
+    expect(autoClassifyAccount('5102', 'Beban Import Spareparts')).toBe('PPH22');
+    expect(autoClassifyAccount('5103', 'Biaya BBM & Pelumas Truk')).toBe('PPH22');
+    expect(autoClassifyAccount('5104', 'Pembelian Bahan Bakar Solar')).toBe('PPH22');
+    expect(autoClassifyAccount('5105', 'Pembelian BUMN Pengadaan Barang')).toBe('PPH22');
+    expect(autoClassifyAccount('5106', 'Tagihan PT Pertamina Persero')).toBe('PPH22');
+    expect(autoClassifyAccount('5107', 'Pembelian Material dari PT PLN')).toBe('PPH22');
+    expect(autoClassifyAccount('5108', 'Pengadaan Beras Perum Bulog')).toBe('PPH22');
+  });
+
   it('membangun matriks pemetaan lengkap dari array baris GL', () => {
     const glRows = [
       { coa: '4101', namaAkun: 'Penjualan', debit: 0, kredit: 500000000 },
