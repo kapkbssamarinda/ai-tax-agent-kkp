@@ -55,6 +55,16 @@ const getInitialTheme = () =>
     ? 'light'
     : 'dark';
 
+const DEFAULT_CLIENT_INFO = {
+  name: 'PT Klien Demo',
+  npwp: '01.234.567.8-012.000',
+  taxYear: '2024',
+  partnerName: 'Budi Santosa, CPA',
+  managerName: 'Viany Ramadhany',
+  seniorName: 'Auditor Senior',
+  auditDate: new Date().toISOString().split('T')[0]
+};
+
 function App() {
   const [step, setStep] = useState('upload');
   const [theme, setTheme] = useState(getInitialTheme);
@@ -74,15 +84,7 @@ function App() {
   // Modals & Client Master State
   const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
   const [isClientMasterOpen, setIsClientMasterOpen] = useState(false);
-  const [clientInfo, setClientInfo] = useState({
-    name: 'PT Klien Demo',
-    npwp: '01.234.567.8-012.000',
-    taxYear: '2024',
-    partnerName: 'Budi Santosa, CPA',
-    managerName: 'Viany Ramadhany',
-    seniorName: 'Auditor Senior',
-    auditDate: new Date().toISOString().split('T')[0]
-  });
+  const [clientInfo, setClientInfo] = useState(DEFAULT_CLIENT_INFO);
 
   // AI Tax & Equalization State
   const [taxMappings, setTaxMappings] = useState([]);
@@ -175,6 +177,7 @@ function App() {
         setProcessedData(data);
         setWarnings(parseWarnings || []);
         setStep('success');
+        setAiAnalysisSummary(null);
 
         // Otomatis update nama klien & tahun pajak jika terdeteksi dari GL mentah
         if (detectedCompanyName || detectedTaxYear) {
@@ -255,6 +258,15 @@ function App() {
     setError(null);
     setFileName(file.name);
     setStep('loading');
+    setAiAnalysisSummary(null);
+    setFindings([]);
+    setTaxMappings([]);
+    setProcessedData([]);
+    setWarnings([]);
+    setSelectedAccount(null);
+    setFilters({});
+    setRevenueRecon({ glRevenueTotal: 0, sptDPPTotal: 0, difference: 0, potentialPPNExposure: 0, status: 'RECONCILED' });
+    setExpenseRecon({ glExpenseTotal: 0, bupotDPPTotal: 0, unmatchedDPP: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
 
     // Auto extract client name from filename if possible
     const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " ");
@@ -314,6 +326,11 @@ function App() {
     setFilters({});
     setTaxMappings([]);
     setFindings([]);
+    setAiAnalysisSummary(null);
+    setRevenueRecon({ glRevenueTotal: 0, sptDPPTotal: 0, difference: 0, potentialPPNExposure: 0, status: 'RECONCILED' });
+    setExpenseRecon({ glExpenseTotal: 0, bupotDPPTotal: 0, unmatchedDPP: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
+    setError(null);
+    setClientInfo(DEFAULT_CLIENT_INFO);
   };
 
   const handleFilterChange = (key, value) => {

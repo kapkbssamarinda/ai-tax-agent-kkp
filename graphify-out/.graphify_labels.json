@@ -1,11 +1,11 @@
 {
-  "0": "App State & Core Routing",
+  "0": "App.jsx",
   "1": "Caveman CLI & Compression Engine",
   "2": "Caveman Prompt & Rules Engine",
-  "3": "Accurate Accounting Parsers",
+  "3": "parserWorker.js",
   "4": "Compression Token Benchmarks",
-  "5": "Tax Modals & SP2DK Tab",
-  "6": "Partner Dashboard & Tax Calculations",
+  "5": "claudeService.js",
+  "6": "kkpWorkbookGenerator.js",
   "7": "Cavecrew Subagent Framework",
   "8": "UI & PDF Dependencies",
   "9": "Linting & Testing Tooling",
@@ -15,9 +15,9 @@
   "13": "AI Tax Architecture & KKP Blueprint",
   "14": "Lean Build & Safe Refactor Skills",
   "15": "Tax Analyst Guides & Reconciliation",
-  "16": "Oxlint Code Quality Rules",
+  "16": ".oxlintrc.json",
   "17": "Caveman Memory & Learning",
-  "18": "Changelog & Architectural History",
+  "18": "🏛️ AI Tax Agent & KKP Partner Platform",
   "19": "Investigation & Verification Skills",
   "20": "Client Company Auto-Detection",
   "21": "Skill File Markdown Tests",
@@ -39,5 +39,7 @@
   "37": "React Framework Vector Icon",
   "38": "Vite Bundler Vector Icon",
   "39": "Jest Test Environment Setup",
-  "40": "Vite Build Configuration"
+  "40": "Vite Build Configuration",
+  "41": "NumberedCanvas",
+  "42": "companyDetector.js"
 }

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Bot, FileSpreadsheet, ShieldCheck, Scale, Calculator, BookOpen, AlertCircle, Loader2, Sparkles, Check, Search, FileText, FileUp, X, Building2 } from 'lucide-react';
 import { TAX_CATEGORIES } from '../../tax-engine/taxMapping';
 import { REGULATION_DATABASE } from '../../services/regulationDB';
@@ -47,6 +47,15 @@ function TaxReconWorkbench({
   const [sptInput, setSptInput] = useState(revenueRecon.sptDPPTotal || 0);
   const [bupotInput, setBupotInput] = useState(expenseRecon.bupotDPPTotal || 0);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Sync inputs bila angka rekonsiliasi diperbarui dari luar/ganti file
+  useEffect(() => {
+    setSptInput(revenueRecon.sptDPPTotal || 0);
+  }, [revenueRecon.sptDPPTotal]);
+
+  useEffect(() => {
+    setBupotInput(expenseRecon.bupotDPPTotal || 0);
+  }, [expenseRecon.bupotDPPTotal]);
 
   const handleApplySpt = () => {
     onUpdateRevenueSPT(parseFloat(sptInput) || 0);

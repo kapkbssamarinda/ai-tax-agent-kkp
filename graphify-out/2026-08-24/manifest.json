@@ -84,10 +84,10 @@
     "semantic_hash": "41ae8a552052a53a59a2468b63e291b5"
   },
   "src/App.jsx": {
-    "mtime": 1787495130.3206096,
-    "seen": 1787496506.8653154,
-    "ast_hash": "963ed312f585b730a8671f4f1f649b2b",
-    "semantic_hash": "963ed312f585b730a8671f4f1f649b2b"
+    "mtime": 1787532514.2101815,
+    "seen": 1787532720.289579,
+    "ast_hash": "51a22d50785dc076ce745d9a451bc570",
+    "semantic_hash": ""
   },
   "src/App.test.jsx": {
     "mtime": 1786322232.9102647,
@@ -113,17 +113,11 @@
     "ast_hash": "2d4cf1fabda041ce77e5a0e6882c83b3",
     "semantic_hash": "2d4cf1fabda041ce77e5a0e6882c83b3"
   },
-  "src/components/RoleSelectionModal.jsx": {
-    "mtime": 1787362652.0577016,
-    "seen": 1787496506.8653243,
-    "ast_hash": "289685c56be295a8e04170a6e37dfd42",
-    "semantic_hash": "289685c56be295a8e04170a6e37dfd42"
-  },
   "src/components/Topbar.jsx": {
-    "mtime": 1787495130.3376741,
-    "seen": 1787496506.8653262,
-    "ast_hash": "db83b62997116c1112061d10e860744f",
-    "semantic_hash": "db83b62997116c1112061d10e860744f"
+    "mtime": 1787532464.8642583,
+    "seen": 1787532720.2895997,
+    "ast_hash": "e3d70e17a2d096a069de4fea6076837f",
+    "semantic_hash": ""
   },
   "src/components/WarningsPanel.jsx": {
     "mtime": 1786322232.921342,

@@ -1,22 +1,27 @@
 # Graph Report - ai-tax-agent  (2026-08-24)
 
 ## Corpus Check
-- 108 files · ~93,480 words
+- 109 files · ~120,416 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 539 nodes · 761 edges · 41 communities (30 shown, 11 thin omitted)
+- 553 nodes · 776 edges · 43 communities (31 shown, 12 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 14 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
+## Graph Freshness
+- Built from commit: `7ec753dd`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
+
 ## Community Hubs (Navigation)
-- App State & Core Routing
+- App.jsx
 - Caveman CLI & Compression Engine
 - Caveman Prompt & Rules Engine
-- Accurate Accounting Parsers
+- parserWorker.js
 - Compression Token Benchmarks
-- Tax Modals & SP2DK Tab
-- Partner Dashboard & Tax Calculations
+- claudeService.js
+- kkpWorkbookGenerator.js
 - Cavecrew Subagent Framework
 - UI & PDF Dependencies
 - Linting & Testing Tooling
@@ -26,9 +31,9 @@
 - AI Tax Architecture & KKP Blueprint
 - Lean Build & Safe Refactor Skills
 - Tax Analyst Guides & Reconciliation
-- Oxlint Code Quality Rules
+- .oxlintrc.json
 - Caveman Memory & Learning
-- Changelog & Architectural History
+- 🏛️ AI Tax Agent & KKP Partner Platform
 - Investigation & Verification Skills
 - Client Company Auto-Detection
 - Skill File Markdown Tests
@@ -47,6 +52,8 @@
 - Landing Page Hero Graphic
 - React Framework Vector Icon
 - Vite Bundler Vector Icon
+- NumberedCanvas
+- companyDetector.js
 
 ## God Nodes (most connected - your core abstractions)
 1. `Graphify Knowledge Graph Pipeline` - 22 edges
@@ -57,20 +64,20 @@
 6. `📘 Buku Panduan Praktis Staff Tax Analyst: Dari Raw GL hingga KKP & Partner Review` - 14 edges
 7. `📝 Panduan Alur Input Data Staff Tax Analyst (SOP Step-by-Step)` - 13 edges
 8. `generateKKPWorkbook()` - 12 edges
-9. `detect_file_type()` - 9 edges
-10. `App()` - 9 edges
+9. `🏛️ AI Tax Agent & KKP Partner Platform` - 12 edges
+10. `✨ Fitur-Fitur Utama` - 11 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Application HTML Entry Point` --references--> `GL Cleaner Favicon PNG`  [EXTRACTED]
   index.html → public/favicon.png
 - `Cavecrew Reviewer Subagent` --semantically_similar_to--> `Caveman Review Skill`  [INFERRED] [semantically similar]
   .agents/skills/cavecrew/SKILL.md → .agents/skills/caveman-review/SKILL.md
+- `GL Cleaner Vector Favicon SVG` --semantically_similar_to--> `GL Cleaner Favicon PNG`  [INFERRED] [semantically similar]
+  public/favicon.svg → public/favicon.png
 - `Server-Authoritative Execution Gate` --semantically_similar_to--> `Operator Approval Protocol`  [INFERRED] [semantically similar]
   .agents/skills/caveman-manage/SKILL.md → .agents/skills/caveman-discover/SKILL.md
 - `Lean Build Skill` --semantically_similar_to--> `Surgical Patch Skill`  [INFERRED] [semantically similar]
   .agents/skills/lean-build/SKILL.md → .agents/skills/surgical-patch/SKILL.md
-- `Surgical Patch Skill` --semantically_similar_to--> `Safe Refactor Skill`  [INFERRED] [semantically similar]
-  .agents/skills/surgical-patch/SKILL.md → .agents/skills/safe-refactor/SKILL.md
 
 ## Import Cycles
 - None detected.
@@ -83,11 +90,11 @@
 - **Caveman Auto-Clarity Safeguards** — _agents_skills_cavecrew_skill_auto_clarity, _agents_skills_caveman_commit_skill_auto_clarity, _agents_skills_caveman_review_skill_auto_clarity [INFERRED 0.85]
 - **Caveman Cloud Lifecycle Pipeline** — _agents_skills_caveman_setup_skill_setup, _agents_skills_caveman_discover_skill_discover, _agents_skills_caveman_evidence_review_skill_evidence_review, _agents_skills_caveman_manage_skill_manage [INFERRED 0.85]
 
-## Communities (41 total, 11 thin omitted)
+## Communities (43 total, 12 thin omitted)
 
-### Community 0 - "App State & Core Routing"
+### Community 0 - "App.jsx"
 Cohesion: 0.10
-Nodes (21): react, ACCURATE_COLUMNS, App(), getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail(), DataTable() (+13 more)
+Nodes (25): plugins, oxc, react, ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS (+17 more)
 
 ### Community 1 - "Caveman CLI & Compression Engine"
 Cohesion: 0.10
@@ -97,21 +104,21 @@ Nodes (37): main(), print_usage(), backup_dir_for(), build_compress_prompt(), bu
 Cohesion: 0.05
 Nodes (39): Caveman Auto-Clarity Fallback, Caveman Overview README, Caveman Intensity Levels, Caveman Auto-Clarity Safety Policy, Caveman Communication Mode, Caveman Compression Rules, Caveman Intensity Specifications, Caveman Stats Skill (+31 more)
 
-### Community 3 - "Accurate Accounting Parsers"
-Cohesion: 0.11
-Nodes (26): parseAccurateExcelRows(), parseAccurateXMLSS(), commonSuffixLength(), isBoilerplate(), parseAccuratePdfJournalText(), NOTE: this is a running balance accumulated only across rows seen in this…, ACCOUNT_TYPES, isBoilerplate() (+18 more)
+### Community 3 - "parserWorker.js"
+Cohesion: 0.13
+Nodes (23): parseAccurateExcelRows(), parseAccurateXMLSS(), commonSuffixLength(), isBoilerplate(), parseAccuratePdfJournalText(), NOTE: this is a running balance accumulated only across rows seen in this…, ACCOUNT_TYPES, isBoilerplate() (+15 more)
 
 ### Community 4 - "Compression Token Benchmarks"
 Cohesion: 0.11
 Nodes (28): benchmark_pair(), count_tokens(), main(), print_table(), Path, count_bullets(), extract_code_blocks(), extract_fenced_spans() (+20 more)
 
-### Community 5 - "Tax Modals & SP2DK Tab"
+### Community 5 - "claudeService.js"
 Cohesion: 0.14
 Nodes (27): AISettingsModal(), formatRupiah(), SP2DKResponseTab(), analyzeTaxFindings(), callClaudeTaxAnalysis(), extractAndParseClaudeJson(), extractObjectsFromIncompleteJson(), FALLBACK_MODELS (+19 more)
 
-### Community 6 - "Partner Dashboard & Tax Calculations"
-Cohesion: 0.13
-Nodes (23): PartnerDashboard(), REGULATION_DATABASE, calculateInterestSanction(), calculatePartnerDashboardMetrics(), calculatePPh23Exposure(), reconcileExpenseVsPPh23(), reconcileRevenueVsPPN(), TAX_RATES (+15 more)
+### Community 6 - "kkpWorkbookGenerator.js"
+Cohesion: 0.11
+Nodes (22): FakturPajakImportTab(), KEYWORD_PRESETS, KeywordScannerTab(), extractTaxBadge(), TaxReconWorkbench(), TaxRiskRegister(), REGULATION_DATABASE, ALIGN (+14 more)
 
 ### Community 7 - "Cavecrew Subagent Framework"
 Cohesion: 0.08
@@ -149,17 +156,17 @@ Nodes (9): Lean Build OpenAI Interface, Lean Build Skill, Lean Build Minimal Arc
 Cohesion: 0.09
 Nodes (22): A. Ekualisasi Omzet vs PPN (Tab 1: `Ekualisasi Omzet vs PPN`), A. Menjalankan Analisis AI Claude (Opsional / Jika Ada API Key), B. Ekualisasi Biaya vs PPh 23 (Tab 2: `Ekualisasi Biaya vs PPh 23`), B. Mengubah Status Telaah Reviewer, 🎯 Checklist & Tips Menghindari Kesalahan Input (Do's & Don'ts), 📑 Daftar Isi, 📌 Gambaran Umum Alur Input, Langkah-langkah Input: (+14 more)
 
-### Community 16 - "Oxlint Code Quality Rules"
-Cohesion: 0.25
-Nodes (7): plugins, rules, react/only-export-components, react/rules-of-hooks, $schema, oxc, warn
+### Community 16 - ".oxlintrc.json"
+Cohesion: 0.33
+Nodes (5): rules, react/only-export-components, react/rules-of-hooks, $schema, warn
 
 ### Community 17 - "Caveman Memory & Learning"
 Cohesion: 0.29
 Nodes (7): Caveman Learn Architecture & Binding, Caveman Learn Overview, Cavemem Offload Mechanism, Caveman Learn Skill, Never Make Agent Dumber Guard, Evidence Strength Rungs, Token Sink Classes
 
-### Community 18 - "Changelog & Architectural History"
-Cohesion: 0.09
-Nodes (22): 📑 1. Input & Parsing Buku Besar (GL), 1. Prasyarat Sistem, 2. Instalasi Dependensi, 🏷️ 2. Matriks Pemetaan Pajak (Tax Mapping), 🧾 3. Import & Matching Faktur Pajak, 3. Menjalankan Server Pengembangan (Local Development), 🔍 4. Global Keyword Scanner & Anomaly Detector, 4. Membangun untuk Produksi (Production Build) (+14 more)
+### Community 18 - "🏛️ AI Tax Agent & KKP Partner Platform"
+Cohesion: 0.07
+Nodes (27): 10. 👥 Dual-Role Gateway (RBAC), 1. 🧹 Ingesti & Pembersihan Buku Besar Multi-Format (GL Cleaner), 1. Prasyarat Sistem, 2. Instalasi Proyek, 2. 🏢 Smart Client & Tax Year Auto-Detector, 3. 🏷️ Matriks Pemetaan Pajak (Tax Mapping), 3. Menjalankan Server Pengembangan (Local Dev), 4. Membangun untuk Produksi (Production Build) (+19 more)
 
 ### Community 19 - "Investigation & Verification Skills"
 Cohesion: 0.40
@@ -189,24 +196,28 @@ Nodes (6): 1. Peningkatan Performa: Ekspor Excel Tanpa Lag (Web Worker), 2. Peni
 Cohesion: 0.67
 Nodes (3): Application Secondary Brand Logo PNG, Application Secondary Logo Mark PNG, Application Brand Logo PNG
 
+### Community 42 - "companyDetector.js"
+Cohesion: 0.90
+Nodes (3): detectCompanyAndTaxYear(), detectTaxYearFromStrings(), sanitizeCompanyName()
+
 ## Knowledge Gaps
-- **205 isolated node(s):** `name`, `version`, `license`, `private`, `type` (+200 more)
+- **212 isolated node(s):** `name`, `version`, `license`, `private`, `type` (+207 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `App State & Core Routing` to `Oxlint Code Quality Rules`, `Tax Modals & SP2DK Tab`, `Partner Dashboard & Tax Calculations`?**
-  _High betweenness centrality (0.009) - this node is a cross-community bridge._
-- **Why does `plugins` connect `Oxlint Code Quality Rules` to `App State & Core Routing`?**
+- **Why does `react` connect `App.jsx` to `claudeService.js`, `kkpWorkbookGenerator.js`?**
+  _High betweenness centrality (0.008) - this node is a cross-community bridge._
+- **Why does `plugins` connect `App.jsx` to `.oxlintrc.json`?**
   _High betweenness centrality (0.005) - this node is a cross-community bridge._
 - **Why does `validate()` connect `Compression Token Benchmarks` to `Caveman CLI & Compression Engine`?**
   _High betweenness centrality (0.005) - this node is a cross-community bridge._
 - **What connects `name`, `version`, `license` to the rest of the system?**
-  _205 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `App State & Core Routing` be split into smaller, more focused modules?**
-  _Cohesion score 0.09957325746799431 - nodes in this community are weakly interconnected._
+  _212 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `App.jsx` be split into smaller, more focused modules?**
+  _Cohesion score 0.10121457489878542 - nodes in this community are weakly interconnected._
 - **Should `Caveman CLI & Compression Engine` be split into smaller, more focused modules?**
   _Cohesion score 0.0951219512195122 - nodes in this community are weakly interconnected._
 - **Should `Caveman Prompt & Rules Engine` be split into smaller, more focused modules?**

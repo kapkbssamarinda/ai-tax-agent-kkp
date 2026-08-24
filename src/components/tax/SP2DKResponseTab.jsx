@@ -40,7 +40,7 @@ function formatRupiah(num) {
 
 export default function SP2DKResponseTab({
   clientInfo = {},
-  glRows = [],
+  _glRows = [],
   taxMappings = [],
   revenueRecon = {},
   expenseRecon = {},
@@ -97,6 +97,16 @@ export default function SP2DKResponseTab({
       setEditableLetter(fallback.fullLetter);
     }
   }, [clientInfo, sp2dkMeta, items, revenueRecon, expenseRecon, responseResult]);
+
+  // Sync tahun pajak jika profil klien berubah
+  useEffect(() => {
+    if (clientInfo.taxYear) {
+      setSp2dkMeta(prev => ({
+        ...prev,
+        tahunPajak: clientInfo.taxYear
+      }));
+    }
+  }, [clientInfo.taxYear]);
 
   // Deadline calculation
   const deadlineInfo = useMemo(() => {
