@@ -554,6 +554,8 @@ function App() {
               revenueRecon={revenueRecon}
               expenseRecon={expenseRecon}
               clientInfo={clientInfo}
+              glRows={processedData}
+              taxMappings={taxMappings}
               onDownloadKKP={handleDownloadKKP}
             />
           )}

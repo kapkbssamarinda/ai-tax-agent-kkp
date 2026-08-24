@@ -2,7 +2,7 @@ import React from 'react';
 import { ShieldAlert, AlertTriangle, FileSpreadsheet, CheckCircle, TrendingUp, HelpCircle, ArrowUpRight } from 'lucide-react';
 import { calculatePartnerDashboardMetrics } from '../../tax-engine/deterministicCalc';
 
-function PartnerDashboard({ findings = [], revenueRecon = {}, expenseRecon = {}, clientInfo = {}, onDownloadKKP }) {
+function PartnerDashboard({ findings = [], revenueRecon = {}, expenseRecon = {}, clientInfo = {}, glRows = [], taxMappings = [], onDownloadKKP }) {
   const metrics = calculatePartnerDashboardMetrics(findings);
   const handleDownloadKKP = onDownloadKKP || (() => {});
 
