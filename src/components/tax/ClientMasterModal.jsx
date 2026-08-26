@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Building2, X, Save } from 'lucide-react';
 
 function ClientMasterModal({ isOpen, onClose, clientInfo, onSave }) {
@@ -11,6 +11,7 @@ function ClientMasterModal({ isOpen, onClose, clientInfo, onSave }) {
     seniorName: 'Auditor Senior',
     auditDate: new Date().toISOString().split('T')[0]
   });
+  const closeButtonRef = useRef(null);
 
   // Sinkronisasi form dengan data klien terbaru (termasuk hasil auto-detect dari GL)
   useEffect(() => {
@@ -18,6 +19,23 @@ function ClientMasterModal({ isOpen, onClose, clientInfo, onSave }) {
       setFormData(clientInfo);
     }
   }, [clientInfo, isOpen]);
+
+  // Fokus ke tombol tutup saat modal terbuka
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => closeButtonRef.current?.focus(), 50);
+    }
+  }, [isOpen]);
+
+  // Tutup modal dengan tombol Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -32,17 +50,17 @@ function ClientMasterModal({ isOpen, onClose, clientInfo, onSave }) {
   };
 
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true">
+    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="client-master-title">
       <div className="modal-box client-master-box">
         <div className="modal-header">
           <div className="modal-title-wrap">
             <Building2 className="modal-icon" size={22} />
             <div>
-              <h2 className="modal-title">Master Data Klien & KKP</h2>
+              <h2 id="client-master-title" className="modal-title">Master Data Klien & KKP</h2>
               <p className="modal-subtitle">Informasi profil entitas yang akan dicantumkan pada Kertas Kerja Pemeriksaan (KKP).</p>
             </div>
           </div>
-          <button className="btn-icon" onClick={onClose} aria-label="Tutup modal">
+          <button ref={closeButtonRef} className="btn-icon" onClick={onClose} aria-label="Tutup modal">
             <X size={18} />
           </button>
         </div>

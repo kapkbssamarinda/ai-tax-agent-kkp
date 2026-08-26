@@ -17,6 +17,7 @@
   /* Skala z-index semantik — tidak ada angka arbitrer */
   --z-rail: 100;
   --z-sticky: 200;
+  --z-modal: 300;
 
 
   /* ===== Tema gelap (DEFAULT — dark-first) =====

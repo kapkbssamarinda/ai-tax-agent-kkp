@@ -119,7 +119,7 @@ function TaxReconWorkbench({
   }, [glRows, pph23AccountNames, searchQuery]);
 
   return (
-    <div className="tax-recon-workbench">
+    <main className="tax-recon-workbench" aria-label="AI Tax Agent &amp; KKP Workbench">
       {/* Top Header & AI Trigger */}
       <div className="workbench-top-banner">
         <div className="banner-left">
@@ -695,7 +695,7 @@ function TaxReconWorkbench({
           />
         </div>
       )}
-    </div>
+    </main>
   );
 }
 

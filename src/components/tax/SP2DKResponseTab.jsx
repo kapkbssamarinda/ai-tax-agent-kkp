@@ -73,6 +73,8 @@ export default function SP2DKResponseTab({
   const [editableLetter, setEditableLetter] = useState('');
   const [isPdfLoading, setIsPdfLoading] = useState(false);
   const fileInputRef = useRef(null);
+  const [isPresetMenuOpen, setIsPresetMenuOpen] = useState(false);
+  const presetMenuRef = useRef(null);
 
   // Sync initial generated fallback if not generated yet
   useEffect(() => {
@@ -98,6 +100,25 @@ export default function SP2DKResponseTab({
       }));
     }
   }, [clientInfo.taxYear]);
+
+  // Tutup preset menu saat klik di luar atau Escape
+  useEffect(() => {
+    if (!isPresetMenuOpen) return;
+    const handleClickOutside = (e) => {
+      if (presetMenuRef.current && !presetMenuRef.current.contains(e.target)) {
+        setIsPresetMenuOpen(false);
+      }
+    };
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') setIsPresetMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isPresetMenuOpen]);
 
   // Deadline calculation
   const deadlineInfo = useMemo(() => {
@@ -376,22 +397,31 @@ export default function SP2DKResponseTab({
             Upload PDF SP2DK
           </button>
 
-          <div className="dropdown-presets">
-            <button className="btn btn-ghost" title="Muat contoh kasus SP2DK siap uji">
+          <div className="dropdown-presets" ref={presetMenuRef}>
+            <button
+              className="btn btn-ghost"
+              title="Muat contoh kasus SP2DK siap uji"
+              aria-haspopup="menu"
+              aria-expanded={isPresetMenuOpen}
+              onClick={() => setIsPresetMenuOpen(prev => !prev)}
+            >
               <Layers size={15} /> Contoh Kasus Demo
             </button>
-            <div className="preset-menu">
-              {SP2DK_DEMO_PRESETS.map(p => (
-                <button
-                  key={p.id}
-                  className="preset-menu-item"
-                  onClick={() => handleSelectPreset(p.id)}
-                >
-                  <span className="preset-item-title">{p.title}</span>
-                  <span className="preset-item-desc">{p.description}</span>
-                </button>
-              ))}
-            </div>
+            {isPresetMenuOpen && (
+              <div className="preset-menu" role="menu">
+                {SP2DK_DEMO_PRESETS.map(p => (
+                  <button
+                    key={p.id}
+                    role="menuitem"
+                    className="preset-menu-item"
+                    onClick={() => { handleSelectPreset(p.id); setIsPresetMenuOpen(false); }}
+                  >
+                    <span className="preset-item-title">{p.title}</span>
+                    <span className="preset-item-desc">{p.description}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -553,8 +583,9 @@ export default function SP2DKResponseTab({
                   {/* Numbers Grid */}
                   <div className="item-numbers-grid">
                     <div className="num-field">
-                      <label>Data Menurut SP2DK DJP</label>
+                      <label htmlFor={`djp-input-${idx}`}>Data Menurut SP2DK DJP</label>
                       <input
+                        id={`djp-input-${idx}`}
                         type="number"
                         className="form-control"
                         value={item.nilaiDJP}
@@ -562,8 +593,9 @@ export default function SP2DKResponseTab({
                       />
                     </div>
                     <div className="num-field">
-                      <label>Data Menurut GL / SPT Kami</label>
+                      <label htmlFor={`wp-input-${idx}`}>Data Menurut GL / SPT Kami</label>
                       <input
+                        id={`wp-input-${idx}`}
                         type="number"
                         className="form-control"
                         value={item.nilaiWajibPajak}

@@ -1600,6 +1600,18 @@
   gap: 14px;
 }
 
+.finding-summary:focus-visible {
+  outline: 2px solid var(--accent-base);
+  outline-offset: -2px;
+}
+
+.finding-chevron {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+
 .finding-header-left {
   display: flex;
   align-items: center;
@@ -2443,7 +2455,8 @@
 }
 
 .finding-card.is-misclassified {
-  border-left: 4px solid #ef4444;
+  border: 1px solid color-mix(in srgb, #ef4444 35%, var(--border-default));
+  background: color-mix(in srgb, #ef4444 4%, var(--bg-surface));
 }
 
 .detail-box-highlight {
@@ -2675,18 +2688,16 @@
   position: relative;
 }
 
-.dropdown-presets:hover .preset-menu {
-  display: flex;
-}
+/* Preset menu dikontrol via React state (isPresetMenuOpen) — CSS :hover dihapus */
 
 .preset-menu {
-  display: none;
+  display: flex;
   position: absolute;
   top: 100%;
   right: 0;
   z-index: 50;
   width: 320px;
-  background: var(--bg-surface-raised, #1e293b);
+  background: var(--bg-surface);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
@@ -2975,12 +2986,13 @@
   max-height: 750px;
   overflow-y: auto;
   padding: 20px;
-  background: #f8fafc;
-  color: #0f172a;
+  /* Area scroll menggunakan token tema — formal-letterhead-sheet di dalamnya yang hardcoded putih */
+  background: var(--bg-surface);
+  color: var(--text-primary);
 }
 
 .light .letter-container-scrollable {
-  background: #ffffff;
+  background: #f1f5f9;
   color: #0f172a;
 }
 
@@ -3078,7 +3090,8 @@
   margin-bottom: 12px;
   padding: 8px 12px;
   background: #f8fafc;
-  border-left: 3px solid #64748b;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
   font-size: 13px;
 }
 

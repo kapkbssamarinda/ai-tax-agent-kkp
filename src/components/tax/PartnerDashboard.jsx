@@ -7,7 +7,7 @@ function PartnerDashboard({ findings = [], revenueRecon = {}, expenseRecon = {},
   const handleDownloadKKP = onDownloadKKP || (() => {});
 
   return (
-    <div className="partner-dashboard">
+    <main className="partner-dashboard" aria-label="Partner Dashboard Ringkasan Pajak">
       <div className="dashboard-hero">
         <div className="dashboard-hero-content">
           <div className="hero-badge">
@@ -165,7 +165,7 @@ function PartnerDashboard({ findings = [], revenueRecon = {}, expenseRecon = {},
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

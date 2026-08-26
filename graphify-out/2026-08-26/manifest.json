@@ -84,8 +84,8 @@
     "semantic_hash": "41ae8a552052a53a59a2468b63e291b5"
   },
   "src/App.jsx": {
-    "mtime": 1787713518.8876708,
-    "seen": 1787715409.391148,
+    "mtime": 1787580625.869429,
+    "seen": 1787581986.8868105,
     "ast_hash": "0a2ffebb70eba27e17bfe28aea36b21a",
     "semantic_hash": "0a2ffebb70eba27e17bfe28aea36b21a"
   },
@@ -132,16 +132,16 @@
     "semantic_hash": "4dee159019971d5c937d3b5913b60654"
   },
   "src/components/tax/AISettingsModal.jsx": {
-    "mtime": 1787709748.673547,
-    "seen": 1787715409.391164,
-    "ast_hash": "3e85d95f35d521e7b40fddc6952472af",
-    "semantic_hash": ""
+    "mtime": 1787581688.1818125,
+    "seen": 1787581986.886829,
+    "ast_hash": "66ac9d9a39f4b72358b950744b50ca0e",
+    "semantic_hash": "66ac9d9a39f4b72358b950744b50ca0e"
   },
   "src/components/tax/ClientMasterModal.jsx": {
-    "mtime": 1787709748.673547,
-    "seen": 1787715409.3911664,
-    "ast_hash": "f70e8e420a3025271047bc016690cabc",
-    "semantic_hash": ""
+    "mtime": 1787579644.8384025,
+    "seen": 1787581986.8868306,
+    "ast_hash": "603bd83c53ea510ae83a2c1bc3f043d4",
+    "semantic_hash": "603bd83c53ea510ae83a2c1bc3f043d4"
   },
   "src/components/tax/KeywordScannerTab.jsx": {
     "mtime": 1787581688.1828089,
@@ -150,28 +150,28 @@
     "semantic_hash": "ff6b2cb7026013655e89352f2806c6c2"
   },
   "src/components/tax/PartnerDashboard.jsx": {
-    "mtime": 1787713518.8876708,
-    "seen": 1787715409.3911703,
-    "ast_hash": "59f5d2b8b4a5b63223e4f7586ab42d75",
-    "semantic_hash": ""
+    "mtime": 1787580620.97517,
+    "seen": 1787581986.8868341,
+    "ast_hash": "ebe2525389d88f531030d282047c4072",
+    "semantic_hash": "ebe2525389d88f531030d282047c4072"
   },
   "src/components/tax/SP2DKResponseTab.jsx": {
-    "mtime": 1787709748.673547,
-    "seen": 1787715409.3911717,
-    "ast_hash": "0a8c072ea8489fa96001c9ebfe1adfa9",
-    "semantic_hash": ""
+    "mtime": 1787579679.5784981,
+    "seen": 1787581986.886836,
+    "ast_hash": "42f6233caf2b53c680c75596cd13158e",
+    "semantic_hash": "42f6233caf2b53c680c75596cd13158e"
   },
   "src/components/tax/TaxReconWorkbench.jsx": {
-    "mtime": 1787713518.8886795,
-    "seen": 1787715409.3911731,
-    "ast_hash": "08aa1755ef8040d28c56508a4645f09e",
-    "semantic_hash": ""
+    "mtime": 1787580212.2388978,
+    "seen": 1787581986.8868372,
+    "ast_hash": "6c456f559bdde1b128d9cf36538a978a",
+    "semantic_hash": "6c456f559bdde1b128d9cf36538a978a"
   },
   "src/components/tax/TaxRiskRegister.jsx": {
-    "mtime": 1787713518.8896747,
-    "seen": 1787715409.3911746,
-    "ast_hash": "b231e81ea75643faeca1b8b02c0c78ba",
-    "semantic_hash": ""
+    "mtime": 1787411087.0795724,
+    "seen": 1787496506.865345,
+    "ast_hash": "01aa27bc25783a01921087131d5e4c2f",
+    "semantic_hash": "01aa27bc25783a01921087131d5e4c2f"
   },
   "src/main.jsx": {
     "mtime": 1786322232.9233446,
@@ -660,10 +660,10 @@
     "semantic_hash": "fd1fc9a0428107527a8482e5b7766dbc"
   },
   "README.md": {
-    "mtime": 1787715236.9617128,
-    "seen": 1787715409.3913302,
-    "ast_hash": "5c5c73ae455a3721583a5d6041827165",
-    "semantic_hash": ""
+    "mtime": 1787539249.709434,
+    "seen": 1787581986.8869934,
+    "ast_hash": "1b6e8db00ad69137caa6ecfc83b9fa8a",
+    "semantic_hash": "1b6e8db00ad69137caa6ecfc83b9fa8a"
   },
   "graphify-out/converted/merger-faktur_0c974ac1.md": {
     "mtime": 1787496040.7736437,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Bot, CheckCircle2, AlertCircle, Loader2, X, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { getSavedApiKey, saveApiKey, getSavedModel, saveModel, testClaudeConnection } from '../../services/claudeService';
 
@@ -8,14 +8,27 @@ function AISettingsModal({ isOpen, onClose }) {
   const [showKey, setShowKey] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null); // { success: boolean, message: string }
+  const closeButtonRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
       setApiKey(getSavedApiKey());
       setModel(getSavedModel());
       setTestResult(null);
+      // Fokus otomatis ke tombol tutup saat modal terbuka
+      setTimeout(() => closeButtonRef.current?.focus(), 50);
     }
   }, [isOpen]);
+
+  // Tutup modal dengan tombol Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -57,17 +70,17 @@ function AISettingsModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true">
+    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="ai-settings-title">
       <div className="modal-box ai-settings-box">
         <div className="modal-header">
           <div className="modal-title-wrap">
             <Bot className="modal-icon" size={22} />
             <div>
-              <h2 className="modal-title">Pengaturan AI Tax Agent (Claude BYOK)</h2>
+              <h2 id="ai-settings-title" className="modal-title">Pengaturan AI Tax Agent (Claude BYOK)</h2>
               <p className="modal-subtitle">Gunakan kunci API Anthropic Anda sendiri secara privat & aman.</p>
             </div>
           </div>
-          <button className="btn-icon" onClick={onClose} aria-label="Tutup modal">
+          <button ref={closeButtonRef} className="btn-icon" onClick={onClose} aria-label="Tutup modal">
             <X size={18} />
           </button>
         </div>

@@ -8,7 +8,7 @@
 ![Engine](https://img.shields.io/badge/AI%20Engine-Anthropic%20Claude%20(BYOK)-8A2BE2.svg?style=flat-square)
 ![Excel](https://img.shields.io/badge/Excel%20Engine-xlsx--js--style-107C41.svg?style=flat-square&logo=microsoftexcel)
 ![PDF](https://img.shields.io/badge/PDF%20Parser-pdfjs--dist-FF0000.svg?style=flat-square)
-![Tests](https://img.shields.io/badge/Vitest-46%20passed-brightgreen.svg?style=flat-square&logo=vitest)
+![Tests](https://img.shields.io/badge/Vitest-56%20passed-brightgreen.svg?style=flat-square&logo=vitest)
 
 **Sistem Audit Diagnostik Perpajakan Indonesia, Ekualisasi Fiskal Otomatis, Analisis Semantik AI Claude, Kertas Kerja Pemeriksaan (KKP 13-Sheet Styled Excel), dan SP2DK Tax Audit Response Agent.**
 
@@ -78,6 +78,7 @@ Platform ini memadukan **dua mesin komputasi (Dual-Engine Architecture)**:
 * Mode tampilan ganda: **Per Faktur** (*collapsible header*) dan **Per Rincian Barang** (*item level*).
 * *Strict Matching Engine* ke Buku Besar berdasarkan Nomor Invoice, NSFP (8 digit), atau kombinasi nominal persis.
 * Fitur **Sinkronisasi 1-Klik** untuk mentransfer total DPP Faktur langsung ke form Rekonsiliasi Omzet vs PPN.
+* Terintegrasi langsung dalam tab **`TaxReconWorkbench`** dengan deteksi badge otomatis nomor Faktur Pajak (`FP`) dan Bukti Potong (`Bupot`) pada kolom uraian transaksi GL.
 
 ### 5. 🔍 Global Keyword Scanner & Anomaly Detector
 * Pemindaian kata kunci bebas di seluruh transaksi Buku Besar tanpa batasan mapping akun.
@@ -110,9 +111,9 @@ Platform ini memadukan **dua mesin komputasi (Dual-Engine Architecture)**:
 * **Top 5 Matters Requiring Partner Attention:** Rekomendasi tindakan prioritas untuk penelaahan Partner in Charge.
 * Tabel ringkasan cepat status rekonsiliasi seluruh area perpajakan.
 
-### 10. 👥 Dual-Role Gateway (RBAC)
-* **Role Auditor:** Fokus pada pembersihan Buku Besar, navigasi COA, tabel data virtual, dan ekspor data bersih.
-* **Role Pajak:** Akses penuh ke seluruh fitur diagnostik pajak, ekualisasi, faktur pajak, SP2DK response agent, dan KKP workbook generator.
+### 10. 🔐 Akses Terpadu & Konfigurasi Pengguna
+* Semua pengguna mendapatkan akses penuh ke seluruh modul aplikasi: GL Cleaner, Tax Recon Workbench, SP2DK Response Agent, KKP Generator, dan Partner Dashboard.
+* Konfigurasi identitas tim audit (*Partner in Charge, Manager, Senior Auditor, Staff*) melalui **`ClientMasterModal`**, tersimpan di `localStorage` dan disinkronisasi otomatis ke seluruh output KKP dan kop surat SP2DK.
 
 ---
 
@@ -256,10 +257,8 @@ ai-tax-agent/
 │   │   ├── DataTable.jsx           # Tabel data virtual (@tanstack/react-virtual)
 │   │   ├── AccountRail.jsx         # Sidebar filter Chart of Accounts (COA)
 │   │   ├── WarningsPanel.jsx       # Panel peringatan parsing data
-│   │   ├── RoleSelectionModal.jsx  # Modal penentuan peran (Auditor vs Pajak)
 │   │   └── tax/                    # Modul Workbench Perpajakan
 │   │       ├── TaxReconWorkbench.jsx   # Workbench utama (Tab Navigasi Pajak)
-│   │       ├── FakturPajakImportTab.jsx# Modul Faktur Pajak Multi-item & Matching
 │   │       ├── KeywordScannerTab.jsx   # Global Keyword & Anomaly Detector
 │   │       ├── SP2DKResponseTab.jsx    # SP2DK Parser & Response Letter Generator
 │   │       ├── TaxRiskRegister.jsx     # Register Temuan Risiko Pajak & Scoring
@@ -286,6 +285,9 @@ ai-tax-agent/
 │   │   ├── riskScoring.js          # Algoritma Matriks Skor Risiko (1-25)
 │   │   ├── taxMapping.js           # Aturan Otomatis Klasifikasi Akun COA
 │   │   └── kkpWorkbookGenerator.js # Styled 13-Sheet Excel KKP Generator
+│   ├── utils/                      # Utilitas Bersama (Shared Utilities)
+│   │   ├── formatters.js           # Singleton formatter Rupiah & angka (Intl.NumberFormat)
+│   │   └── constants.js            # Single source of truth: RISK_LEVELS, RISK_THRESHOLDS, FINDING_STATUSES
 │   ├── App.jsx                     # Orchestrator State Utama Aplikasi
 │   ├── App.css                     # Styling antarmuka sistem
 │   ├── index.css                   # Design tokens & variabel tema

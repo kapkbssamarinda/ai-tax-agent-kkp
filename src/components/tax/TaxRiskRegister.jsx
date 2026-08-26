@@ -108,7 +108,20 @@ function TaxRiskRegister({ findings = [], onUpdateStatus }) {
 
             return (
               <div key={finding.findingId} className={`finding-card ${finding.isMisclassified ? 'is-misclassified' : ''} ${isExpanded ? 'is-expanded' : ''}`}>
-                <div className="finding-summary" onClick={() => toggleExpand(finding.findingId)}>
+                <div
+                  className="finding-summary"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => toggleExpand(finding.findingId)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      toggleExpand(finding.findingId);
+                    }
+                  }}
+                  aria-expanded={isExpanded}
+                  aria-controls={`finding-details-${finding.findingId}`}
+                >
                   <div className="finding-header-left">
                     <span className="finding-id">{finding.findingId}</span>
 
@@ -147,14 +160,14 @@ function TaxRiskRegister({ findings = [], onUpdateStatus }) {
                     <span className={`badge-status ${getStatusBadgeClass(finding.status)}`}>
                       {finding.status}
                     </span>
-                    <button className="btn-icon-subtle" aria-label="Lihat Detail">
+                    <span className="finding-chevron" aria-hidden="true">
                       {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                    </button>
+                    </span>
                   </div>
                 </div>
 
                 {isExpanded && (
-                  <div className="finding-details">
+                  <div className="finding-details" id={`finding-details-${finding.findingId}`}>
                     <div className="detail-grid">
                       {/* Sumber Analisis */}
                       <div className="detail-item detail-item-full engine-info-box">
