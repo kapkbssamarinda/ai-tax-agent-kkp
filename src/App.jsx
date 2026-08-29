@@ -638,11 +638,12 @@ function App() {
     ? accounts.find(a => a.nama === selectedAccount)
     : null;
 
-  // Loading state saat periksa session Supabase
+  // Loading state saat periksa session Supabase (dengan batas waktu safety timeout 2.5s)
   if (authLoading) {
     return (
-      <div className="app-shell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-        <Loader2 size={32} className="spinner" />
+      <div className="app-shell" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '1rem', background: 'var(--bg-app, #0b1220)' }}>
+        <Loader2 size={36} className="spinner" style={{ color: 'var(--accent-base, #60a5fa)' }} />
+        <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary, #cbd5e1)' }}>Memuat sesi AI Tax Agent...</p>
       </div>
     );
   }
