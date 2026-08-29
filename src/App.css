@@ -3519,21 +3519,138 @@
 .ai-reclassified-row:hover { background: rgba(139, 92, 246, 0.08) !important; }
 
 /* === Topbar User Section === */
+/* === Topbar User Section === */
 .topbar-user-section {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-left: 0.5rem;
 }
+
+.topbar-user-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--bg-surface, #16161e);
+  border: 1px solid var(--border-default, #2a2a3a);
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: all 0.15s ease;
+  text-align: left;
+}
+.topbar-user-pill-btn:hover {
+  border-color: var(--accent-base, #8b5cf6);
+  background: rgba(139, 92, 246, 0.08);
+}
+
+.topbar-user-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--accent-base, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.topbar-user-info-text {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .topbar-user-name {
   font-size: var(--fs-xs, 0.8rem);
   font-weight: 600;
-  color: var(--text-secondary);
-  max-width: 140px;
+  color: var(--text-primary);
+  max-width: 130px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.topbar-user-role-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+.topbar-user-role-badge.is-admin {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+}
+.topbar-user-role-badge.is-analyst {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+/* === User Profile Modal === */
+.user-profile-modal {
+  max-width: 460px !important;
+  width: 100%;
+}
+
+.user-profile-avatar-header {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.user-profile-info-card {
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md, 8px);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-default, #2a2a3a);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.user-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+}
+
+.user-info-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-secondary);
+}
+
+.user-info-val {
+  color: var(--text-primary);
+}
+
+.user-password-section {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border-radius: var(--radius-md, 8px);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--border-default, #2a2a3a);
+}
+
+.user-password-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
 
 
 

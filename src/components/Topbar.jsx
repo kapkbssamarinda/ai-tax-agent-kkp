@@ -16,7 +16,9 @@ import {
   FolderOpen,
   ChevronDown,
   LogOut,
-  Shield
+  Shield,
+  User,
+  KeyRound
 } from 'lucide-react';
 // logo2-mark.png = crop mark "RV" dari logo/logo2.png
 import logoImage from '../assets/logo2-mark.png';
@@ -37,6 +39,7 @@ function Topbar({
   onSelectViewMode,
   onOpenAISettings,
   onOpenClientMaster,
+  onOpenUserProfile,
   clientInfo = {},
   userProfile = null,
   isAdmin = false,
@@ -304,20 +307,35 @@ function Topbar({
         {/* User Info & Actions */}
         {userProfile && (
           <div className="topbar-user-section">
-            <span className="topbar-user-name" title={userProfile.email}>
-              {userProfile.full_name || userProfile.email}
-            </span>
+            <button
+              type="button"
+              className="topbar-user-pill-btn"
+              onClick={onOpenUserProfile}
+              title={`Akun: ${userProfile.full_name || userProfile.email} (${isAdmin ? 'Admin' : 'Analyst'}) — Klik untuk ubah password/profil`}
+            >
+              <div className="topbar-user-avatar">
+                <User size={13} />
+              </div>
+              <div className="topbar-user-info-text">
+                <span className="topbar-user-name">{userProfile.full_name || userProfile.email}</span>
+                <span className={`topbar-user-role-badge ${isAdmin ? 'is-admin' : 'is-analyst'}`}>
+                  {isAdmin ? 'Admin' : 'Analyst'}
+                </span>
+              </div>
+            </button>
+
             {isAdmin && onOpenAdmin && (
               <button
                 type="button"
                 className="btn btn-ghost btn-action-sm"
                 onClick={onOpenAdmin}
-                title="Kelola Pengguna (Admin)"
+                title="Kelola Pengguna (Admin Dashboard)"
               >
                 <Shield size={14} className="text-accent" />
                 <span className="btn-label-responsive">Admin</span>
               </button>
             )}
+
             {onSignOut && (
               <button
                 type="button"

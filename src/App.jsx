@@ -13,6 +13,7 @@ import ClientMasterModal from './components/tax/ClientMasterModal';
 import PartnerDashboard from './components/tax/PartnerDashboard';
 import TaxReconWorkbench from './components/tax/TaxReconWorkbench';
 import LoginPage from './components/auth/LoginPage';
+import UserProfileModal from './components/auth/UserProfileModal';
 import AdminDashboard from './components/admin/AdminDashboard';
 import { useAuth } from './contexts/AuthContext';
 import { buildTaxMappingFromGL } from './tax-engine/taxMapping';
@@ -98,6 +99,7 @@ function App() {
   // Modals & Client Master State
   const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
   const [isClientMasterOpen, setIsClientMasterOpen] = useState(false);
+  const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
   const [clientInfo, setClientInfo] = useState(DEFAULT_CLIENT_INFO);
   const [availableDraft, setAvailableDraft] = useState(null);
 
@@ -679,6 +681,7 @@ function App() {
         onSelectViewMode={setViewMode}
         onOpenAISettings={() => setIsAISettingsOpen(true)}
         onOpenClientMaster={() => setIsClientMasterOpen(true)}
+        onOpenUserProfile={() => setIsUserProfileOpen(true)}
         clientInfo={clientInfo}
         userProfile={profile}
         isAdmin={isAdmin}
@@ -854,6 +857,11 @@ function App() {
         onClose={() => setIsClientMasterOpen(false)}
         clientInfo={clientInfo}
         onSave={setClientInfo}
+      />
+
+      <UserProfileModal
+        isOpen={isUserProfileOpen}
+        onClose={() => setIsUserProfileOpen(false)}
       />
 
       <footer className="app-footer">

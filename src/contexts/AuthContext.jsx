@@ -70,10 +70,27 @@ export function AuthProvider({ children }) {
     return data;
   }
 
-  async function signOut() {
-    await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
+  async function updatePassword(newPassword) {
+    if (!newPassword || newPassword.length < 6) {
+      throw new Error('Password baru minimal 6 karakter.');
+    }
+    const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+    return data;
+  }
+
+  async function updateProfile({ fullName }) {
+    if (!user) throw new Error('Sesi pengguna tidak valid.');
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ full_name: fullName, updated_at: new Date().toISOString() })
+      .eq('id', user.id);
+
+    if (profileError) throw profileError;
+
+    const updated = await fetchProfile(user.id);
+    setProfile(updated);
+    return updated;
   }
 
   const value = {
@@ -82,6 +99,8 @@ export function AuthProvider({ children }) {
     loading,
     signIn,
     signOut,
+    updatePassword,
+    updateProfile,
     isAdmin: profile?.role === 'admin',
     isAuthenticated: !!user && (profile ? profile.is_active !== false : true),
     userId: user?.id || null
