@@ -1,7 +1,7 @@
 # Graph Report - ai-tax-agent  (2026-08-29)
 
 ## Corpus Check
-- 125 files · ~124,517 words
+- 125 files · ~124,631 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0c439576`
+- Built from commit: `0d19d4de`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

@@ -317,60 +317,84 @@ function TaxReconWorkbench({
       )}
 
       {/* Navigation Tabs */}
-      <div className="tax-nav-tabs">
+      <div className="tax-nav-tabs" aria-label="Menu Rekonsiliasi & Pemeriksaan Pajak">
         <button
+          type="button"
           className={`tax-tab-btn ${activeTab === 'REVENUE_PPN' ? 'is-active' : ''}`}
           onClick={() => { setActiveTab('REVENUE_PPN'); setSearchQuery(''); }}
         >
-          <Scale size={16} /> Ekualisasi Omzet vs PPN ({revenueTransactions.length})
+          <Scale size={15} className="tax-tab-icon" />
+          <span className="tax-tab-label">Ekualisasi Omzet vs PPN</span>
+          <span className="tax-tab-badge">{revenueTransactions.length}</span>
         </button>
         <button
+          type="button"
           className={`tax-tab-btn ${activeTab === 'EXPENSE_PPH23' ? 'is-active' : ''}`}
           onClick={() => { setActiveTab('EXPENSE_PPH23'); setSearchQuery(''); }}
         >
-          <Calculator size={16} /> Ekualisasi Biaya vs PPh 23 ({expenseTransactions.length})
+          <Calculator size={15} className="tax-tab-icon" />
+          <span className="tax-tab-label">Ekualisasi Biaya vs PPh 23</span>
+          <span className="tax-tab-badge">{expenseTransactions.length}</span>
         </button>
         <button
+          type="button"
           className={`tax-tab-btn ${activeTab === 'PAYROLL_PPH21' ? 'is-active' : ''}`}
           onClick={() => { setActiveTab('PAYROLL_PPH21'); setSearchQuery(''); }}
         >
-          <Users size={16} /> Ekualisasi Gaji vs PPh 21 ({payrollTransactions.length})
+          <Users size={15} className="tax-tab-icon" />
+          <span className="tax-tab-label">Ekualisasi Gaji vs PPh 21</span>
+          <span className="tax-tab-badge">{payrollTransactions.length}</span>
         </button>
         <button
+          type="button"
           className={`tax-tab-btn ${activeTab === 'RENT_PPH_FINAL' ? 'is-active' : ''}`}
           onClick={() => { setActiveTab('RENT_PPH_FINAL'); setSearchQuery(''); }}
         >
-          <Building2 size={16} /> Ekualisasi Sewa/Konstruksi ({finalTaxTransactions.length})
+          <Building2 size={15} className="tax-tab-icon" />
+          <span className="tax-tab-label">Ekualisasi Sewa/Konstruksi</span>
+          <span className="tax-tab-badge">{finalTaxTransactions.length}</span>
         </button>
         <button
+          type="button"
           className={`tax-tab-btn ${activeTab === 'IMPORT_FAKTUR' ? 'is-active' : ''}`}
           onClick={() => { setActiveTab('IMPORT_FAKTUR'); setSearchQuery(''); }}
         >
-          <FileUp size={16} /> Import Faktur Pajak
+          <FileUp size={15} className="tax-tab-icon" />
+          <span className="tax-tab-label">Import Faktur Pajak</span>
         </button>
         <button
+          type="button"
           className={`tax-tab-btn ${activeTab === 'KEYWORD_SCANNER' ? 'is-active' : ''}`}
           onClick={() => { setActiveTab('KEYWORD_SCANNER'); setSearchQuery(''); }}
         >
-          <Search size={16} /> Keyword &amp; Anomali Scanner
+          <Search size={15} className="tax-tab-icon" />
+          <span className="tax-tab-label">Keyword &amp; Anomali Scanner</span>
         </button>
         <button
+          type="button"
           className={`tax-tab-btn ${activeTab === 'TAX_MAPPING' ? 'is-active' : ''}`}
           onClick={() => setActiveTab('TAX_MAPPING')}
         >
-          <ShieldCheck size={16} /> Tax Mapping Akun ({taxMappings.length})
+          <ShieldCheck size={15} className="tax-tab-icon" />
+          <span className="tax-tab-label">Tax Mapping Akun</span>
+          <span className="tax-tab-badge">{taxMappings.length}</span>
         </button>
         <button
+          type="button"
           className={`tax-tab-btn ${activeTab === 'FINDINGS' ? 'is-active' : ''}`}
           onClick={() => setActiveTab('FINDINGS')}
         >
-          <AlertCircle size={16} /> Tax Risk Register ({findings.length})
+          <AlertCircle size={15} className="tax-tab-icon" />
+          <span className="tax-tab-label">Tax Risk Register</span>
+          <span className="tax-tab-badge">{findings.length}</span>
         </button>
         <button
+          type="button"
           className={`tax-tab-btn ${activeTab === 'REGULATIONS' ? 'is-active' : ''}`}
           onClick={() => setActiveTab('REGULATIONS')}
         >
-          <BookOpen size={16} /> Database Regulasi
+          <BookOpen size={15} className="tax-tab-icon" />
+          <span className="tax-tab-label">Database Regulasi</span>
         </button>
       </div>
 

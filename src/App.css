@@ -1566,54 +1566,95 @@
   gap: 10px;
 }
 
+/* Multi-Row Adaptive Tax Navigation Tabs (No Horizontal Scroll) */
 .tax-nav-tabs {
   display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
   gap: 8px;
-  border-bottom: 1px solid var(--border-default);
-  padding-bottom: 8px;
-  overflow-x: auto;
-  flex-wrap: nowrap;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-default) transparent;
-  -webkit-overflow-scrolling: touch;
-}
-
-.tax-nav-tabs::-webkit-scrollbar {
-  height: 4px;
-}
-
-.tax-nav-tabs::-webkit-scrollbar-thumb {
-  background: var(--border-default);
-  border-radius: 4px;
+  padding: 8px;
+  background: color-mix(in srgb, var(--bg-surface-elevated, var(--bg-surface)) 60%, var(--bg-app));
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  margin-bottom: 8px;
+  overflow: visible;
 }
 
 .tax-tab-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 8px 14px;
   border-radius: var(--radius-md);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
   font-weight: 600;
   color: var(--text-secondary);
-  background: transparent;
-  border: 1px solid transparent;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
   cursor: pointer;
   white-space: nowrap;
-  flex-shrink: 0;
+  flex: 1 1 calc(20% - 10px);
+  min-width: fit-content;
   transition: all var(--transition-fast);
+  user-select: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .tax-tab-btn:hover {
   color: var(--text-primary);
-  background: var(--bg-surface);
+  background: var(--bg-surface-hover);
+  border-color: color-mix(in srgb, var(--accent-base) 45%, var(--border-default));
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
 }
 
 .tax-tab-btn.is-active {
-  background: var(--bg-surface);
+  background: var(--accent-base);
+  color: var(--accent-on, #ffffff);
+  border-color: var(--accent-base);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--accent-base) 35%, transparent);
+}
+
+.tax-tab-icon {
+  flex-shrink: 0;
+  opacity: 0.85;
+  transition: transform var(--transition-fast);
+}
+
+.tax-tab-btn:hover .tax-tab-icon,
+.tax-tab-btn.is-active .tax-tab-icon {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.tax-tab-label {
+  white-space: nowrap;
+}
+
+.tax-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--text-secondary) 14%, transparent);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.tax-tab-btn:hover .tax-tab-badge {
+  background: color-mix(in srgb, var(--accent-base) 18%, transparent);
   color: var(--accent-base);
-  border-color: var(--border-default);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tax-tab-btn.is-active .tax-tab-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
 }
 
 .tab-pane {

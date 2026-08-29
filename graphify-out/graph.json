@@ -281,7 +281,7 @@
       "file_type": "code",
       "norm_label": "topbar()",
       "source_file": "src/components/Topbar.jsx",
-      "source_location": "L26"
+      "source_location": "L25"
     },
     {
       "id": "src_components_warningspanel_warningspanel",
@@ -8774,7 +8774,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/tax/TaxReconWorkbench.jsx",
-      "source_location": "L466",
+      "source_location": "L490",
       "weight": 1.0
     },
     {
@@ -15578,7 +15578,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/Topbar.jsx",
-      "source_location": "L26",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -18439,5 +18439,5 @@
       "source_file": ".agents/skills/caveman-evidence-review/SKILL.md"
     }
   ],
-  "built_at_commit": "0c4395765184193567c60ed0915d8c0676e0c69d"
+  "built_at_commit": "0d19d4de55059d37dc40ec730ac860d23af767ba"
 }

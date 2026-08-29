@@ -7,7 +7,7 @@
   "5": "📘 Buku Panduan Praktis Staff Tax Analyst: Dari Raw GL hingga KKP & Partner Review",
   "6": "🏛️ AI Tax Agent & KKP Partner Platform",
   "7": "Linter & Code Quality Rules",
-  "8": "Module Group 8",
+  "8": "dependencies",
   "9": "kkpWorkbookGenerator.js",
   "10": "claudeService.js",
   "11": "📝 Panduan Alur Input Data Staff Tax Analyst (SOP Step-by-Step)",
@@ -36,7 +36,11 @@
   "34": "Application Secondary Logo Mark PNG",
   "35": "setupTests.js",
   "36": "vite.config.js",
+  "37": "AuthContext.jsx",
   "38": "caveman-explore/package.json",
   "39": ".oxlintrc.json",
-  "40": "pdfjs-dist"
+  "40": "pdfjs-dist",
+  "41": "claude.js",
+  "42": "users.js",
+  "43": "vercel.json"
 }
