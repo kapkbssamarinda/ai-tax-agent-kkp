@@ -50,21 +50,42 @@ function AdminDashboard({ onBack }) {
   const [isUpdating, setIsUpdating] = useState(false);
   const [editError, setEditError] = useState('');
 
-  // Fetch semua user dari tabel profiles
+  // Fetch semua user dari tabel profiles (dengan fallback ke /api/admin/users)
   async function fetchUsers() {
     setLoading(true);
     setError('');
-    const { data, error: fetchError } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
 
-    if (fetchError) {
-      setError('Gagal memuat daftar pengguna: ' + fetchError.message);
-    } else {
-      setUsers(data || []);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!fetchError && data) {
+        setUsers(data);
+        setLoading(false);
+        return;
+      }
+
+      // Fallback ke serverless function jika direct RLS gagal (misal infinite recursion RLS)
+      const headers = await getAuthHeader();
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ action: 'list' })
+      });
+
+      const resData = await res.json();
+      if (res.ok && resData.users) {
+        setUsers(resData.users);
+      } else {
+        setError('Gagal memuat daftar pengguna: ' + (resData.error || fetchError?.message || 'Akses ditolak'));
+      }
+    } catch (err) {
+      setError('Gagal memuat daftar pengguna: ' + err.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   useEffect(() => {

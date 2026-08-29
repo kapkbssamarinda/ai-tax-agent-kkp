@@ -52,6 +52,19 @@ export default async function handler(req, res) {
 
   const { action, email, password, full_name, role, userId, is_active } = req.body;
 
+  // === LIST USERS (Bypass RLS safely for verified admin) ===
+  if (action === 'list') {
+    const { data: userList, error: listError } = await supabaseAdmin
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (listError) {
+      return res.status(500).json({ error: listError.message });
+    }
+    return res.status(200).json({ users: userList || [] });
+  }
+
   // === CREATE USER ===
   if (action === 'create') {
     if (!email || !password) {
