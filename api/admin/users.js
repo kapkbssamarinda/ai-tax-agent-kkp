@@ -50,7 +50,7 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: 'Akses ditolak. Hanya administrator yang dapat mengelola pengguna.' });
   }
 
-  const { action, email, password, full_name, role, userId } = req.body;
+  const { action, email, password, full_name, role, userId, is_active } = req.body;
 
   // === CREATE USER ===
   if (action === 'create') {
@@ -75,6 +75,56 @@ export default async function handler(req, res) {
     return res.status(201).json({ success: true, user: { id: newUser.user.id, email } });
   }
 
+  // === UPDATE USER (Profile, Role, Password, Active Status) ===
+  if (action === 'update') {
+    if (!userId) {
+      return res.status(400).json({ error: 'userId wajib diisi untuk mengupdate pengguna.' });
+    }
+
+    // 1. Update di Supabase Auth (metadata dan password bila ada)
+    const updateAuthPayload = {
+      user_metadata: {
+        full_name: full_name || '',
+        role: role || 'analyst'
+      }
+    };
+
+    if (password && typeof password === 'string' && password.trim().length >= 6) {
+      updateAuthPayload.password = password.trim();
+    }
+
+    const { error: authUpdateError } = await supabaseAdmin.auth.admin.updateUserById(
+      userId,
+      updateAuthPayload
+    );
+
+    if (authUpdateError) {
+      return res.status(400).json({ error: `Gagal update auth: ${authUpdateError.message}` });
+    }
+
+    // 2. Update di tabel profiles
+    const profilePayload = {
+      full_name: full_name || '',
+      role: role || 'analyst',
+      updated_at: new Date().toISOString()
+    };
+
+    if (typeof is_active === 'boolean') {
+      profilePayload.is_active = is_active;
+    }
+
+    const { error: profileUpdateError } = await supabaseAdmin
+      .from('profiles')
+      .update(profilePayload)
+      .eq('id', userId);
+
+    if (profileUpdateError) {
+      return res.status(400).json({ error: `Gagal update profile: ${profileUpdateError.message}` });
+    }
+
+    return res.status(200).json({ success: true });
+  }
+
   // === DELETE USER ===
   if (action === 'delete') {
     if (!userId) {
@@ -95,6 +145,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true });
   }
 
-  return res.status(400).json({ error: 'Action tidak dikenali. Gunakan "create" atau "delete".' });
+  return res.status(400).json({ error: 'Action tidak dikenali. Gunakan "create", "update", atau "delete".' });
 }
 
