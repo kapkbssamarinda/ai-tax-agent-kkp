@@ -2,7 +2,7 @@ import React from 'react';
 import { ShieldAlert, AlertTriangle, FileSpreadsheet, CheckCircle, TrendingUp, HelpCircle, ArrowUpRight } from 'lucide-react';
 import { calculatePartnerDashboardMetrics } from '../../tax-engine/deterministicCalc';
 
-function PartnerDashboard({ findings = [], revenueRecon = {}, expenseRecon = {}, clientInfo = {}, glRows = [], taxMappings = [], onDownloadKKP }) {
+function PartnerDashboard({ findings = [], revenueRecon = {}, expenseRecon = {}, payrollRecon = {}, finalTaxRecon = {}, clientInfo = {}, glRows = [], taxMappings = [], onDownloadKKP }) {
   const metrics = calculatePartnerDashboardMetrics(findings);
   const handleDownloadKKP = onDownloadKKP || (() => {});
 
@@ -15,7 +15,7 @@ function PartnerDashboard({ findings = [], revenueRecon = {}, expenseRecon = {},
           </div>
           <h2 className="hero-title">{clientInfo.name || 'PT Wajib Pajak'} &mdash; Tahun Pajak {clientInfo.taxYear || '2024'}</h2>
           <p className="hero-subtitle">
-            KAP Kuncara Budi Santosa &amp; Rekan &bull; Partner in Charge: <strong>{clientInfo.partnerName || 'Budi Santosa, CPA'}</strong>
+            Kantor Konsultan Pajak Zaidan Jauhari &bull; Managing Partner: <strong>{clientInfo.partnerName || 'Zaidan Jauhari, BKP'}</strong>
           </p>
         </div>
         <div className="dashboard-hero-actions">
@@ -106,22 +106,22 @@ function PartnerDashboard({ findings = [], revenueRecon = {}, expenseRecon = {},
             <li>
               <div className="attention-num">3</div>
               <div className="attention-content">
-                <strong>Uji Kelengkapan Dokumen Non-Deductible Expense (NDE):</strong>
-                <p>Biaya jamuan, promosi, dan natura wajib dipastikan memiliki Daftar Nominatif sah sebelum pelaporan SPT Tahunan.</p>
+                <strong>Ekualisasi Gaji &amp; Objek PPh 21 (PMK 168/2023):</strong>
+                <p>Selisih beban gaji GL vs SPT PPh 21 sebesar Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.unmatchedBase || 0)} perlu dipastikan bukan honor lepas atau natura kena pajak.</p>
               </div>
             </li>
             <li>
               <div className="attention-num">4</div>
               <div className="attention-content">
-                <strong>Kepatuhan Administrasi Coretax 2025:</strong>
-                <p>Verifikasi kepatuhan penerbitan faktur pajak dan unifikasi bukti potong sesuai sistem Coretax DJP.</p>
+                <strong>Ekualisasi Sewa Bangunan &amp; Jasa Konstruksi (PPh Final 4(2)):</strong>
+                <p>Beban sewa/renovasi sebesar Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.unmatchedBase || 0)} wajib diverifikasi kelengkapan bukti potong PPh Final 10%.</p>
               </div>
             </li>
             <li>
               <div className="attention-num">5</div>
               <div className="attention-content">
-                <strong>Review Transaksi Hubungan Istimewa (Transfer Pricing):</strong>
-                <p>Memastikan kepatuhan penerapan arm's length principle sesuai ketentuan PMK 172/2023.</p>
+                <strong>Uji Kelengkapan Dokumen Non-Deductible Expense (NDE):</strong>
+                <p>Biaya jamuan, promosi, dan natura wajib dipastikan memiliki Daftar Nominatif sah sebelum pelaporan SPT Tahunan.</p>
               </div>
             </li>
           </ul>
@@ -157,11 +157,27 @@ function PartnerDashboard({ findings = [], revenueRecon = {}, expenseRecon = {},
                   Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.unmatchedDPP || 0)}
                 </td>
               </tr>
+              <tr>
+                <td><strong>Beban Gaji vs PPh 21</strong></td>
+                <td>Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.glPayrollTotal || 0)}</td>
+                <td>Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.sptBrutoTotal || 0)}</td>
+                <td className={(payrollRecon.unmatchedBase || 0) > 0 ? 'text-danger font-semibold' : 'text-success'}>
+                  Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.unmatchedBase || 0)}
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Sewa &amp; Konstruksi vs PPh Final 4(2)</strong></td>
+                <td>Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.glFinalTaxTotal || 0)}</td>
+                <td>Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.bupotDPPTotal || 0)}</td>
+                <td className={(finalTaxRecon.unmatchedBase || 0) > 0 ? 'text-danger font-semibold' : 'text-success'}>
+                  Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.unmatchedBase || 0)}
+                </td>
+              </tr>
             </tbody>
           </table>
 
           <div className="mt-4 p-3 bg-surface-subtle rounded text-xs text-muted">
-            <em>Catatan: Angka-angka di atas dihitung secara deterministik matematis. Klik tab "AI Tax Workbench" untuk melihat rincian per baris transaksi dan menjalankan analisis Claude Haiku.</em>
+            <em>Catatan: Angka-angka di atas dihitung secara deterministik matematis. Klik tab "AI Tax Workbench" untuk melihat rincian per baris transaksi dan menjalankan analisis Claude.</em>
           </div>
         </div>
       </div>

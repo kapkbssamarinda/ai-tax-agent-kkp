@@ -1,10 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, CheckCircle2, AlertCircle, Loader2, X, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { Bot, CheckCircle2, AlertCircle, Loader2, X, Eye, EyeOff, ShieldCheck, Sparkles } from 'lucide-react';
 import { getSavedApiKey, saveApiKey, getSavedModel, saveModel, testClaudeConnection } from '../../services/claudeService';
+
+const PRESET_MODELS = [
+  'claude-sonnet-5',
+  'claude-5-sonnet',
+  'claude-sonnet-4-5-20250929',
+  'claude-haiku-4-5-20251001',
+  'claude-3-7-sonnet-20250219',
+  'claude-3-5-sonnet-20241022',
+  'claude-3-5-haiku-20241022',
+  'claude-3-haiku-20240307'
+];
 
 function AISettingsModal({ isOpen, onClose }) {
   const [apiKey, setApiKey] = useState('');
-  const [model, setModel] = useState('claude-haiku-4-5-20251001');
+  const [selectedPreset, setSelectedPreset] = useState('claude-3-5-haiku-20241022');
+  const [customModel, setCustomModel] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null); // { success: boolean, message: string }
@@ -13,9 +25,15 @@ function AISettingsModal({ isOpen, onClose }) {
   useEffect(() => {
     if (isOpen) {
       setApiKey(getSavedApiKey());
-      setModel(getSavedModel());
+      const saved = getSavedModel();
+      if (PRESET_MODELS.includes(saved)) {
+        setSelectedPreset(saved);
+        setCustomModel('');
+      } else {
+        setSelectedPreset('CUSTOM_MODEL');
+        setCustomModel(saved);
+      }
       setTestResult(null);
-      // Fokus otomatis ke tombol tutup saat modal terbuka
       setTimeout(() => closeButtonRef.current?.focus(), 50);
     }
   }, [isOpen]);
@@ -32,9 +50,13 @@ function AISettingsModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  const effectiveModel = selectedPreset === 'CUSTOM_MODEL'
+    ? (customModel.trim() || 'claude-sonnet-5')
+    : selectedPreset;
+
   const handleSave = () => {
     saveApiKey(apiKey.trim());
-    saveModel(model);
+    saveModel(effectiveModel);
     onClose();
   };
 
@@ -47,14 +69,19 @@ function AISettingsModal({ isOpen, onClose }) {
     setTesting(true);
     setTestResult(null);
     try {
-      const res = await testClaudeConnection(apiKey.trim(), model);
-      const activeModelName = res?.activeModel || model;
+      const res = await testClaudeConnection(apiKey.trim(), effectiveModel);
+      const activeModelName = res?.activeModel || effectiveModel;
       setTestResult({
         success: true,
         message: `Koneksi Berhasil! Model aktif: ${activeModelName}. Siap digunakan untuk analisis pajak.`
       });
       if (res?.activeModel) {
-        setModel(res.activeModel);
+        if (PRESET_MODELS.includes(res.activeModel)) {
+          setSelectedPreset(res.activeModel);
+        } else {
+          setSelectedPreset('CUSTOM_MODEL');
+          setCustomModel(res.activeModel);
+        }
       }
     } catch (err) {
       setTestResult({ success: false, message: `Gagal terhubung: ${err.message}` });
@@ -124,23 +151,47 @@ function AISettingsModal({ isOpen, onClose }) {
             <select
               id="model-select"
               className="form-select"
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
+              value={selectedPreset}
+              onChange={(e) => setSelectedPreset(e.target.value)}
             >
-              <optgroup label="Model Cepat &amp; Hemat Biaya (Rekomendasi)">
-                <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (claude-3-5-haiku-20241022 — Sangat Cepat &amp; Efisien)</option>
-                <option value="claude-3-haiku-20240307">Claude 3 Haiku (claude-3-haiku-20240307 — Standar)</option>
+              <optgroup label="✨ Generasi Baru (Claude 5 &amp; Sonnet 5)">
+                <option value="claude-sonnet-5">Claude Sonnet 5 (claude-sonnet-5 — Flagship Generasi 5)</option>
+                <option value="claude-5-sonnet">Claude 5 Sonnet (claude-5-sonnet)</option>
+                <option value="claude-sonnet-4-5-20250929">Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)</option>
+                <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (claude-haiku-4-5-20251001)</option>
               </optgroup>
-              <optgroup label="Model Penalaran Lanjutan &amp; Semantik Mendalam">
+              <optgroup label="🧠 Model Penalaran Lanjutan &amp; Semantik Mendalam">
                 <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet (claude-3-7-sonnet-20250219 — Penalaran Pajak Kompleks)</option>
                 <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (claude-3-5-sonnet-20241022 — Analisis Semantik)</option>
               </optgroup>
-              <optgroup label="Model Next-Gen Preview">
-                <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (claude-haiku-4-5-20251001)</option>
-                <option value="claude-sonnet-4-5-20250929">Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)</option>
+              <optgroup label="⚡ Model Cepat &amp; Hemat Biaya (Rekomendasi Operasional)">
+                <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (claude-3-5-haiku-20241022 — Sangat Cepat &amp; Efisien)</option>
+                <option value="claude-3-haiku-20240307">Claude 3 Haiku (claude-3-haiku-20240307 — Standar)</option>
+              </optgroup>
+              <optgroup label="🛠️ Kustomisasi">
+                <option value="CUSTOM_MODEL">Ketik ID Model Sendiri / Manual...</option>
               </optgroup>
             </select>
           </div>
+
+          {selectedPreset === 'CUSTOM_MODEL' && (
+            <div className="form-group" style={{ animation: 'fadeIn 0.2s ease-in-out' }}>
+              <label className="form-label" htmlFor="custom-model-input">
+                ID Model Kustom (Anthropic Identifier) <span className="text-required">*</span>
+              </label>
+              <input
+                id="custom-model-input"
+                type="text"
+                className="form-input"
+                placeholder="misal: claude-sonnet-5, claude-3-7-sonnet-latest, dll."
+                value={customModel}
+                onChange={(e) => setCustomModel(e.target.value)}
+              />
+              <span className="form-hint">
+                Masukkan ID model resmi Anthropic sesuai dengan hak akses akun API Console Anda.
+              </span>
+            </div>
+          )}
 
           {testResult && (
             <div className={`ai-test-alert ${testResult.success ? 'is-success' : 'is-error'}`}>

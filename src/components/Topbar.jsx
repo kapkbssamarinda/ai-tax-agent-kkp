@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Moon,
   Sun,
@@ -6,11 +6,15 @@ import {
   RefreshCw,
   Loader2,
   FileSpreadsheet,
+  FileText,
   Bot,
   Building2,
   Table,
   Scale,
-  LayoutDashboard
+  LayoutDashboard,
+  Save,
+  FolderOpen,
+  ChevronDown
 } from 'lucide-react';
 // logo2-mark.png = crop mark "RV" dari logo/logo2.png
 import logoImage from '../assets/logo2-mark.png';
@@ -24,6 +28,8 @@ function Topbar({
   onReset,
   onExportCSV,
   onExportXLSX,
+  onSaveProject,
+  onLoadProject,
   isExporting,
   viewMode = 'GL_CLEANER', // 'GL_CLEANER' | 'TAX_AGENT' | 'PARTNER_DASHBOARD'
   onSelectViewMode,
@@ -32,10 +38,39 @@ function Topbar({
   clientInfo = {}
 }) {
   const hasData = step === 'success';
+  const [isProjectMenuOpen, setIsProjectMenuOpen] = useState(false);
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+
+  const projectMenuRef = useRef(null);
+  const exportMenuRef = useRef(null);
+
+  // Close dropdowns on outside click or Escape key
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (projectMenuRef.current && !projectMenuRef.current.contains(e.target)) {
+        setIsProjectMenuOpen(false);
+      }
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target)) {
+        setIsExportMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsProjectMenuOpen(false);
+        setIsExportMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   return (
     <header className="topbar">
-      {/* Brand & Logo */}
+      {/* 1. Brand & Logo */}
       <div className="topbar-brand-area">
         <div className="logo-area">
           <img src={logoImage} alt="Logo Ravian.Dev" className="app-logo" />
@@ -43,12 +78,12 @@ function Topbar({
             <span className="logo-text">
               Ravian<span className="logo-text-accent">.Dev</span>
             </span>
-            <span className="logo-badge-tax">AI Tax Agent</span>
+            <span className="logo-badge-tax">KKP Zaidan Jauhari</span>
           </div>
         </div>
       </div>
 
-      {/* Nav Mode Switcher (Buku Besar, AI Tax & KKP, Partner Dashboard) */}
+      {/* 2. Nav Mode Tabs (Segmented Control) */}
       {hasData && (
         <nav className="topbar-nav-tabs" aria-label="Mode Tampilan">
           <button
@@ -81,39 +116,30 @@ function Topbar({
         </nav>
       )}
 
-      {/* Context Chips (Nama Klien & Nama File) */}
+      {/* 3. Unified Client Context Pill */}
       {hasData && (
         <div className="topbar-context-group">
-          {/* Chip Nama Klien */}
           <button
             type="button"
-            className="session-chip client-session-chip"
+            className="client-unified-pill"
             onClick={onOpenClientMaster}
-            title={`Klien: ${clientInfo?.name || 'PT Klien Demo'} | Tahun Pajak: ${clientInfo?.taxYear || '2024'} (Klik untuk ubah profil klien)`}
+            title={`Klien: ${clientInfo?.name || 'PT Wajib Pajak'} | Tahun: ${clientInfo?.taxYear || '2024'} (Klik untuk kelola master data)`}
           >
-            <Building2 size={13} className="text-accent chip-icon" aria-hidden="true" />
-            <span className="chip-prefix">Klien:</span>
-            <span className="session-chip-name">{clientInfo?.name || 'PT Klien Demo'}</span>
-            <span className="session-chip-badge year-badge">{clientInfo?.taxYear || '2024'}</span>
+            <Building2 size={13} className="text-accent pill-icon" aria-hidden="true" />
+            <span className="pill-client-name">{clientInfo?.name || 'PT Wajib Pajak'}</span>
+            <span className="pill-badge pill-year">{clientInfo?.taxYear || '2024'}</span>
+            {sourceFormat && (
+              <span className="pill-badge pill-format">{sourceFormat}</span>
+            )}
           </button>
-
-          {/* Chip Nama File */}
-          {fileName && (
-            <div className="session-chip file-session-chip" title={`File: ${fileName} (${sourceFormat || 'Auto'})`}>
-              <FileSpreadsheet size={13} className="text-success chip-icon" aria-hidden="true" />
-              <span className="session-chip-name">{fileName}</span>
-              {sourceFormat && (
-                <span className="session-chip-badge format-badge">{sourceFormat}</span>
-              )}
-            </div>
-          )}
         </div>
       )}
 
-      {/* Action Buttons & Utilities */}
+      {/* 4. Action Bar */}
       <div className="topbar-actions">
-        {hasData && (
+        {hasData ? (
           <>
+            {/* AI Key Settings */}
             <button
               type="button"
               className="btn btn-ghost btn-action-sm"
@@ -124,55 +150,152 @@ function Topbar({
               <span className="btn-label-responsive">AI Key</span>
             </button>
 
-            <button
-              type="button"
-              className="btn btn-ghost btn-action-sm"
-              onClick={onOpenClientMaster}
-              title="Master Data Profil Klien & Penandatangan KKP"
-            >
-              <Building2 size={15} />
-              <span className="btn-label-responsive">Klien</span>
-            </button>
+            {/* Proyek Dropdown (.aitax) */}
+            <div className="topbar-dropdown-wrap" ref={projectMenuRef}>
+              <button
+                type="button"
+                className={`btn btn-ghost btn-action-sm ${isProjectMenuOpen ? 'is-active' : ''}`}
+                onClick={() => {
+                  setIsProjectMenuOpen(prev => !prev);
+                  setIsExportMenuOpen(false);
+                }}
+                aria-haspopup="menu"
+                aria-expanded={isProjectMenuOpen}
+                title="Kelola File Proyek (.aitax)"
+              >
+                <Save size={14} className="text-success" />
+                <span className="btn-label-responsive">Proyek</span>
+                <ChevronDown size={12} className={`dropdown-chevron ${isProjectMenuOpen ? 'rotate' : ''}`} />
+              </button>
 
+              {isProjectMenuOpen && (
+                <div className="topbar-menu-dropdown" role="menu">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="topbar-menu-item"
+                    onClick={() => {
+                      setIsProjectMenuOpen(false);
+                      onSaveProject();
+                    }}
+                  >
+                    <Save size={15} className="text-success" style={{ marginTop: '2px', flexShrink: 0 }} />
+                    <div>
+                      <div className="topbar-menu-title">Simpan Proyek (.aitax)</div>
+                      <div className="topbar-menu-desc">Download arsip lengkap GL, mapping, dan temuan</div>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="topbar-menu-item"
+                    onClick={() => {
+                      setIsProjectMenuOpen(false);
+                      onLoadProject();
+                    }}
+                  >
+                    <FolderOpen size={15} className="text-accent" style={{ marginTop: '2px', flexShrink: 0 }} />
+                    <div>
+                      <div className="topbar-menu-title">Buka Proyek (.aitax)</div>
+                      <div className="topbar-menu-desc">Muat file proyek yang pernah disimpan</div>
+                    </div>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Ekspor Dropdown (Excel / CSV) */}
+            <div className="topbar-dropdown-wrap" ref={exportMenuRef}>
+              <button
+                type="button"
+                className={`btn btn-primary btn-action-sm ${isExportMenuOpen ? 'is-active' : ''}`}
+                onClick={() => {
+                  setIsExportMenuOpen(prev => !prev);
+                  setIsProjectMenuOpen(false);
+                }}
+                disabled={isExporting}
+                aria-haspopup="menu"
+                aria-expanded={isExportMenuOpen}
+                title="Ekspor Data Buku Besar"
+              >
+                {isExporting ? (
+                  <><Loader2 size={14} className="spinner-inline" /> <span>Ekspor...</span></>
+                ) : (
+                  <>
+                    <Download size={14} />
+                    <span>Ekspor</span>
+                    <ChevronDown size={12} className={`dropdown-chevron ${isExportMenuOpen ? 'rotate' : ''}`} />
+                  </>
+                )}
+              </button>
+
+              {isExportMenuOpen && (
+                <div className="topbar-menu-dropdown" role="menu">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="topbar-menu-item"
+                    onClick={() => {
+                      setIsExportMenuOpen(false);
+                      onExportXLSX();
+                    }}
+                  >
+                    <FileSpreadsheet size={15} className="text-success" style={{ marginTop: '2px', flexShrink: 0 }} />
+                    <div>
+                      <div className="topbar-menu-title">Buku Besar Excel (.xlsx)</div>
+                      <div className="topbar-menu-desc">File spreadsheet rapi hasil pembersihan</div>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="topbar-menu-item"
+                    onClick={() => {
+                      setIsExportMenuOpen(false);
+                      onExportCSV();
+                    }}
+                  >
+                    <FileText size={15} className="text-secondary" style={{ marginTop: '2px', flexShrink: 0 }} />
+                    <div>
+                      <div className="topbar-menu-title">Buku Besar CSV (.csv)</div>
+                      <div className="topbar-menu-desc">Format teks tabel dipisahkan koma</div>
+                    </div>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* File Baru */}
             <button
               type="button"
               className="btn btn-ghost btn-action-sm"
               onClick={onReset}
               title="Upload file Buku Besar baru"
             >
-              <RefreshCw size={14} aria-hidden="true" />
+              <RefreshCw size={14} />
               <span className="btn-label-responsive">File Baru</span>
-            </button>
-
-            <button
-              type="button"
-              className="btn btn-secondary btn-action-sm"
-              onClick={onExportCSV}
-              disabled={isExporting}
-              title="Ekspor data GL bersih ke CSV"
-            >
-              <Download size={14} aria-hidden="true" />
-              <span>.csv</span>
-            </button>
-
-            <button
-              type="button"
-              className="btn btn-primary btn-action-sm"
-              onClick={onExportXLSX}
-              disabled={isExporting}
-              title="Ekspor data GL bersih ke Excel (.xlsx)"
-            >
-              {isExporting ? (
-                <><Loader2 size={14} className="spinner-inline" aria-hidden="true" /> <span>Ekspor...</span></>
-              ) : (
-                <><Download size={14} aria-hidden="true" /> <span>Excel</span></>
-              )}
             </button>
 
             <span className="topbar-divider" aria-hidden="true" />
           </>
+        ) : (
+          onLoadProject && (
+            <>
+              <button
+                type="button"
+                className="btn btn-secondary btn-action-sm"
+                onClick={onLoadProject}
+                title="Buka file proyek .aitax yang pernah disimpan"
+              >
+                <FolderOpen size={14} />
+                <span>Buka Proyek (.aitax)</span>
+              </button>
+              <span className="topbar-divider" aria-hidden="true" />
+            </>
+          )
         )}
 
+        {/* Theme Toggle */}
         <button
           type="button"
           className="btn-icon"

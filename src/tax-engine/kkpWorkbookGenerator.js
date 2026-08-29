@@ -197,9 +197,9 @@ export function generateKKPWorkbook({
     name: 'PT Klien Demo',
     npwp: '01.234.567.8-012.000',
     taxYear: '2024',
-    partnerName: 'Budi Santosa, CPA',
-    managerName: 'Viany Ramadhany',
-    seniorName: 'Auditor Senior',
+    partnerName: 'Zaidan Jauhari, BKP',
+    managerName: '',
+    seniorName: 'Tax Senior',
     auditDate: new Date().toISOString().split('T')[0],
     materialityThreshold: 10000000
   },
@@ -228,7 +228,7 @@ export function generateKKPWorkbook({
     let r = 1;
 
     writeTitleRow(ws, r++, 'KERTAS KERJA PEMERIKSAAN (KKP) — AI TAX DIAGNOSTIC & COMPLIANCE REVIEW', COLS, STYLES.titleRow, merges);
-    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan (Cabang Samarinda)', COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, 'Kantor Konsultan Pajak Zaidan Jauhari (KKP Zaidan Jauhari)', COLS, STYLES.subtitleRow, merges);
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
     writeTitleRow(ws, r++, 'STANDAR OPERASIONAL PROSEDUR (SOP) & PANDUAN AUDIT PERPAJAKAN:', COLS, STYLES.sectionRow, merges);
 
@@ -236,7 +236,7 @@ export function generateKKPWorkbook({
       '1. File KKP ini dihasilkan secara otomatis oleh AI Tax Agent & KKP Engine v2.2.0 (Phase 1 Compliance Full 9-Reconciliations).',
       '2. Perhitungan tarif, pokok pajak, dan sanksi bunga menggunakan Deterministic Calculation Engine presisi 100%.',
       '3. Analisis semantik "Salah Kamar" (Substance Over Form) dan kutipan hukum dihasilkan oleh Anthropic Claude AI.',
-      '4. Seluruh temuan AI bersifat PROVISIONAL dan WAJIB melalui verifikasi dokumen bukti serta persetujuan Partner.',
+      '4. Seluruh temuan AI bersifat PROVISIONAL dan WAJIB melalui verifikasi dokumen bukti serta persetujuan Managing Partner.',
       '5. Regulasi perpajakan disinkronisasikan dengan Coretax DJP PER-11/PJ/2025, UU HPP, dan PMK perpajakan terkait.',
     ];
     sopItems.forEach(text => {
@@ -249,7 +249,7 @@ export function generateKKPWorkbook({
     writeHeaderRow(ws, r++, ['No.', 'Nama Sheet', 'Fungsi & Ruang Lingkup', 'Formula & Sumber Data', 'Status'], STYLES.headerCell);
 
     const sheetIndex = [
-      ['00', '00_README',              'SOP, petunjuk teknis audit, dan indeks KKP',               'SOP KAP',                    'COMPLETED'],
+      ['00', '00_README',              'SOP, petunjuk teknis audit, dan indeks KKP',               'SOP KKP',                    'COMPLETED'],
       ['01', '01_CLIENT_MASTER',       'Profil master data entitas, NPWP, tim pemeriksa, materialitas', 'Master Data Klien',    'COMPLETED'],
       ['02', '02_GL_IMPORT',           'Data transaksi General Ledger hasil standardisasi',        'Formula =SUM(Debit/Kredit)', 'COMPLETED'],
       ['03', '03_TAX_MAPPING',         'Matriks klasifikasi akun GL ke pos objek pajak',           'Formula =SUM(Total Akun)',   'COMPLETED'],
@@ -293,7 +293,7 @@ export function generateKKPWorkbook({
     let r = 1;
 
     writeTitleRow(ws, r++, 'MASTER DATA KLIEN & PENUGASAN AUDIT PERPAJAKAN', COLS, STYLES.titleRow, merges);
-    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan (Cabang Samarinda)', COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, 'Kantor Konsultan Pajak Zaidan Jauhari (KKP Zaidan Jauhari)', COLS, STYLES.subtitleRow, merges);
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
 
     writeHeaderRow(ws, r++, ['Parameter Penugasan', 'Nilai / Detail Data', 'Sumber Verifikasi'], STYLES.headerLeft);
@@ -303,13 +303,13 @@ export function generateKKPWorkbook({
       ['NPWP (15/16 Digit)',                    clientInfo.npwp || '01.234.567.8-012.000',                              'Kartu NPWP / Masterfile DJP'],
       ['Tahun Pajak / Periode Pemeriksaan',     taxYear,                                                                'Surat Perintah Kerja (SPK)'],
       ['Tanggal Pelaksanaan Pemeriksaan',       clientInfo.auditDate || new Date().toISOString().split('T')[0],          'Audit Log'],
-      ['Parameter Materialitas Audit (Configurable)', `Rp ${new Intl.NumberFormat('id-ID').format(clientInfo.materialityThreshold || 10000000)}`, 'Kebijakan Materialitas KAP / Klien'],
-      ['Partner In Charge (CPA)',               clientInfo.partnerName || 'Budi Santosa, CPA',                          'Penetapan Penugasan KAP'],
-      ['Audit Manager',                         clientInfo.managerName || 'Viany Ramadhany',                            'Penetapan Penugasan KAP'],
-      ['Senior Auditor',                        clientInfo.seniorName || 'Auditor Senior',                              'Penetapan Penugasan KAP'],
+      ['Parameter Materialitas Audit (Configurable)', `Rp ${new Intl.NumberFormat('id-ID').format(clientInfo.materialityThreshold || 10000000)}`, 'Kebijakan Materialitas KKP / Klien'],
+      ['Managing Partner (BKP)',                clientInfo.partnerName || 'Zaidan Jauhari, BKP',                        'Penetapan Penugasan KKP'],
+      ['Tax Manager',                           clientInfo.managerName || '-',                                          'Penetapan Penugasan KKP'],
+      ['Tax Senior / Reviewer',                 clientInfo.seniorName || 'Tax Senior',                                  'Penetapan Penugasan KKP'],
       ['Status Administrasi DJP',               'Terdaftar di KPP Pratama / Coretax System 2025',                       'Portal DJP Online / Coretax'],
       ['Status SP2DK',                          sp2dkData?.nomorSurat ? `SP2DK Aktif (${sp2dkData.nomorSurat})` : 'Tidak Ada SP2DK Terbuka', 'KPP Penerbit'],
-      ['Status KKP',                            'DRAFT FINAL / REVIEWED BY MANAGER',                                   'KAP Compliance Standards'],
+      ['Status KKP',                            'DRAFT FINAL / REVIEWED BY MANAGER',                                   'KKP Compliance Standards'],
     ];
     clientData.forEach((row, idx) => {
       sc(ws, `A${r}`, row[0], STYLES.labelBold);
@@ -424,7 +424,7 @@ export function generateKKPWorkbook({
     const sptRev = Number(revenueRecon.sptDPPTotal) || 0;
 
     writeTitleRow(ws, r++, 'EKUALISASI PEREDARAN USAHA (REVENUE) GL vs SPT TAHUNAN PPH BADAN', COLS, STYLES.titleRow, merges);
-    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, 'Kantor Konsultan Pajak Zaidan Jauhari — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
 
     writeHeaderRow(ws, r++, ['Uraian Komponen Ekualisasi', 'Nilai (Rupiah)', 'Dasar Dokumen / Keterangan'], STYLES.headerLeft);
@@ -483,7 +483,7 @@ export function generateKKPWorkbook({
     const ppnRate = 0.11;
 
     writeTitleRow(ws, r++, 'EKUALISASI OMZET BUKU BESAR vs DPP SPT MASA PPN 1111 (E-FAKTUR)', COLS, STYLES.titleRow, merges);
-    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, 'Kantor Konsultan Pajak Zaidan Jauhari — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
     writeHeaderRow(ws, r++, ['Uraian Komponen Ekualisasi PPN', 'Nilai / Formula', 'Keterangan & Rujukan Regulasi'], STYLES.headerLeft);
 
@@ -548,7 +548,7 @@ export function generateKKPWorkbook({
     const bupotExp = Number(expenseRecon.bupotDPPTotal) || 0;
 
     writeTitleRow(ws, r++, 'EKUALISASI BEBAN JASA & SEWA GL vs BUKTI POTONG E-BUPOT PPH PASAL 23', COLS, STYLES.titleRow, merges);
-    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, 'Kantor Konsultan Pajak Zaidan Jauhari — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
     writeHeaderRow(ws, r++, ['Komponen Ekualisasi PPh Pasal 23', 'Nilai / Formula', 'Keterangan & Rujukan Regulasi'], STYLES.headerLeft);
 
@@ -637,7 +637,7 @@ export function generateKKPWorkbook({
     const ppnClaimed = Number(purchasesRecon.ppnMasukanClaimedTotal) || 0;
 
     writeTitleRow(ws, r++, 'EKUALISASI PEMBELIAN BUKU BESAR vs PPN MASUKAN SPT MASA PPN 1111 (E-FAKTUR)', COLS, STYLES.titleRow, merges);
-    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, 'Kantor Konsultan Pajak Zaidan Jauhari — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
     writeHeaderRow(ws, r++, ['Uraian Komponen Ekualisasi PPN Masukan', 'Nilai / Formula', 'Keterangan & Rujukan Regulasi'], STYLES.headerLeft);
 
@@ -708,7 +708,7 @@ export function generateKKPWorkbook({
     const pph21Withheld = Number(payrollRecon.pph21WithheldTotal) || 0;
 
     writeTitleRow(ws, r++, 'EKUALISASI BIAYA GAJI & IMBALAN KERJA GL vs BUKTI POTONG PPH PASAL 21', COLS, STYLES.titleRow, merges);
-    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, 'Kantor Konsultan Pajak Zaidan Jauhari — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
     writeHeaderRow(ws, r++, ['Komponen Ekualisasi PPh Pasal 21', 'Nilai / Formula', 'Keterangan & Rujukan Regulasi'], STYLES.headerLeft);
 
@@ -785,7 +785,7 @@ export function generateKKPWorkbook({
     const pphFinalWithheld = Number(rentRecon.pphFinalWithheldTotal) || 0;
 
     writeTitleRow(ws, r++, 'EKUALISASI BIAYA SEWA & KONSTRUKSI GL vs BUPOT PPH FINAL PASAL 4(2)', COLS, STYLES.titleRow, merges);
-    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, 'Kantor Konsultan Pajak Zaidan Jauhari — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
     writeHeaderRow(ws, r++, ['Komponen Ekualisasi PPh Final 4(2)', 'Nilai / Formula', 'Keterangan & Rujukan Regulasi'], STYLES.headerLeft);
 
@@ -861,7 +861,7 @@ export function generateKKPWorkbook({
     let r = 1;
 
     writeTitleRow(ws, r++, 'EKUALISASI PENYUSUTAN ASET TETAP KOMERSIAL vs FISKAL (PMK 72/2023)', COLS, STYLES.titleRow, merges);
-    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, 'Kantor Konsultan Pajak Zaidan Jauhari — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
     writeHeaderRow(ws, r++, headers, STYLES.headerCell);
 
@@ -926,7 +926,7 @@ export function generateKKPWorkbook({
     const reportedSPT = Number(fiscalProfitRecon.reportedFiscalProfit) || 0;
 
     writeTitleRow(ws, r++, 'REKONSILIASI LABA AKUNTANSI KOMERSIAL KE LABA FISKAL (SPT 1771)', COLS, STYLES.titleRow, merges);
-    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, 'Kantor Konsultan Pajak Zaidan Jauhari — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
     writeHeaderRow(ws, r++, ['Uraian Rekonsiliasi Fiskal Laba Rugi', 'Nilai (Rupiah)', 'Dasar Regulasi & Keterangan'], STYLES.headerLeft);
 
@@ -1008,7 +1008,7 @@ export function generateKKPWorkbook({
     let r = 1;
 
     writeTitleRow(ws, r++, 'PENGUJIAN TRANSAKSI PIHAK BERELASI & KEPATUHAN TP DOC (PMK 172/2023)', COLS, STYLES.titleRow, merges);
-    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, 'Kantor Konsultan Pajak Zaidan Jauhari — Tahun Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
 
     // Metadata TP Doc Parameters
@@ -1221,7 +1221,7 @@ export function generateKKPWorkbook({
     const riskRowsCount = Math.max(1, findings.length);
 
     writeTitleRow(ws, r++, 'PARTNER EXECUTIVE DASHBOARD — TAX AUDIT & COMPLIANCE REVIEW', COLS, STYLES.titleRow, merges);
-    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan (Cabang Samarinda) — Periode Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, 'Kantor Konsultan Pajak Zaidan Jauhari — Periode Pajak ' + taxYear, COLS, STYLES.subtitleRow, merges);
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
     writeHeaderRow(ws, r++, ['INDIKATOR UTAMA RISIKO (KPI)', 'NILAI / FORMULA', 'STATUS & STANDAR KAP'], STYLES.headerLeft);
 
@@ -1358,7 +1358,7 @@ export function generateKKPWorkbook({
     ];
 
     writeTitleRow(ws, r++, 'REKAPITULASI PEMERIKSAAN SP2DK & SANGGAHAN FORMAL WAJIB PAJAK', COLS, STYLES.titleRow, merges);
-    writeTitleRow(ws, r++, 'KAP Kuncara Budi Santosa & Rekan — Modul SP2DK Response Agent', COLS, STYLES.subtitleRow, merges);
+    writeTitleRow(ws, r++, 'Kantor Konsultan Pajak Zaidan Jauhari — Modul SP2DK Response Agent', COLS, STYLES.subtitleRow, merges);
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
     writeTitleRow(ws, r++, 'PARAMETER SURAT SP2DK DARI KPP:', COLS, STYLES.sectionRow, merges);
 

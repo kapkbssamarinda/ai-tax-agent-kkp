@@ -211,7 +211,7 @@ function TaxRiskRegister({ findings = [], onUpdateStatus }) {
                       </div>
 
                       <div className="detail-item">
-                        <label className="detail-label">Rekomendasi Tindakan Auditor:</label>
+                        <label className="detail-label">Rekomendasi Tindakan Analis Pajak:</label>
                         <p className="detail-text">{finding.recommendation || '-'}</p>
                       </div>
                     </div>

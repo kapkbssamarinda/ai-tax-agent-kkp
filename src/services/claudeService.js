@@ -68,7 +68,7 @@ export function saveApiKey(key) {
 export function getSavedModel() {
   try {
     const saved = localStorage.getItem(LOCAL_STORAGE_MODEL_KEY);
-    if (saved && saved.startsWith('claude-')) return saved;
+    if (saved && typeof saved === 'string' && saved.trim().length > 0) return saved.trim();
     return 'claude-3-5-haiku-20241022';
   } catch {
     return 'claude-3-5-haiku-20241022';
@@ -77,17 +77,21 @@ export function getSavedModel() {
 
 export function saveModel(model) {
   try {
-    localStorage.setItem(LOCAL_STORAGE_MODEL_KEY, model);
+    if (model && typeof model === 'string') {
+      localStorage.setItem(LOCAL_STORAGE_MODEL_KEY, model.trim());
+    }
   } catch { /* ignore */ }
 }
 
 const FALLBACK_MODELS = [
-  'claude-3-5-haiku-20241022',
-  'claude-3-5-sonnet-20241022',
+  'claude-sonnet-5',
+  'claude-5-sonnet',
   'claude-3-7-sonnet-20250219',
-  'claude-3-haiku-20240307',
+  'claude-3-5-sonnet-20241022',
+  'claude-sonnet-4-5-20250929',
+  'claude-3-5-haiku-20241022',
   'claude-haiku-4-5-20251001',
-  'claude-sonnet-4-5-20250929'
+  'claude-3-haiku-20240307'
 ];
 
 /**
@@ -292,13 +296,13 @@ export async function testClaudeConnection(apiKey, model = 'claude-3-5-haiku-202
 /**
  * Analisis Transaksi & Pembuatan Tax Finding Register
  */
-export async function analyzeTaxFindings({ glRows, taxMappings, revenueRecon, expenseRecon, clientInfo, throwOnError = false }) {
+export async function analyzeTaxFindings({ glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo, throwOnError = false }) {
   const apiKey = getSavedApiKey();
   const model = getSavedModel();
 
   if (apiKey) {
     try {
-      return await callClaudeTaxAnalysis({ apiKey, model, glRows, taxMappings, revenueRecon, expenseRecon, clientInfo });
+      return await callClaudeTaxAnalysis({ apiKey, model, glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo });
     } catch (err) {
       console.warn('Claude API call failed:', err);
       if (throwOnError) {
@@ -310,24 +314,24 @@ export async function analyzeTaxFindings({ glRows, taxMappings, revenueRecon, ex
   }
 
   // Fallback Heuristik Cerdas Lokal (Bila tanpa API key atau offline)
-  return generateDeterministicFindings({ glRows, taxMappings, revenueRecon, expenseRecon });
+  return generateDeterministicFindings({ glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo });
 }
 
 /**
  * Panggilan langsung ke Claude Messages API
  */
-async function callClaudeTaxAnalysis({ apiKey, model, glRows, taxMappings, revenueRecon, expenseRecon, clientInfo }) {
+async function callClaudeTaxAnalysis({ apiKey, model, glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo }) {
   // Ambil sample transaksi representatif:
   // 1. Transaksi material (> 10jt)
   // 2. Transaksi dari akun penampung umum (Biaya Lain-lain, Uang Muka, Rupa-rupa)
-  // 3. Transaksi dengan kata kunci jasa/sewa/konsultan/jamuan
-  const suspectKeywords = ['jasa', 'service', 'maint', 'konsul', 'notaris', 'sewa', 'crane', 'outsourc', 'jamuan', 'entertain', 'amdal', 'legal', 'fee', 'honor', 'renovasi'];
+  // 3. Transaksi dengan kata kunci jasa/sewa/konsultan/jamuan/gaji
+  const suspectKeywords = ['jasa', 'service', 'maint', 'konsul', 'notaris', 'sewa', 'crane', 'outsourc', 'jamuan', 'entertain', 'amdal', 'legal', 'fee', 'honor', 'renovasi', 'gaji', 'bonus', 'thr', 'insentif'];
   
   const selectedSamples = [];
   const addedKeys = new Set();
 
   glRows.forEach((r, idx) => {
-    if (r.keterangan === 'Saldo Awal' || selectedSamples.length >= 20) return;
+    if (r.keterangan === 'Saldo Awal' || selectedSamples.length >= 25) return;
     const memo = `${r.keterangan || ''} ${r.communication || ''}`.toLowerCase();
     const accName = String(r.namaAkun || '').toLowerCase();
     const amount = Math.max(r.debit || 0, r.kredit || r.credit || 0);
@@ -364,13 +368,17 @@ Ringkasan Ekualisasi Deterministik:
 - Selisih Revenue GL vs PPN: Rp ${new Intl.NumberFormat('id-ID').format(revenueRecon?.difference || 0)}
 - Total Beban Jasa GL: Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon?.glExpenseTotal || 0)}
 - Unmatched Beban Jasa vs PPh 23: Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon?.unmatchedDPP || 0)}
+- Total Beban Gaji/Payroll GL: Rp ${new Intl.NumberFormat('id-ID').format(payrollRecon?.glPayrollTotal || 0)}
+- Unmatched Beban Gaji vs PPh 21: Rp ${new Intl.NumberFormat('id-ID').format(payrollRecon?.unmatchedBase || 0)}
+- Total Beban Sewa & Konstruksi GL: Rp ${new Intl.NumberFormat('id-ID').format(finalTaxRecon?.glFinalTaxTotal || 0)}
+- Unmatched Sewa/Konstruksi vs PPh Final 4(2): Rp ${new Intl.NumberFormat('id-ID').format(finalTaxRecon?.unmatchedBase || 0)}
 
 Sample Transaksi Buku Besar (GL) Terseleksi untuk Audit Semantik & Exception Detection:
 ${JSON.stringify(selectedSamples, null, 2)}
 
 Tugas Khusus Anda:
 1. Lakukan Exception Detection & Semantic Scan mencakup 11 kategori exception (a s.d. l).
-2. Tentukan Period, Condition, Criteria, Cause, dan Effect untuk setiap temuan.
+2. Tentukan Period, Condition, Criteria, Cause, dan Effect untuk setiap temuan (meliputi PPN, PPh 23, PPh 21, PPh Final 4(2), Koreksi Fiskal, dll.).
 3. Buat daftar Tax Finding Register terstruktur sesuai format standar KKP (Finding ID: TR-001, TR-002, dst.).
 4. Nilai legalBasis wajib merujuk pasal/peraturan resmi Indonesia, atau jika tidak yakin isi persis "LEGAL BASIS REQUIRES HUMAN VERIFICATION".
 5. Field managementResponse dan reviewerDecision wajib bernilai string kosong "".
@@ -490,7 +498,7 @@ Format objek temuan:
 /**
  * Generator Temuan Deterministik Lokal (Fallback tanpa API)
  */
-export function generateDeterministicFindings({ glRows = [], taxMappings = [], revenueRecon, expenseRecon, clientInfo = {} }) {
+export function generateDeterministicFindings({ glRows = [], taxMappings = [], revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo = {} }) {
   const findings = [];
   let counter = 1;
   const currentPeriod = clientInfo?.taxYear ? `Tahun Pajak ${clientInfo.taxYear}` : 'Tahun Berjalan';
@@ -574,6 +582,86 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
       evidenceRequired: 'Daftar Bukti Potong e-Bupot Unifikasi, Invoice Vendor, Kontrak Jasa, Bukti Bayar/Bank Statement.',
       evidenceMissing: 'Bukti Potong PPh 23 Vendor, Surat Bebas Potong / SKB (jika ada)',
       recommendation: 'Konfirmasi ketersediaan bukti potong kepada vendor atau siapkan pencadangan pajak terutang beserta sanksi bunga Pasal 19 KUP.',
+      managementResponse: '',
+      reviewerDecision: '',
+      status: 'REQUIRES DOCUMENT'
+    });
+  }
+
+  // 3. Temuan dari Ekualisasi Beban Gaji vs PPh 21
+  if (payrollRecon && payrollRecon.unmatchedBase > 1000000) {
+    const exposure = payrollRecon.totalExposure;
+    const risk = estimateFindingRisk('PPh Pasal 21', exposure, false);
+
+    findings.push({
+      findingId: `TR-${String(counter++).padStart(3, '0')}`,
+      taxArea: 'PPh Pasal 21',
+      account: 'Akun Beban Gaji / Upah / Bonus / Tunjangan',
+      period: currentPeriod,
+      condition: `Beban gaji & tunjangan di GL sebesar Rp ${new Intl.NumberFormat('id-ID').format(payrollRecon.glPayrollTotal)} melebihi penghasilan bruto di SPT PPh 21 sebesar Rp ${new Intl.NumberFormat('id-ID').format(payrollRecon.sptBrutoTotal)} (selisih belum dilaporkan Rp ${new Intl.NumberFormat('id-ID').format(payrollRecon.unmatchedBase)}).`,
+      criteria: 'Pasal 21 UU PPh jo. PMK 168/2023 & PP 58/2023 (Pemotongan PPh 21 atas seluruh penghasilan sehubungan dengan pekerjaan/jasa).',
+      cause: 'Terdapat komponen imbalan kerja/bonus/honorarium lepas yang belum dimasukkan ke dalam perhitungan SPT Masa PPh 21 atau fasilitas natura belum dipotong PPh 21.',
+      effect: `Potensi estimasi PPh 21 kurang potong sebesar Rp ${new Intl.NumberFormat('id-ID').format(payrollRecon.potentialTax)} dan sanksi bunga Pasal 19 KUP sebesar Rp ${new Intl.NumberFormat('id-ID').format(payrollRecon.interestSanction || 0)} (Total Exposure: Rp ${new Intl.NumberFormat('id-ID').format(exposure)}).`,
+      substanceCategory: 'Objek PPh 21 (Gaji & Imbalan Tenaga Kerja)',
+      exceptionCategory: 'c',
+      isMisclassified: false,
+      sourceEngine: 'DETERMINISTIC',
+      engineLabel: 'Sistem Deterministik (Non-AI)',
+      glValue: payrollRecon.glPayrollTotal,
+      identifiedValue: payrollRecon.sptBrutoTotal,
+      unmatchedValue: payrollRecon.unmatchedBase,
+      potentialExposure: exposure,
+      principalTax: payrollRecon.potentialTax,
+      interestSanction: payrollRecon.interestSanction,
+      probability: risk.probability,
+      impact: risk.impact,
+      riskScore: risk.score,
+      riskLevel: risk.level,
+      legalBasis: 'Pasal 21 UU PPh jo. PMK 168/2023',
+      aiAnalysis: `Ditemukan selisih biaya gaji di GL sebesar Rp ${new Intl.NumberFormat('id-ID').format(payrollRecon.unmatchedBase)} yang belum teridentifikasi dalam SPT PPh 21. Perlu pengujian apakah ada honor tenaga ahli atau natura yang menjadi objek PPh 21.`,
+      evidenceRequired: 'Rekapitulasi Gaji & Payroll Bulanan (Form 1721-A1), Slip Gaji, SPT Masa PPh 21 Induk & 1721-I, Bukti Transfer Bank.',
+      evidenceMissing: 'Rekapitulasi Payroll & Bukti Potong 1721-VI/VII',
+      recommendation: 'Lakukan rekonsiliasi per karyawan dan pastikan seluruh tunjangan/bonus telah dilaporkan dalam SPT PPh 21 atau dilakukan koreksi fiskal.',
+      managementResponse: '',
+      reviewerDecision: '',
+      status: 'REQUIRES DOCUMENT'
+    });
+  }
+
+  // 4. Temuan dari Ekualisasi Sewa Tanah/Bangunan & Konstruksi vs PPh Final 4(2)
+  if (finalTaxRecon && finalTaxRecon.unmatchedBase > 1000000) {
+    const exposure = finalTaxRecon.totalExposure;
+    const risk = estimateFindingRisk('PPh Final Pasal 4(2)', exposure, false);
+
+    findings.push({
+      findingId: `TR-${String(counter++).padStart(3, '0')}`,
+      taxArea: 'PPh Final Pasal 4(2)',
+      account: 'Akun Beban Sewa Bangunan / Jasa Konstruksi',
+      period: currentPeriod,
+      condition: `Beban sewa gedung/tanah dan renovasi konstruksi di GL sebesar Rp ${new Intl.NumberFormat('id-ID').format(finalTaxRecon.glFinalTaxTotal)} belum didukung bukti pemotongan PPh Final Pasal 4(2) (unmatched DPP Rp ${new Intl.NumberFormat('id-ID').format(finalTaxRecon.unmatchedBase)}).`,
+      criteria: 'Pasal 4 ayat (2) UU PPh jo. PP 34/2017 (Sewa Tanah/Bangunan tarif 10%) & PP 9/2022 (Jasa Konstruksi).',
+      cause: 'Pembayaran sewa gedung/ruko atau biaya renovasi dibayarkan ke pemilik tanpa dilakukan pemotongan PPh Final Pasal 4 ayat (2).',
+      effect: `Potensi kewajiban pajak kurang potong PPh Final sebesar Rp ${new Intl.NumberFormat('id-ID').format(finalTaxRecon.potentialTax)} dan sanksi bunga Pasal 19 KUP sebesar Rp ${new Intl.NumberFormat('id-ID').format(finalTaxRecon.interestSanction || 0)} (Total Exposure: Rp ${new Intl.NumberFormat('id-ID').format(exposure)}).`,
+      substanceCategory: 'Objek PPh Final 4(2) (Sewa Properti & Konstruksi)',
+      exceptionCategory: 'c',
+      isMisclassified: false,
+      sourceEngine: 'DETERMINISTIC',
+      engineLabel: 'Sistem Deterministik (Non-AI)',
+      glValue: finalTaxRecon.glFinalTaxTotal,
+      identifiedValue: finalTaxRecon.bupotDPPTotal,
+      unmatchedValue: finalTaxRecon.unmatchedBase,
+      potentialExposure: exposure,
+      principalTax: finalTaxRecon.potentialTax,
+      interestSanction: finalTaxRecon.interestSanction,
+      probability: risk.probability,
+      impact: risk.impact,
+      riskScore: risk.score,
+      riskLevel: risk.level,
+      legalBasis: 'Pasal 4 ayat (2) UU PPh jo. PP 34/2017 & PP 9/2022',
+      aiAnalysis: `Ditemukan beban sewa atau renovasi di GL sebesar Rp ${new Intl.NumberFormat('id-ID').format(finalTaxRecon.unmatchedBase)} tanpa bukti potong PPh Final 4(2). Wajib Pajak berisiko diterbitkan SKPKB jika pemilik tanah/bangunan tidak menyetor sendiri.`,
+      evidenceRequired: 'Perjanjian Sewa-Menyewa (Lease Agreement), Bukti Potong PPh Final 4(2), Surat Setoran Pajak (SSP), Invoice & Kwitansi.',
+      evidenceMissing: 'Bukti Potong PPh Final 4(2) / SSP Bukti Setor Sendiri',
+      recommendation: 'Mintakan bukti pemotongan PPh Final kepada pemilik properti atau terbitkan e-Bupot Unifikasi PPh Final.',
       managementResponse: '',
       reviewerDecision: '',
       status: 'REQUIRES DOCUMENT'

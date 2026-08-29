@@ -98,14 +98,15 @@ describe('Deterministic Calculation Engine', () => {
     const effectiveRate = 0.05; // 5%
 
     // Case 1: RECONCILED
-    const matched = reconcilePayrollVsPPh21(glPayroll, 10000000, effectiveRate);
-    expect(matched.shortfallTax).toBe(0);
+    const matched = reconcilePayrollVsPPh21(glPayroll, 200000000, effectiveRate);
+    expect(matched.unmatchedBase).toBe(0);
+    expect(matched.potentialTax).toBe(0);
     expect(matched.status).toBe('RECONCILED');
 
-    // Case 2: RISK - Underwithheld PPh 21
-    const unwithheld = reconcilePayrollVsPPh21(glPayroll, 6000000, effectiveRate);
-    expect(unwithheld.theoreticalPPh21).toBe(10000000);
-    expect(unwithheld.shortfallTax).toBe(4000000);
+    // Case 2: RISK - Unmatched PPh 21
+    const unwithheld = reconcilePayrollVsPPh21(glPayroll, 120000000, effectiveRate);
+    expect(unwithheld.unmatchedBase).toBe(80000000); // 80 Juta
+    expect(unwithheld.potentialTax).toBe(4000000); // 5% x 80jt
     expect(unwithheld.status).toBe('UNWITHHELD_PPH21_RISK');
     expect(unwithheld.totalExposure).toBeGreaterThan(4000000);
   });
@@ -115,14 +116,15 @@ describe('Deterministic Calculation Engine', () => {
     const rate = TAX_RATES.PPH42_RENT_PROPERTY; // 10%
 
     // Case 1: RECONCILED
-    const matched = reconcileRentVsPPhFinal(glRent, 10000000, rate);
+    const matched = reconcileRentVsPPhFinal(glRent, 100000000, rate);
+    expect(matched.unmatchedBase).toBe(0);
     expect(matched.potentialTax).toBe(0);
     expect(matched.status).toBe('RECONCILED');
 
     // Case 2: RISK - Unwithheld PPh Final
-    const unwithheld = reconcileRentVsPPhFinal(glRent, 5000000, rate);
-    expect(unwithheld.theoreticalPPhFinal).toBe(10000000);
-    expect(unwithheld.potentialTax).toBe(5000000);
+    const unwithheld = reconcileRentVsPPhFinal(glRent, 50000000, rate);
+    expect(unwithheld.unmatchedBase).toBe(50000000); // 50 Juta
+    expect(unwithheld.potentialTax).toBe(5000000); // 10% x 50jt
     expect(unwithheld.status).toBe('UNWITHHELD_PPH_FINAL_RISK');
   });
 

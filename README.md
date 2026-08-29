@@ -12,7 +12,7 @@
 
 **Sistem Audit Diagnostik Perpajakan Indonesia, Ekualisasi Fiskal Otomatis, Analisis Semantik AI Claude, Kertas Kerja Pemeriksaan (KKP 13-Sheet Styled Excel), dan SP2DK Tax Audit Response Agent.**
 
-*Dikembangkan untuk **KAP Kuncara Budi Santosa & Rekan (Cabang Samarinda)**.*
+*Dikembangkan untuk **Kantor Konsultan Pajak Zaidan Jauhari (KKP Zaidan Jauhari)**.*
 
 ---
 
@@ -111,9 +111,14 @@ Platform ini memadukan **dua mesin komputasi (Dual-Engine Architecture)**:
 * **Top 5 Matters Requiring Partner Attention:** Rekomendasi tindakan prioritas untuk penelaahan Partner in Charge.
 * Tabel ringkasan cepat status rekonsiliasi seluruh area perpajakan.
 
-### 10. 🔐 Akses Terpadu & Konfigurasi Pengguna
+### 10. 💾 Project Save & Load State (.aitax Portable Archive)
+* **Ekspor File Proyek (`.aitax`):** Menyimpan seluruh progres penelaahan pajak (Buku Besar, tax mapping, hasil rekonsiliasi, temuan risiko AI/deterministik, dan master profil klien) ke dalam file proyek tunggal berformat `.aitax` (JSON).
+* **Impor Instan & Drag-and-Drop:** Membuka kembali file `.aitax` secara instan tanpa perlu memproses ulang file Buku Besar mentah.
+* **Auto-Save & Local Session Recovery:** Otomatis menyimpan sesi kerja aktif ke peramban dengan opsi pemulihan sesi saat aplikasi dibuka kembali.
+
+### 11. 🔐 Akses Terpadu & Konfigurasi Pengguna
 * Semua pengguna mendapatkan akses penuh ke seluruh modul aplikasi: GL Cleaner, Tax Recon Workbench, SP2DK Response Agent, KKP Generator, dan Partner Dashboard.
-* Konfigurasi identitas tim audit (*Partner in Charge, Manager, Senior Auditor, Staff*) melalui **`ClientMasterModal`**, tersimpan di `localStorage` dan disinkronisasi otomatis ke seluruh output KKP dan kop surat SP2DK.
+* Konfigurasi identitas tim audit (*Managing Partner, Tax Manager, Tax Senior, Staff*) melalui **`ClientMasterModal`**, tersimpan di `localStorage` dan disinkronisasi otomatis ke seluruh output KKP dan kop surat SP2DK.
 
 ---
 
@@ -334,15 +339,15 @@ ai-tax-agent/
 ---
 
 ## 👨‍💻 Tim Pengembang & Lisensi
-
-* **Kantor Akuntan Publik:** KAP Kuncara Budi Santosa & Rekan (Cabang Samarinda)
+ 
+* **Kantor Konsultan Pajak:** Kantor Konsultan Pajak Zaidan Jauhari (KKP Zaidan Jauhari)
 * **Lead Developer & System Architect:** [Viany Ramadhany](https://github.com/vianydev) (*IT Support & Developer*)
 * **Integrasi AI:** Anthropic Claude (via Direct Browser BYOK Integration)
-
+ 
 ---
-
+ 
 <div align="center">
-
-*Hak Cipta &copy; 2026 KAP Kuncara Budi Santosa & Rekan (Cabang Samarinda). Seluruh hak cipta dilindungi undang-undang.*
-
+ 
+*Hak Cipta &copy; 2026 Kantor Konsultan Pajak Zaidan Jauhari (KKP Zaidan Jauhari). Seluruh hak cipta dilindungi undang-undang.*
+ 
 </div>

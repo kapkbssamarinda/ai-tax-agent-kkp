@@ -2,7 +2,7 @@
 
 **Aplikasi:** GL Cleaner & AI Tax Agent Indonesia  
 **Pengguna:** Staff Tax Analyst & Tim Audit Pajak  
-**Kantor:** KAP Kuncara Budi Santosa & Rekan, Cabang Samarinda  
+**Kantor:** Kantor Konsultan Pajak Zaidan Jauhari (KKP Zaidan Jauhari)  
 **Versi Dokumen:** 2.0.0 (Tahun 2026)
 
 ---
@@ -224,4 +224,4 @@ Pada setiap kartu temuan di **Tax Risk Register**, ubah dropdown **`Keputusan Re
 
 ---
 
-*Standar Operasional Prosedur (SOP) Alur Input ini berlaku untuk seluruh tim audit dan staf tax analyst KAP Kuncara Budi Santosa & Rekan.*
+*Standar Operasional Prosedur (SOP) Alur Input ini berlaku untuk seluruh tim konsultan dan staf tax analyst Kantor Konsultan Pajak Zaidan Jauhari (KKP Zaidan Jauhari).*

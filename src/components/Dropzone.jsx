@@ -58,14 +58,14 @@ function Dropzone({ onFile }) {
     >
       <UploadCloud className="dropzone-icon" size={40} strokeWidth={1.5} aria-hidden="true" />
       <span className="dropzone-text">Klik atau seret file ke sini untuk mengunggah</span>
-      <span className="dropzone-hint">Mendukung .xls/.pdf (Accurate) atau .xlsx/.txt (MYOB)</span>
+      <span className="dropzone-hint">Mendukung Buku Besar (.xlsx, .xls, .pdf, .txt) atau File Proyek (.aitax)</span>
       <input
         ref={fileInputRef}
         type="file"
         className="sr-only"
         tabIndex={-1}
         aria-hidden="true"
-        accept=".xlsx, .xls, .csv, .xml, .pdf, .txt"
+        accept=".xlsx, .xls, .csv, .xml, .pdf, .txt, .aitax, .json"
         onChange={handleChange}
       />
     </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useDeferredValue, useCallback } from 'react';
-import { AlertCircle, Loader2, CheckCircle2, X } from 'lucide-react';
+import { AlertCircle, Loader2, CheckCircle2, X, Sparkles } from 'lucide-react';
 import './App.css';
 import Topbar from './components/Topbar';
 import AccountRail from './components/AccountRail';
@@ -13,9 +13,17 @@ import ClientMasterModal from './components/tax/ClientMasterModal';
 import PartnerDashboard from './components/tax/PartnerDashboard';
 import TaxReconWorkbench from './components/tax/TaxReconWorkbench';
 import { buildTaxMappingFromGL } from './tax-engine/taxMapping';
-import { reconcileRevenueVsPPN, reconcileExpenseVsPPh23 } from './tax-engine/deterministicCalc';
+import { reconcileRevenueVsPPN, reconcileExpenseVsPPh23, reconcilePayrollVsPPh21, reconcileRentVsPPhFinal } from './tax-engine/deterministicCalc';
 import { analyzeTaxFindings, generateDeterministicFindings } from './services/claudeService';
 import { downloadKKPWorkbook } from './tax-engine/kkpWorkbookGenerator';
+import {
+  createProjectSnapshot,
+  exportProjectToFile,
+  parseProjectFile,
+  saveDraftToStorage,
+  loadDraftFromStorage,
+  clearDraftFromStorage
+} from './services/projectStateService';
 
 const ACCURATE_COLUMNS = [
   { key: 'tanggal', label: 'Tanggal' },
@@ -60,9 +68,9 @@ const DEFAULT_CLIENT_INFO = {
   name: 'PT Klien Demo',
   npwp: '01.234.567.8-012.000',
   taxYear: '2024',
-  partnerName: 'Budi Santosa, CPA',
-  managerName: 'Viany Ramadhany',
-  seniorName: 'Auditor Senior',
+  partnerName: 'Zaidan Jauhari, BKP',
+  managerName: '',
+  seniorName: 'Tax Senior',
   auditDate: new Date().toISOString().split('T')[0]
 };
 
@@ -86,14 +94,52 @@ function App() {
   const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
   const [isClientMasterOpen, setIsClientMasterOpen] = useState(false);
   const [clientInfo, setClientInfo] = useState(DEFAULT_CLIENT_INFO);
+  const [availableDraft, setAvailableDraft] = useState(null);
 
   // AI Tax & Equalization State
   const [taxMappings, setTaxMappings] = useState([]);
   const [revenueRecon, setRevenueRecon] = useState({ glRevenueTotal: 0, sptDPPTotal: 0, difference: 0, potentialPPNExposure: 0, status: 'RECONCILED' });
   const [expenseRecon, setExpenseRecon] = useState({ glExpenseTotal: 0, bupotDPPTotal: 0, unmatchedDPP: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
+  const [payrollRecon, setPayrollRecon] = useState({ glPayrollTotal: 0, sptBrutoTotal: 0, unmatchedBase: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
+  const [finalTaxRecon, setFinalTaxRecon] = useState({ glFinalTaxTotal: 0, bupotDPPTotal: 0, unmatchedBase: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
   const [findings, setFindings] = useState([]);
   const [isAnalyzingTax, setIsAnalyzingTax] = useState(false);
   const [aiAnalysisSummary, setAiAnalysisSummary] = useState(null);
+
+  // Periksa draft pekerjaan tersimpan di peramban saat inisialisasi
+  useEffect(() => {
+    try {
+      const draft = loadDraftFromStorage();
+      if (draft && Array.isArray(draft.glRows) && draft.glRows.length > 0) {
+        setAvailableDraft(draft);
+      }
+    } catch {
+      // Abaikan jika storage bermasalah
+    }
+  }, []);
+
+  // Auto-save snapshot pengerjaan ke localStorage saat data aktif berubah (debounced 1.5 detik)
+  useEffect(() => {
+    if (step === 'success' && processedData.length > 0) {
+      const timer = setTimeout(() => {
+        const snapshot = createProjectSnapshot({
+          clientInfo,
+          fileMeta: { fileName, sourceFormat, currentColumns },
+          glRows: processedData,
+          taxMappings,
+          revenueRecon,
+          expenseRecon,
+          payrollRecon,
+          finalTaxRecon,
+          findings,
+          aiAnalysisSummary,
+          uiState: { viewMode }
+        });
+        saveDraftToStorage(snapshot);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [step, processedData, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, findings, clientInfo, fileName, sourceFormat, currentColumns, aiAnalysisSummary, viewMode]);
 
   // Daftar akun untuk rail: nama unik + kode COA pertama + jumlah baris
   const accounts = useMemo(() => {
@@ -110,7 +156,7 @@ function App() {
   }, [processedData]);
 
   // Recalculate Tax Recon when Tax Mapping changes
-  const recalculateTaxRecons = useCallback((currentMappings, glData = processedData, customSpt = null, customBupot = null) => {
+  const recalculateTaxRecons = useCallback((currentMappings, glData = processedData, customSpt = null, customBupot = null, customPayrollSpt = null, customFinalBupot = null) => {
     // 1. Total Revenue: Akun dengan category === 'REVENUE'
     const revenueAccounts = new Set(currentMappings.filter(m => m.category === 'REVENUE').map(m => m.namaAkun));
     let totalRevenue = 0;
@@ -131,23 +177,52 @@ function App() {
     });
     totalExpense = Math.max(0, totalExpense);
 
-    const sptTotal = customSpt !== null ? customSpt : (revenueRecon.sptDPPTotal || Math.round(totalRevenue * 0.85)); // Estimasi awal jika belum diisi
+    // 3. Total Payroll (PPh 21): Akun dengan category === 'PPH21'
+    const pph21Accounts = new Set(currentMappings.filter(m => m.category === 'PPH21').map(m => m.namaAkun));
+    let totalPayroll = 0;
+    glData.forEach(r => {
+      if (pph21Accounts.has(r.namaAkun)) {
+        totalPayroll += (r.debit || 0) - (r.kredit || r.credit || 0);
+      }
+    });
+    totalPayroll = Math.max(0, totalPayroll);
+
+    // 4. Total Sewa / Konstruksi (PPh Final 4(2)): Akun dengan category === 'PPH42'
+    const pph42Accounts = new Set(currentMappings.filter(m => m.category === 'PPH42').map(m => m.namaAkun));
+    let totalFinalTax = 0;
+    glData.forEach(r => {
+      if (pph42Accounts.has(r.namaAkun)) {
+        totalFinalTax += (r.debit || 0) - (r.kredit || r.credit || 0);
+      }
+    });
+    totalFinalTax = Math.max(0, totalFinalTax);
+
+    const sptTotal = customSpt !== null ? customSpt : (revenueRecon.sptDPPTotal || Math.round(totalRevenue * 0.85));
     const bupotTotal = customBupot !== null ? customBupot : (expenseRecon.bupotDPPTotal || Math.round(totalExpense * 0.70));
+    const payrollSpt = customPayrollSpt !== null ? customPayrollSpt : (payrollRecon.sptBrutoTotal || Math.round(totalPayroll * 0.90));
+    const finalBupot = customFinalBupot !== null ? customFinalBupot : (finalTaxRecon.bupotDPPTotal || Math.round(totalFinalTax * 0.80));
 
     const newRevRecon = reconcileRevenueVsPPN(totalRevenue, sptTotal);
     const newExpRecon = reconcileExpenseVsPPh23(totalExpense, bupotTotal);
+    const newPayrollRecon = reconcilePayrollVsPPh21(totalPayroll, payrollSpt);
+    const newFinalTaxRecon = reconcileRentVsPPhFinal(totalFinalTax, finalBupot);
 
     setRevenueRecon(newRevRecon);
     setExpenseRecon(newExpRecon);
+    setPayrollRecon(newPayrollRecon);
+    setFinalTaxRecon(newFinalTaxRecon);
 
     const newFindings = generateDeterministicFindings({
       glRows: glData,
       taxMappings: currentMappings,
       revenueRecon: newRevRecon,
-      expenseRecon: newExpRecon
+      expenseRecon: newExpRecon,
+      payrollRecon: newPayrollRecon,
+      finalTaxRecon: newFinalTaxRecon,
+      clientInfo
     });
     setFindings(newFindings);
-  }, [processedData, revenueRecon.sptDPPTotal, expenseRecon.bupotDPPTotal]);
+  }, [processedData, revenueRecon.sptDPPTotal, expenseRecon.bupotDPPTotal, payrollRecon.sptBrutoTotal, finalTaxRecon.bupotDPPTotal, clientInfo]);
 
   const statusMessage = useMemo(() => {
     if (step === 'loading') return 'Memproses data, mohon tunggu.';
@@ -255,8 +330,98 @@ function App() {
     return lines.join('\n');
   };
 
+  const handleApplyProjectState = (projectData) => {
+    if (projectData.clientInfo) setClientInfo(projectData.clientInfo);
+    if (projectData.fileMeta) {
+      setFileName(projectData.fileMeta.fileName || 'Proyek_Tax.aitax');
+      setSourceFormat(projectData.fileMeta.sourceFormat || 'Accurate');
+      if (projectData.fileMeta.currentColumns && projectData.fileMeta.currentColumns.length > 0) {
+        setCurrentColumns(projectData.fileMeta.currentColumns);
+      } else {
+        setCurrentColumns(ACCURATE_COLUMNS);
+      }
+    }
+    if (Array.isArray(projectData.glRows)) setProcessedData(projectData.glRows);
+    if (Array.isArray(projectData.taxMappings)) setTaxMappings(projectData.taxMappings);
+    if (projectData.revenueRecon) setRevenueRecon(projectData.revenueRecon);
+    if (projectData.expenseRecon) setExpenseRecon(projectData.expenseRecon);
+    if (projectData.payrollRecon) setPayrollRecon(projectData.payrollRecon);
+    if (projectData.finalTaxRecon) setFinalTaxRecon(projectData.finalTaxRecon);
+    if (Array.isArray(projectData.findings)) setFindings(projectData.findings);
+    if (projectData.aiAnalysisSummary) setAiAnalysisSummary(projectData.aiAnalysisSummary);
+    if (projectData.uiState?.viewMode) setViewMode(projectData.uiState.viewMode);
+    setWarnings([]);
+    setSelectedAccount(null);
+    setFilters({});
+    setStep('success');
+    setAvailableDraft(null);
+    setError(null);
+  };
+
+  const handleLoadProjectFile = async (file) => {
+    try {
+      setError(null);
+      const projectData = await parseProjectFile(file);
+      handleApplyProjectState(projectData);
+    } catch (err) {
+      setError('Gagal memuat file proyek: ' + err.message);
+      setStep('upload');
+    }
+  };
+
+  const triggerLoadProjectDialog = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.aitax, .json';
+    input.onchange = (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleLoadProjectFile(e.target.files[0]);
+      }
+    };
+    input.click();
+  };
+
+  const handleSaveProject = () => {
+    try {
+      const snapshot = createProjectSnapshot({
+        clientInfo,
+        fileMeta: { fileName, sourceFormat, currentColumns },
+        glRows: processedData,
+        taxMappings,
+        revenueRecon,
+        expenseRecon,
+        payrollRecon,
+        finalTaxRecon,
+        findings,
+        aiAnalysisSummary,
+        uiState: { viewMode }
+      });
+      exportProjectToFile(snapshot);
+    } catch (err) {
+      setError('Gagal mengekspor file proyek: ' + err.message);
+    }
+  };
+
+  const handleRestoreDraft = () => {
+    if (availableDraft) {
+      handleApplyProjectState(availableDraft);
+    }
+  };
+
+  const handleDismissDraft = () => {
+    clearDraftFromStorage();
+    setAvailableDraft(null);
+  };
+
   const handleFile = (file) => {
     setError(null);
+
+    // Cek jika file adalah file proyek .aitax / .json
+    if (file.name.toLowerCase().endsWith('.aitax') || (file.name.toLowerCase().endsWith('.json') && !file.name.toLowerCase().includes('manifest'))) {
+      handleLoadProjectFile(file);
+      return;
+    }
+
     setFileName(file.name);
     setStep('loading');
     setAiAnalysisSummary(null);
@@ -268,6 +433,8 @@ function App() {
     setFilters({});
     setRevenueRecon({ glRevenueTotal: 0, sptDPPTotal: 0, difference: 0, potentialPPNExposure: 0, status: 'RECONCILED' });
     setExpenseRecon({ glExpenseTotal: 0, bupotDPPTotal: 0, unmatchedDPP: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
+    setPayrollRecon({ glPayrollTotal: 0, sptBrutoTotal: 0, unmatchedBase: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
+    setFinalTaxRecon({ glFinalTaxTotal: 0, bupotDPPTotal: 0, unmatchedBase: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
 
     // Auto extract client name from filename if possible
     const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " ");
@@ -316,6 +483,8 @@ function App() {
   };
 
   const resetWorkflow = () => {
+    clearDraftFromStorage();
+    setAvailableDraft(null);
     setStep('upload');
     setViewMode('GL_CLEANER');
     setProcessedData([]);
@@ -330,6 +499,8 @@ function App() {
     setAiAnalysisSummary(null);
     setRevenueRecon({ glRevenueTotal: 0, sptDPPTotal: 0, difference: 0, potentialPPNExposure: 0, status: 'RECONCILED' });
     setExpenseRecon({ glExpenseTotal: 0, bupotDPPTotal: 0, unmatchedDPP: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
+    setPayrollRecon({ glPayrollTotal: 0, sptBrutoTotal: 0, unmatchedBase: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
+    setFinalTaxRecon({ glFinalTaxTotal: 0, bupotDPPTotal: 0, unmatchedBase: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
     setError(null);
     setClientInfo(DEFAULT_CLIENT_INFO);
   };
@@ -372,13 +543,25 @@ function App() {
   const handleUpdateRevenueSPT = (newSptTotal) => {
     const newRev = reconcileRevenueVsPPN(revenueRecon.glRevenueTotal, newSptTotal);
     setRevenueRecon(newRev);
-    recalculateTaxRecons(taxMappings, processedData, newSptTotal, null);
+    recalculateTaxRecons(taxMappings, processedData, newSptTotal, null, null, null);
   };
 
   const handleUpdateExpenseBupot = (newBupotTotal) => {
     const newExp = reconcileExpenseVsPPh23(expenseRecon.glExpenseTotal, newBupotTotal);
     setExpenseRecon(newExp);
-    recalculateTaxRecons(taxMappings, processedData, null, newBupotTotal);
+    recalculateTaxRecons(taxMappings, processedData, null, newBupotTotal, null, null);
+  };
+
+  const handleUpdatePayrollSPT = (newPayrollSpt) => {
+    const newPayroll = reconcilePayrollVsPPh21(payrollRecon.glPayrollTotal, newPayrollSpt);
+    setPayrollRecon(newPayroll);
+    recalculateTaxRecons(taxMappings, processedData, null, null, newPayrollSpt, null);
+  };
+
+  const handleUpdateFinalTaxBupot = (newFinalBupot) => {
+    const newFinal = reconcileRentVsPPhFinal(finalTaxRecon.glFinalTaxTotal, newFinalBupot);
+    setFinalTaxRecon(newFinal);
+    recalculateTaxRecons(taxMappings, processedData, null, null, null, newFinalBupot);
   };
 
   const handleRunAIAnalysis = async () => {
@@ -389,6 +572,8 @@ function App() {
         taxMappings,
         revenueRecon,
         expenseRecon,
+        payrollRecon,
+        finalTaxRecon,
         clientInfo,
         throwOnError: true
       });
@@ -423,6 +608,8 @@ function App() {
       taxMappings,
       revenueRecon,
       expenseRecon,
+      payrollRecon,
+      finalTaxRecon,
       findings
     });
   };
@@ -444,6 +631,8 @@ function App() {
         onReset={resetWorkflow}
         onExportCSV={handleExportCSV}
         onExportXLSX={handleExportXLSX}
+        onSaveProject={handleSaveProject}
+        onLoadProject={triggerLoadProjectDialog}
         isExporting={isExporting}
         viewMode={viewMode}
         onSelectViewMode={setViewMode}
@@ -469,9 +658,49 @@ function App() {
 
       {step === 'upload' && (
         <main className="stage">
+          {availableDraft && (
+            <div
+              className="draft-recovery-banner"
+              role="alert"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '1rem',
+                padding: '0.85rem 1.25rem',
+                background: 'rgba(68, 114, 196, 0.12)',
+                border: '1px solid rgba(68, 114, 196, 0.35)',
+                borderRadius: '10px',
+                marginBottom: '1.5rem',
+                width: '100%',
+                maxWidth: '780px'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Sparkles size={20} className="text-accent" style={{ flexShrink: 0 }} />
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '0.92rem' }}>
+                    Ditemukan Sesi Kerja Tersimpan: {availableDraft.clientInfo?.name || 'Klien'} (Tahun {availableDraft.clientInfo?.taxYear || '2024'})
+                  </div>
+                  <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>
+                    {availableDraft.glRows?.length || 0} baris data &bull; Disimpan: {availableDraft.savedAt ? new Date(availableDraft.savedAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB' : 'Baru saja'}
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+                <button type="button" className="btn btn-ghost btn-action-sm" onClick={handleDismissDraft}>
+                  Abaikan
+                </button>
+                <button type="button" className="btn btn-primary btn-action-sm" onClick={handleRestoreDraft}>
+                  Pulihkan Sesi
+                </button>
+              </div>
+            </div>
+          )}
+
           <header className="stage-header">
             <h1 className="stage-title">
-              GL Cleaner &amp; AI Tax Agent Indonesia
+              AI Tax Agent Indonesia &mdash; KKP Zaidan Jauhari
             </h1>
             <p className="stage-subtitle">
               Pembersihan Buku Besar (Accurate, MYOB, Krishand) + Ekualisasi Pajak (Omzet vs PPN, Biaya vs PPh 23) + KKP 13-Sheet &amp; Partner Dashboard.
@@ -536,6 +765,10 @@ function App() {
               onUpdateRevenueSPT={handleUpdateRevenueSPT}
               expenseRecon={expenseRecon}
               onUpdateExpenseBupot={handleUpdateExpenseBupot}
+              payrollRecon={payrollRecon}
+              onUpdatePayrollSPT={handleUpdatePayrollSPT}
+              finalTaxRecon={finalTaxRecon}
+              onUpdateFinalTaxBupot={handleUpdateFinalTaxBupot}
               findings={findings}
               onRunAIAnalysis={handleRunAIAnalysis}
               isAnalyzing={isAnalyzingTax}
@@ -553,6 +786,8 @@ function App() {
               findings={findings}
               revenueRecon={revenueRecon}
               expenseRecon={expenseRecon}
+              payrollRecon={payrollRecon}
+              finalTaxRecon={finalTaxRecon}
               clientInfo={clientInfo}
               glRows={processedData}
               taxMappings={taxMappings}
@@ -577,11 +812,11 @@ function App() {
 
       <footer className="app-footer">
         <p>
-          &copy; {new Date().getFullYear()} GL Cleaner &amp; AI Tax Agent &mdash; KAP Kuncara Budi Santosa &amp; Rekan, Cabang Samarinda
+          &copy; {new Date().getFullYear()} AI Tax Agent &mdash; Kantor Konsultan Pajak Zaidan Jauhari (KKP Zaidan Jauhari)
         </p>
         <p>
-          IT Support: <span className="footer-name">Viany Ramadhany</span>
-          &bull; Powered by Anthropic Claude Haiku
+          Pengembang: <span className="footer-name">Viany Ramadhany</span>
+          &bull; Powered by Anthropic Claude &amp; Deterministic Engine
         </p>
       </footer>
     </div>

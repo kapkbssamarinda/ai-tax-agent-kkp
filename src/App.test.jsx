@@ -66,5 +66,39 @@ describe('AI Analysis Notification & Reset Lifecycle', () => {
     fireEvent.click(closeBtn);
     expect(dismissed).toBe(true);
   });
+
+  it('merender tab Ekualisasi Gaji vs PPh 21 dan Ekualisasi Sewa/Konstruksi dengan benar', () => {
+    render(
+      <TaxReconWorkbench
+        glRows={[
+          { coa: '5101', namaAkun: 'Beban Gaji', debit: 50000000 },
+          { coa: '5201', namaAkun: 'Beban Sewa Gedung', debit: 20000000 }
+        ]}
+        taxMappings={[
+          { namaAkun: 'Beban Gaji', category: 'PPH21' },
+          { namaAkun: 'Beban Sewa Gedung', category: 'PPH42' }
+        ]}
+        payrollRecon={{ glPayrollTotal: 50000000, sptBrutoTotal: 40000000, unmatchedBase: 10000000, potentialTax: 500000, totalExposure: 560000, status: 'UNWITHHELD_PPH21_RISK' }}
+        finalTaxRecon={{ glFinalTaxTotal: 20000000, bupotDPPTotal: 15000000, unmatchedBase: 5000000, potentialTax: 500000, totalExposure: 560000, status: 'UNWITHHELD_PPH_FINAL_RISK' }}
+        findings={[]}
+      />
+    );
+
+    // Tombol Tab PPh 21 dan PPh Final ada
+    const payrollTab = screen.getByRole('button', { name: /Ekualisasi Gaji vs PPh 21/i });
+    const finalTaxTab = screen.getByRole('button', { name: /Ekualisasi Sewa\/Konstruksi/i });
+    expect(payrollTab).toBeInTheDocument();
+    expect(finalTaxTab).toBeInTheDocument();
+
+    // Klik tab PPh 21 dan periksa summary card
+    fireEvent.click(payrollTab);
+    expect(screen.getByText(/Total Beban Gaji & Imbalan di GL/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Rp 50\.000\.000/i).length).toBeGreaterThanOrEqual(1);
+
+    // Klik tab PPh Final dan periksa summary card
+    fireEvent.click(finalTaxTab);
+    expect(screen.getByText(/Total Beban Sewa & Konstruksi GL/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Rp 20\.000\.000/i).length).toBeGreaterThanOrEqual(1);
+  });
 });
 

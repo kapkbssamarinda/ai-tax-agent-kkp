@@ -128,30 +128,25 @@ export function reconcilePurchasesVsPPNMasukan(glPurchaseTotal, ppnMasukanClaime
 }
 
 /**
- * 4. Rekonsiliasi Biaya Payroll/Gaji/Honor vs PPh 21
+ * 4. Rekonsiliasi Biaya Payroll/Gaji/Honor vs SPT Masa PPh 21
  */
-export function reconcilePayrollVsPPh21(glPayrollTotal, pph21WithheldTotal, effectiveRateEstimate = 0.05) {
-  const theoreticalPPh21 = Math.round(glPayrollTotal * effectiveRateEstimate);
-  const impliedPayrollBase = effectiveRateEstimate > 0 ? Math.round(pph21WithheldTotal / effectiveRateEstimate) : 0;
-  const unmatchedBase = Math.max(0, glPayrollTotal - impliedPayrollBase);
-  const shortfallTax = Math.max(0, theoreticalPPh21 - pph21WithheldTotal);
-  const interest = calculateInterestSanction(shortfallTax, 12, 0.012);
+export function reconcilePayrollVsPPh21(glPayrollTotal, sptBrutoTotal = 0, effectiveRateEstimate = 0.05) {
+  const unmatchedBase = Math.max(0, glPayrollTotal - sptBrutoTotal);
+  const potentialTax = Math.round(unmatchedBase * effectiveRateEstimate);
+  const interest = calculateInterestSanction(potentialTax, 12, 0.012);
 
-  const status = shortfallTax <= 0 || Math.abs(glPayrollTotal - impliedPayrollBase) < 1000
+  const status = unmatchedBase <= 0
     ? "RECONCILED"
     : "UNWITHHELD_PPH21_RISK";
 
   return {
     glPayrollTotal,
-    pph21WithheldTotal,
+    sptBrutoTotal,
     effectiveRateEstimate,
-    theoreticalPPh21,
-    impliedPayrollBase,
     unmatchedBase,
-    shortfallTax,
-    potentialTax: shortfallTax,
+    potentialTax,
     interestSanction: interest.interestSanction,
-    totalExposure: shortfallTax + interest.interestSanction,
+    totalExposure: potentialTax + interest.interestSanction,
     status
   };
 }
@@ -159,24 +154,20 @@ export function reconcilePayrollVsPPh21(glPayrollTotal, pph21WithheldTotal, effe
 /**
  * 5. Rekonsiliasi Biaya Sewa Tanah/Bangunan & Konstruksi vs PPh Final 4(2)
  */
-export function reconcileRentVsPPhFinal(glRentPropertyTotal, pphFinalWithheldTotal, rate = TAX_RATES.PPH42_RENT_PROPERTY) {
-  const theoreticalPPhFinal = Math.round(glRentPropertyTotal * rate);
-  const impliedRentBase = rate > 0 ? Math.round(pphFinalWithheldTotal / rate) : 0;
-  const unmatchedRent = Math.max(0, glRentPropertyTotal - impliedRentBase);
-  const potentialTax = Math.max(0, theoreticalPPhFinal - pphFinalWithheldTotal);
+export function reconcileRentVsPPhFinal(glFinalTaxTotal, bupotDPPTotal = 0, rate = TAX_RATES.PPH42_RENT_PROPERTY) {
+  const unmatchedBase = Math.max(0, glFinalTaxTotal - bupotDPPTotal);
+  const potentialTax = Math.round(unmatchedBase * rate);
   const interest = calculateInterestSanction(potentialTax, 12, 0.012);
 
-  const status = potentialTax <= 0 || Math.abs(glRentPropertyTotal - impliedRentBase) < 1000
+  const status = unmatchedBase <= 0
     ? "RECONCILED"
     : "UNWITHHELD_PPH_FINAL_RISK";
 
   return {
-    glRentPropertyTotal,
-    pphFinalWithheldTotal,
+    glFinalTaxTotal,
+    bupotDPPTotal,
     rate,
-    theoreticalPPhFinal,
-    impliedRentBase,
-    unmatchedRent,
+    unmatchedBase,
     potentialTax,
     interestSanction: interest.interestSanction,
     totalExposure: potentialTax + interest.interestSanction,

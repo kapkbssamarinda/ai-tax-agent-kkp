@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Bot, FileSpreadsheet, ShieldCheck, Scale, Calculator, BookOpen, AlertCircle, Loader2, Sparkles, Check, Search, FileText, FileUp, X, Building2 } from 'lucide-react';
+import { Bot, FileSpreadsheet, ShieldCheck, Scale, Calculator, BookOpen, AlertCircle, Loader2, Sparkles, Check, Search, FileText, FileUp, X, Building2, Users } from 'lucide-react';
 import { TAX_CATEGORIES } from '../../tax-engine/taxMapping';
 import { REGULATION_DATABASE } from '../../services/regulationDB';
 import TaxRiskRegister from './TaxRiskRegister';
 import KeywordScannerTab from './KeywordScannerTab';
-import SP2DKResponseTab from './SP2DKResponseTab';
 import { downloadKKPWorkbook } from '../../tax-engine/kkpWorkbookGenerator';
 
 // Helper deteksi nomor seri faktur pajak atau bukti potong dari teks uraian
@@ -17,7 +16,7 @@ function extractTaxBadge(text) {
     return { type: 'FP', label: `FP: ${fpMatch[0]}`, color: 'badge-fp' };
   }
   // Cek bukti potong
-  const bupotMatch = str.match(/\b(BP[.\-\s]?\w+|BUPOT[.\-\s]?\w+|23[.\-\s]\d{4,})\b/i);
+  const bupotMatch = str.match(/\b(BP[.\-\s]?\w+|BUPOT[.\-\s]?\w+|23[.\-\s]\d{4,}|21[.\-\s]\d{4,}|42[.\-\s]\d{4,})\b/i);
   if (bupotMatch) {
     return { type: 'BUPOT', label: `Bupot: ${bupotMatch[0]}`, color: 'badge-bupot' };
   }
@@ -32,6 +31,10 @@ function TaxReconWorkbench({
   onUpdateRevenueSPT,
   expenseRecon = {},
   onUpdateExpenseBupot,
+  payrollRecon = {},
+  onUpdatePayrollSPT,
+  finalTaxRecon = {},
+  onUpdateFinalTaxBupot,
   findings = [],
   onRunAIAnalysis,
   isAnalyzing = false,
@@ -45,6 +48,8 @@ function TaxReconWorkbench({
   const [activeTab, setActiveTab] = useState('REVENUE_PPN');
   const [sptInput, setSptInput] = useState(revenueRecon.sptDPPTotal || 0);
   const [bupotInput, setBupotInput] = useState(expenseRecon.bupotDPPTotal || 0);
+  const [payrollSptInput, setPayrollSptInput] = useState(payrollRecon.sptBrutoTotal || 0);
+  const [finalBupotInput, setFinalBupotInput] = useState(finalTaxRecon.bupotDPPTotal || 0);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Sync inputs bila angka rekonsiliasi diperbarui dari luar/ganti file
@@ -56,12 +61,28 @@ function TaxReconWorkbench({
     setBupotInput(expenseRecon.bupotDPPTotal || 0);
   }, [expenseRecon.bupotDPPTotal]);
 
+  useEffect(() => {
+    setPayrollSptInput(payrollRecon.sptBrutoTotal || 0);
+  }, [payrollRecon.sptBrutoTotal]);
+
+  useEffect(() => {
+    setFinalBupotInput(finalTaxRecon.bupotDPPTotal || 0);
+  }, [finalTaxRecon.bupotDPPTotal]);
+
   const handleApplySpt = () => {
-    onUpdateRevenueSPT(parseFloat(sptInput) || 0);
+    onUpdateRevenueSPT?.(parseFloat(sptInput) || 0);
   };
 
   const handleApplyBupot = () => {
-    onUpdateExpenseBupot(parseFloat(bupotInput) || 0);
+    onUpdateExpenseBupot?.(parseFloat(bupotInput) || 0);
+  };
+
+  const handleApplyPayrollSpt = () => {
+    onUpdatePayrollSPT?.(parseFloat(payrollSptInput) || 0);
+  };
+
+  const handleApplyFinalBupot = () => {
+    onUpdateFinalTaxBupot?.(parseFloat(finalBupotInput) || 0);
   };
 
   const handleDownloadKKP = () => {
@@ -71,17 +92,27 @@ function TaxReconWorkbench({
       taxMappings,
       revenueRecon,
       expenseRecon,
+      payrollRecon,
+      finalTaxRecon,
       findings
     });
   };
 
-  // Set Akun Revenue & PPh 23
+  // Set Akun Per Kategori Pajak
   const revenueAccountNames = useMemo(() => {
     return new Set(taxMappings.filter(m => m.category === 'REVENUE').map(m => m.namaAkun));
   }, [taxMappings]);
 
   const pph23AccountNames = useMemo(() => {
     return new Set(taxMappings.filter(m => m.category === 'PPH23').map(m => m.namaAkun));
+  }, [taxMappings]);
+
+  const pph21AccountNames = useMemo(() => {
+    return new Set(taxMappings.filter(m => m.category === 'PPH21').map(m => m.namaAkun));
+  }, [taxMappings]);
+
+  const finalTaxAccountNames = useMemo(() => {
+    return new Set(taxMappings.filter(m => m.category === 'PPH42').map(m => m.namaAkun));
   }, [taxMappings]);
 
   // Transaksi Rinci Revenue
@@ -117,6 +148,40 @@ function TaxReconWorkbench({
       );
     });
   }, [glRows, pph23AccountNames, searchQuery]);
+
+  // Transaksi Rinci PPh 21 (Payroll / Gaji)
+  const payrollTransactions = useMemo(() => {
+    return glRows.filter(r => {
+      if (!pph21AccountNames.has(r.namaAkun)) return false;
+      if (r.keterangan === 'Saldo Awal') return false;
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        String(r.tanggal || '').toLowerCase().includes(q) ||
+        String(r.coa || '').toLowerCase().includes(q) ||
+        String(r.namaAkun || '').toLowerCase().includes(q) ||
+        String(r.noBukti || r.idTransaksi || '').toLowerCase().includes(q) ||
+        String(r.keterangan || r.communication || '').toLowerCase().includes(q)
+      );
+    });
+  }, [glRows, pph21AccountNames, searchQuery]);
+
+  // Transaksi Rinci PPh Final 4(2) (Sewa & Konstruksi)
+  const finalTaxTransactions = useMemo(() => {
+    return glRows.filter(r => {
+      if (!finalTaxAccountNames.has(r.namaAkun)) return false;
+      if (r.keterangan === 'Saldo Awal') return false;
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        String(r.tanggal || '').toLowerCase().includes(q) ||
+        String(r.coa || '').toLowerCase().includes(q) ||
+        String(r.namaAkun || '').toLowerCase().includes(q) ||
+        String(r.noBukti || r.idTransaksi || '').toLowerCase().includes(q) ||
+        String(r.keterangan || r.communication || '').toLowerCase().includes(q)
+      );
+    });
+  }, [glRows, finalTaxAccountNames, searchQuery]);
 
   return (
     <main className="tax-recon-workbench" aria-label="AI Tax Agent &amp; KKP Workbench">
@@ -265,6 +330,18 @@ function TaxReconWorkbench({
           <Calculator size={16} /> Ekualisasi Biaya vs PPh 23 ({expenseTransactions.length})
         </button>
         <button
+          className={`tax-tab-btn ${activeTab === 'PAYROLL_PPH21' ? 'is-active' : ''}`}
+          onClick={() => { setActiveTab('PAYROLL_PPH21'); setSearchQuery(''); }}
+        >
+          <Users size={16} /> Ekualisasi Gaji vs PPh 21 ({payrollTransactions.length})
+        </button>
+        <button
+          className={`tax-tab-btn ${activeTab === 'RENT_PPH_FINAL' ? 'is-active' : ''}`}
+          onClick={() => { setActiveTab('RENT_PPH_FINAL'); setSearchQuery(''); }}
+        >
+          <Building2 size={16} /> Ekualisasi Sewa/Konstruksi ({finalTaxTransactions.length})
+        </button>
+        <button
           className={`tax-tab-btn ${activeTab === 'IMPORT_FAKTUR' ? 'is-active' : ''}`}
           onClick={() => { setActiveTab('IMPORT_FAKTUR'); setSearchQuery(''); }}
         >
@@ -287,12 +364,6 @@ function TaxReconWorkbench({
           onClick={() => setActiveTab('FINDINGS')}
         >
           <AlertCircle size={16} /> Tax Risk Register ({findings.length})
-        </button>
-        <button
-          className={`tax-tab-btn ${activeTab === 'SP2DK_RESPONSE' ? 'is-active' : ''}`}
-          onClick={() => setActiveTab('SP2DK_RESPONSE')}
-        >
-          <FileText size={16} /> SP2DK Response Agent
         </button>
         <button
           className={`tax-tab-btn ${activeTab === 'REGULATIONS' ? 'is-active' : ''}`}
@@ -574,6 +645,278 @@ function TaxReconWorkbench({
         </div>
       )}
 
+      {/* Tab Content 3: Ekualisasi Gaji vs PPh 21 */}
+      {activeTab === 'PAYROLL_PPH21' && (
+        <div className="tab-pane">
+          {/* Summary Cards */}
+          <div className="recon-summary-cards">
+            <div className="recon-card">
+              <span className="recon-card-label">Total Beban Gaji &amp; Imbalan di GL</span>
+              <span className="recon-card-val text-primary">
+                Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.glPayrollTotal || 0)}
+              </span>
+              <span className="recon-card-sub">Dari {pph21AccountNames.size} akun gaji, upah &amp; tunjangan</span>
+            </div>
+
+            <div className="recon-card">
+              <span className="recon-card-label">Total Bruto SPT Masa PPh 21 (Jan–Des)</span>
+              <span className="recon-card-val">
+                Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.sptBrutoTotal || 0)}
+              </span>
+              <div className="input-inline-group">
+                <input
+                  type="number"
+                  className="form-input-sm"
+                  placeholder="Input Bruto SPT PPh 21..."
+                  value={payrollSptInput}
+                  onChange={(e) => setPayrollSptInput(e.target.value)}
+                />
+                <button className="btn btn-secondary btn-sm" onClick={handleApplyPayrollSpt}>
+                  <Check size={13} /> Update
+                </button>
+              </div>
+            </div>
+
+            <div className="recon-card">
+              <span className="recon-card-label">Selisih Gaji Belum Dilapor (Unmatched)</span>
+              <span className={`recon-card-val ${(payrollRecon.unmatchedBase || 0) > 0 ? 'text-danger' : 'text-success'}`}>
+                Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.unmatchedBase || 0)}
+              </span>
+              <span className="recon-card-sub">Objek PPh 21 / natura belum tercakup</span>
+            </div>
+
+            <div className="recon-card recon-card-highlight">
+              <span className="recon-card-label">Total Potential Exposure (Pokok + Bunga)</span>
+              <span className="recon-card-val text-danger">
+                Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.totalExposure || 0)}
+              </span>
+              <span className="recon-card-sub">
+                Pokok (est 5%): Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.potentialTax || 0)} + Sanksi: Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.interestSanction || 0)}
+              </span>
+            </div>
+          </div>
+
+          {/* Rincian Transaksi Beban Gaji */}
+          <div className="recon-detail-section">
+            <div className="detail-section-header">
+              <div className="detail-header-left">
+                <Users size={18} className="text-accent" />
+                <div>
+                  <h3 className="detail-title">Rincian Transaksi Beban Gaji &amp; Imbalan Tenaga Kerja (Objek PPh 21)</h3>
+                  <p className="detail-subtitle">Daftar baris transaksi biaya gaji, upah, honorarium, bonus, THR, dan lembur.</p>
+                </div>
+              </div>
+              <div className="detail-search-wrap">
+                <Search size={15} className="search-icon" />
+                <input
+                  type="text"
+                  className="form-input-sm detail-search-input"
+                  placeholder="Cari gaji, honor, bonus, lembur, karyawan..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="table-responsive recon-table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Tanggal</th>
+                    <th>COA</th>
+                    <th>Nama Akun</th>
+                    <th>No. Bukti</th>
+                    <th>Uraian / Keterangan</th>
+                    <th className="align-right">Nilai Beban (Debit)</th>
+                    <th className="align-right">Estimasi PPh 21 (5%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {payrollTransactions.slice(0, 500).map((row, idx) => {
+                    const bebanVal = (row.debit || 0) - (row.kredit || row.credit || 0);
+                    const badge = extractTaxBadge(row.keterangan || row.communication);
+                    return (
+                      <tr key={idx}>
+                        <td className="cell-date">{row.tanggal}</td>
+                        <td><span className="badge-code">{row.coa}</span></td>
+                        <td className="font-medium">{row.namaAkun}</td>
+                        <td className="cell-truncate" title={row.noBukti || row.idTransaksi}>{row.noBukti || row.idTransaksi || '-'}</td>
+                        <td>
+                          <div className="uraian-cell">
+                            <span>{row.keterangan || row.communication || '-'}</span>
+                            {badge && <span className={`badge-tax-tag ${badge.color}`}>{badge.label}</span>}
+                          </div>
+                        </td>
+                        <td className="align-right font-semibold">
+                          Rp {new Intl.NumberFormat('id-ID').format(bebanVal)}
+                        </td>
+                        <td className="align-right text-danger">
+                          Rp {new Intl.NumberFormat('id-ID').format(Math.round(bebanVal * 0.05))}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {payrollTransactions.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="empty-cell">
+                        Tidak ada transaksi beban gaji/payroll yang cocok dengan pencarian.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+                <tfoot>
+                  <tr className="table-total-row">
+                    <td colSpan={5}><strong>Total ({payrollTransactions.length} Transaksi)</strong></td>
+                    <td className="align-right font-bold text-primary">
+                      Rp {new Intl.NumberFormat('id-ID').format(payrollTransactions.reduce((acc, r) => acc + ((r.debit || 0) - (r.kredit || r.credit || 0)), 0))}
+                    </td>
+                    <td className="align-right font-bold text-danger">
+                      Rp {new Intl.NumberFormat('id-ID').format(Math.round(payrollTransactions.reduce((acc, r) => acc + ((r.debit || 0) - (r.kredit || r.credit || 0)), 0) * 0.05))}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab Content 4: Ekualisasi Sewa Tanah/Bangunan & Konstruksi vs PPh Final 4(2) */}
+      {activeTab === 'RENT_PPH_FINAL' && (
+        <div className="tab-pane">
+          {/* Summary Cards */}
+          <div className="recon-summary-cards">
+            <div className="recon-card">
+              <span className="recon-card-label">Total Beban Sewa &amp; Konstruksi GL</span>
+              <span className="recon-card-val text-primary">
+                Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.glFinalTaxTotal || 0)}
+              </span>
+              <span className="recon-card-sub">Dari {finalTaxAccountNames.size} akun sewa properti &amp; renovasi</span>
+            </div>
+
+            <div className="recon-card">
+              <span className="recon-card-label">Total DPP Bukti Potong PPh Final 4(2)</span>
+              <span className="recon-card-val">
+                Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.bupotDPPTotal || 0)}
+              </span>
+              <div className="input-inline-group">
+                <input
+                  type="number"
+                  className="form-input-sm"
+                  placeholder="Input DPP Bupot 4(2)..."
+                  value={finalBupotInput}
+                  onChange={(e) => setFinalBupotInput(e.target.value)}
+                />
+                <button className="btn btn-secondary btn-sm" onClick={handleApplyFinalBupot}>
+                  <Check size={13} /> Update
+                </button>
+              </div>
+            </div>
+
+            <div className="recon-card">
+              <span className="recon-card-label">Beban Sewa/Konstruksi Belum Dipotong</span>
+              <span className={`recon-card-val ${(finalTaxRecon.unmatchedBase || 0) > 0 ? 'text-danger' : 'text-success'}`}>
+                Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.unmatchedBase || 0)}
+              </span>
+              <span className="recon-card-sub">Objek PPh Final 4(2) tanpa bukti pemotongan</span>
+            </div>
+
+            <div className="recon-card recon-card-highlight">
+              <span className="recon-card-label">Total Potential Exposure (Pokok + Bunga)</span>
+              <span className="recon-card-val text-danger">
+                Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.totalExposure || 0)}
+              </span>
+              <span className="recon-card-sub">
+                Pokok (10%): Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.potentialTax || 0)} + Sanksi: Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.interestSanction || 0)}
+              </span>
+            </div>
+          </div>
+
+          {/* Rincian Transaksi Sewa & Konstruksi */}
+          <div className="recon-detail-section">
+            <div className="detail-section-header">
+              <div className="detail-header-left">
+                <Building2 size={18} className="text-accent" />
+                <div>
+                  <h3 className="detail-title">Rincian Transaksi Beban Sewa Tanah/Bangunan &amp; Jasa Konstruksi</h3>
+                  <p className="detail-subtitle">Daftar baris transaksi sewa kantor, gudang, ruko, serta biaya renovasi/konstruksi.</p>
+                </div>
+              </div>
+              <div className="detail-search-wrap">
+                <Search size={15} className="search-icon" />
+                <input
+                  type="text"
+                  className="form-input-sm detail-search-input"
+                  placeholder="Cari sewa gedung, gudang, renovasi, ruko..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="table-responsive recon-table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Tanggal</th>
+                    <th>COA</th>
+                    <th>Nama Akun</th>
+                    <th>No. Bukti</th>
+                    <th>Uraian / Keterangan</th>
+                    <th className="align-right">Nilai Beban (Debit)</th>
+                    <th className="align-right">Potensi PPh Final (10%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {finalTaxTransactions.slice(0, 500).map((row, idx) => {
+                    const bebanVal = (row.debit || 0) - (row.kredit || row.credit || 0);
+                    const badge = extractTaxBadge(row.keterangan || row.communication);
+                    return (
+                      <tr key={idx}>
+                        <td className="cell-date">{row.tanggal}</td>
+                        <td><span className="badge-code">{row.coa}</span></td>
+                        <td className="font-medium">{row.namaAkun}</td>
+                        <td className="cell-truncate" title={row.noBukti || row.idTransaksi}>{row.noBukti || row.idTransaksi || '-'}</td>
+                        <td>
+                          <div className="uraian-cell">
+                            <span>{row.keterangan || row.communication || '-'}</span>
+                            {badge && <span className={`badge-tax-tag ${badge.color}`}>{badge.label}</span>}
+                          </div>
+                        </td>
+                        <td className="align-right font-semibold">
+                          Rp {new Intl.NumberFormat('id-ID').format(bebanVal)}
+                        </td>
+                        <td className="align-right text-danger">
+                          Rp {new Intl.NumberFormat('id-ID').format(Math.round(bebanVal * 0.10))}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {finalTaxTransactions.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="empty-cell">
+                        Tidak ada transaksi sewa/konstruksi yang cocok dengan pencarian.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+                <tfoot>
+                  <tr className="table-total-row">
+                    <td colSpan={5}><strong>Total ({finalTaxTransactions.length} Transaksi)</strong></td>
+                    <td className="align-right font-bold text-primary">
+                      Rp {new Intl.NumberFormat('id-ID').format(finalTaxTransactions.reduce((acc, r) => acc + ((r.debit || 0) - (r.kredit || r.credit || 0)), 0))}
+                    </td>
+                    <td className="align-right font-bold text-danger">
+                      Rp {new Intl.NumberFormat('id-ID').format(Math.round(finalTaxTransactions.reduce((acc, r) => acc + ((r.debit || 0) - (r.kredit || r.credit || 0)), 0) * 0.10))}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Tab Content: Import Faktur Pajak */}
       {activeTab === 'IMPORT_FAKTUR' && (
         <div className="tab-pane">
@@ -680,19 +1023,6 @@ function TaxReconWorkbench({
               </div>
             ))}
           </div>
-        </div>
-      )}
-
-      {/* Tab Content 6: SP2DK Response Agent */}
-      {activeTab === 'SP2DK_RESPONSE' && (
-        <div className="tab-pane">
-          <SP2DKResponseTab
-            clientInfo={clientInfo}
-            taxMappings={taxMappings}
-            revenueRecon={revenueRecon}
-            expenseRecon={expenseRecon}
-            onOpenAISettings={onOpenAISettings}
-          />
         </div>
       )}
     </main>

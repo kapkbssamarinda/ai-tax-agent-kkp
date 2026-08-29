@@ -1,11 +1,11 @@
 # Graph Report - ai-tax-agent  (2026-08-29)
 
 ## Corpus Check
-- 112 files · ~117,181 words
+- 112 files · ~114,853 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 570 nodes · 831 edges · 40 communities (30 shown, 10 thin omitted)
+- 570 nodes · 827 edges · 40 communities (30 shown, 10 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 13 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
@@ -54,9 +54,9 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `Graphify Knowledge Graph Pipeline` - 22 edges
-2. `App()` - 17 edges
-3. `compress_file()` - 16 edges
-4. `react` - 15 edges
+2. `compress_file()` - 16 edges
+3. `react` - 15 edges
+4. `App()` - 15 edges
 5. `cleanBalance()` - 15 edges
 6. `validate()` - 14 edges
 7. `📘 Buku Panduan Praktis Staff Tax Analyst: Dari Raw GL hingga KKP & Partner Review` - 14 edges
@@ -90,8 +90,8 @@
 ## Communities (40 total, 10 thin omitted)
 
 ### Community 0 - "App.jsx"
-Cohesion: 0.09
-Nodes (37): plugins, oxc, react, ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS (+29 more)
+Cohesion: 0.08
+Nodes (38): react, ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail() (+30 more)
 
 ### Community 1 - "parserWorker.js"
 Cohesion: 0.11
@@ -126,8 +126,8 @@ Cohesion: 0.08
 Nodes (25): lucide-react, dependencies, lucide-react, pdfjs-dist, react, react-dom, @tanstack/react-virtual, xlsx-js-style (+17 more)
 
 ### Community 9 - "kkpWorkbookGenerator.js"
-Cohesion: 0.12
-Nodes (24): KEYWORD_PRESETS, KeywordScannerTab(), extractTaxBadge(), TaxReconWorkbench(), TaxRiskRegister(), REGULATION_DATABASE, ALIGN, BORDERS (+16 more)
+Cohesion: 0.14
+Nodes (21): KEYWORD_PRESETS, KeywordScannerTab(), extractTaxBadge(), TaxReconWorkbench(), TaxRiskRegister(), REGULATION_DATABASE, ALIGN, BORDERS (+13 more)
 
 ### Community 10 - "claudeService.js"
 Cohesion: 0.16
@@ -150,7 +150,7 @@ Cohesion: 0.13
 Nodes (15): Caveman Discover Skill, Operator Approval Protocol, Workflow Labeling Convention, Evidence Accounting Buckets, Caveman Evidence Review Skill, Trace Inspection Protocol, Server-Authoritative Execution Gate, Experiment Lifecycle Actions (+7 more)
 
 ### Community 15 - "SP2DKResponseTab.jsx"
-Cohesion: 0.28
+Cohesion: 0.30
 Nodes (10): SP2DKResponseTab(), calculateSP2DKDeadline(), CAUSE_CATEGORIES, downloadSP2DKWordDocument(), generateFallbackSP2DKResponse(), parseSP2DKText(), SP2DK_DEMO_PRESETS, fmtRupiah() (+2 more)
 
 ### Community 16 - "Changelog — GL Cleaner"
@@ -190,8 +190,8 @@ Cohesion: 0.18
 Nodes (10): description, files, SKILL.md, license, name, private, scripts, test (+2 more)
 
 ### Community 39 - ".oxlintrc.json"
-Cohesion: 0.33
-Nodes (5): rules, react/only-export-components, react/rules-of-hooks, $schema, warn
+Cohesion: 0.25
+Nodes (7): plugins, rules, react/only-export-components, react/rules-of-hooks, $schema, oxc, warn
 
 ## Knowledge Gaps
 - **212 isolated node(s):** `name`, `version`, `license`, `private`, `type` (+207 more)
@@ -201,16 +201,16 @@ Nodes (5): rules, react/only-export-components, react/rules-of-hooks, $schema, w
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `App.jsx` to `kkpWorkbookGenerator.js`, `claudeService.js`, `SP2DKResponseTab.jsx`?**
+- **Why does `react` connect `App.jsx` to `kkpWorkbookGenerator.js`, `claudeService.js`, `SP2DKResponseTab.jsx`, `.oxlintrc.json`?**
   _High betweenness centrality (0.011) - this node is a cross-community bridge._
-- **Why does `plugins` connect `App.jsx` to `.oxlintrc.json`?**
+- **Why does `plugins` connect `.oxlintrc.json` to `App.jsx`?**
   _High betweenness centrality (0.005) - this node is a cross-community bridge._
 - **Why does `validate()` connect `Claude AI & Semantics Service` to `compress.py`?**
   _High betweenness centrality (0.004) - this node is a cross-community bridge._
 - **What connects `name`, `version`, `license` to the rest of the system?**
   _212 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `App.jsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.08941176470588236 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08013468013468013 - nodes in this community are weakly interconnected._
 - **Should `parserWorker.js` be split into smaller, more focused modules?**
   _Cohesion score 0.11382113821138211 - nodes in this community are weakly interconnected._
 - **Should `compress.py` be split into smaller, more focused modules?**

@@ -411,7 +411,7 @@ export function buildSP2DKClaudePrompt({
   expenseRecon = {}
 }) {
   return `
-Anda adalah Senior Tax Partner & Ahli Hukum Acara Perpajakan Indonesia (KAP Kuncara Budi Santosa & Rekan).
+Anda adalah Senior Tax Consultant & Ahli Hukum Acara Perpajakan Indonesia (Kantor Konsultan Pajak Zaidan Jauhari).
 Tugas Anda adalah menyusun Draf Surat Tanggapan Resmi atas SP2DK (Surat Permintaan Penjelasan atas Data dan/atau Keterangan) dari Kantor Pelayanan Pajak (KPP).
 
 DATA WAJIB PAJAK (KLIEN):

@@ -2,7 +2,7 @@
 
 **Aplikasi:** GL Cleaner & AI Tax Agent Indonesia  
 **Ditujukan Untuk:** Staff Tax Analyst, Tax Senior, dan Konsultan Pajak  
-**Kantor:** KAP Kuncara Budi Santosa & Rekan, Cabang Samarinda  
+**Kantor:** Kantor Konsultan Pajak Zaidan Jauhari (KKP Zaidan Jauhari)  
 **Versi:** 2.0.0 (Tahun 2026)
 
 ---
@@ -262,4 +262,4 @@ Sebelum Anda mempresentasikan hasil audit kepada **Audit Manager** atau **Partne
 
 ---
 
-*Buku Panduan ini disusun untuk memastikan seluruh Staff Tax Analyst di KAP Kuncara Budi Santosa & Rekan dapat bekerja dengan efisiensi tinggi, presisi matematis, dan standar audit terbaik.*
+*Buku Panduan ini disusun untuk memastikan seluruh Staff Tax Analyst di Kantor Konsultan Pajak Zaidan Jauhari (KKP Zaidan Jauhari) dapat bekerja dengan efisiensi tinggi, presisi matematis, dan standar kepatuhan pajak terbaik.*

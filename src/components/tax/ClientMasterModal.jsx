@@ -6,9 +6,9 @@ function ClientMasterModal({ isOpen, onClose, clientInfo, onSave }) {
     name: 'PT Wajib Pajak',
     npwp: '01.234.567.8-012.000',
     taxYear: '2024',
-    partnerName: 'Budi Santosa, CPA',
-    managerName: 'Viany Ramadhany',
-    seniorName: 'Auditor Senior',
+    partnerName: 'Zaidan Jauhari, BKP',
+    managerName: '',
+    seniorName: 'Tax Senior',
     auditDate: new Date().toISOString().split('T')[0]
   });
   const closeButtonRef = useRef(null);
@@ -57,7 +57,7 @@ function ClientMasterModal({ isOpen, onClose, clientInfo, onSave }) {
             <Building2 className="modal-icon" size={22} />
             <div>
               <h2 id="client-master-title" className="modal-title">Master Data Klien & KKP</h2>
-              <p className="modal-subtitle">Informasi profil entitas yang akan dicantumkan pada Kertas Kerja Pemeriksaan (KKP).</p>
+              <p className="modal-subtitle">Informasi profil entitas yang akan dicantumkan pada Kertas Kerja Pemeriksaan (KKP Zaidan Jauhari).</p>
             </div>
           </div>
           <button ref={closeButtonRef} className="btn-icon" onClick={onClose} aria-label="Tutup modal">
@@ -113,30 +113,33 @@ function ClientMasterModal({ isOpen, onClose, clientInfo, onSave }) {
 
             <div className="form-row">
               <div className="form-group flex-1">
-                <label className="form-label">Partner In Charge</label>
+                <label className="form-label">Managing Partner (KKP)</label>
                 <input
                   type="text"
                   className="form-input"
                   value={formData.partnerName}
                   onChange={(e) => handleChange('partnerName', e.target.value)}
+                  placeholder="Zaidan Jauhari, BKP"
                 />
               </div>
               <div className="form-group flex-1">
-                <label className="form-label">Audit Manager</label>
+                <label className="form-label">Tax Manager</label>
                 <input
                   type="text"
                   className="form-input"
-                  value={formData.managerName}
+                  value={formData.managerName || ''}
                   onChange={(e) => handleChange('managerName', e.target.value)}
+                  placeholder="(Opsional)"
                 />
               </div>
               <div className="form-group flex-1">
-                <label className="form-label">Senior Auditor</label>
+                <label className="form-label">Tax Senior / Reviewer</label>
                 <input
                   type="text"
                   className="form-input"
                   value={formData.seniorName}
                   onChange={(e) => handleChange('seniorName', e.target.value)}
+                  placeholder="Tax Senior"
                 />
               </div>
             </div>
