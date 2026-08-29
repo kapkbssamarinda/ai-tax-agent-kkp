@@ -8,7 +8,7 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);   // Profile dari tabel profiles (role, full_name, dll)
   const [loading, setLoading] = useState(true);
 
-  // Fetch profile dari tabel profiles dengan fallback ke metadata auth
+  // Fetch profile dari tabel profiles dengan fallback ke metadata auth & auto-insert
   async function fetchProfile(userId, fallbackUser = null) {
     if (!userId) return null;
 
@@ -19,17 +19,40 @@ export function AuthProvider({ children }) {
         .eq('id', userId)
         .single();
 
-      if (error || !data) {
-        // Fallback jika baris tabel profiles belum dibuat / error RLS
-        return {
-          id: userId,
-          email: fallbackUser?.email || '',
-          full_name: fallbackUser?.user_metadata?.full_name || fallbackUser?.email?.split('@')[0] || '',
-          role: fallbackUser?.user_metadata?.role || 'analyst',
-          is_active: true
-        };
+      if (data) {
+        return data;
       }
-      return data;
+
+      // Jika baris belum ada di profiles (PGRST116 = 0 rows), coba buatkan otomatis
+      if (fallbackUser && (error?.code === 'PGRST116' || !data)) {
+        try {
+          const initialRole = fallbackUser.user_metadata?.role || 'analyst';
+          const initialName = fallbackUser.user_metadata?.full_name || fallbackUser.email?.split('@')[0] || '';
+          const { data: inserted } = await supabase
+            .from('profiles')
+            .upsert({
+              id: userId,
+              email: fallbackUser.email,
+              full_name: initialName,
+              role: initialRole
+            })
+            .select()
+            .single();
+
+          if (inserted) return inserted;
+        } catch (e) {
+          console.warn('Upsert fallback notice:', e);
+        }
+      }
+
+      // Fallback jika database belum sinkron
+      return {
+        id: userId,
+        email: fallbackUser?.email || '',
+        full_name: fallbackUser?.user_metadata?.full_name || fallbackUser?.email?.split('@')[0] || '',
+        role: fallbackUser?.user_metadata?.role || 'analyst',
+        is_active: true
+      };
     } catch (err) {
       console.warn('Gagal mengambil profil:', err);
       return {
