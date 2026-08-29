@@ -232,7 +232,7 @@
       "file_type": "code",
       "norm_label": "cleardraftfromstorage()",
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L171"
+      "source_location": "L175"
     },
     {
       "id": "src_services_projectstateservice_createprojectsnapshot",
@@ -256,7 +256,7 @@
       "file_type": "code",
       "norm_label": "exportprojecttofile()",
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L79"
+      "source_location": "L83"
     },
     {
       "id": "src_services_projectstateservice_loaddraftfromstorage",
@@ -268,7 +268,7 @@
       "file_type": "code",
       "norm_label": "loaddraftfromstorage()",
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L154"
+      "source_location": "L158"
     },
     {
       "id": "src_services_projectstateservice_parseprojectfile",
@@ -280,7 +280,7 @@
       "file_type": "code",
       "norm_label": "parseprojectfile()",
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L111"
+      "source_location": "L115"
     },
     {
       "id": "src_services_projectstateservice_savedrafttostorage",
@@ -292,7 +292,7 @@
       "file_type": "code",
       "norm_label": "savedrafttostorage()",
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L139"
+      "source_location": "L143"
     },
     {
       "id": "src_services_projectstateservice_validateprojectschema",
@@ -304,7 +304,7 @@
       "file_type": "code",
       "norm_label": "validateprojectschema()",
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L63"
+      "source_location": "L67"
     },
     {
       "id": "src_tax_engine_deterministiccalc_calculateinterestsanction",
@@ -328,7 +328,7 @@
       "file_type": "code",
       "norm_label": "calculatepartnerdashboardmetrics()",
       "source_file": "src/tax-engine/deterministicCalc.js",
-      "source_location": "L362"
+      "source_location": "L353"
     },
     {
       "id": "src_tax_engine_deterministiccalc_calculatepph23exposure",
@@ -352,7 +352,7 @@
       "file_type": "code",
       "norm_label": "reconcilecommercialvsfiscalprofit()",
       "source_file": "src/tax-engine/deterministicCalc.js",
-      "source_location": "L266"
+      "source_location": "L257"
     },
     {
       "id": "src_tax_engine_deterministiccalc_reconcileexpensevspph23",
@@ -376,7 +376,7 @@
       "file_type": "code",
       "norm_label": "reconcilefixedassetcommercialvsfiscal()",
       "source_file": "src/tax-engine/deterministicCalc.js",
-      "source_location": "L190"
+      "source_location": "L181"
     },
     {
       "id": "src_tax_engine_deterministiccalc_reconcilepayrollvspph21",
@@ -412,7 +412,7 @@
       "file_type": "code",
       "norm_label": "reconcilerelatedpartyvstpdoc()",
       "source_file": "src/tax-engine/deterministicCalc.js",
-      "source_location": "L306"
+      "source_location": "L297"
     },
     {
       "id": "src_tax_engine_deterministiccalc_reconcilerentvspphfinal",
@@ -424,7 +424,7 @@
       "file_type": "code",
       "norm_label": "reconcilerentvspphfinal()",
       "source_file": "src/tax-engine/deterministicCalc.js",
-      "source_location": "L162"
+      "source_location": "L157"
     },
     {
       "id": "src_tax_engine_deterministiccalc_reconcilerevenuevsppn",
@@ -437,30 +437,6 @@
       "norm_label": "reconcilerevenuevsppn()",
       "source_file": "src/tax-engine/deterministicCalc.js",
       "source_location": "L66"
-    },
-    {
-      "id": "src_tax_engine_taxmapping_autoclassifyaccount",
-      "label": "autoClassifyAccount()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "autoclassifyaccount()",
-      "source_file": "src/tax-engine/taxMapping.js",
-      "source_location": "L31"
-    },
-    {
-      "id": "src_tax_engine_taxmapping_buildtaxmappingfromgl",
-      "label": "buildTaxMappingFromGL()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "buildtaxmappingfromgl()",
-      "source_file": "src/tax-engine/taxMapping.js",
-      "source_location": "L95"
     },
     {
       "id": "src_parsers_accurateexcelparser_parseaccurateexcelrows",
@@ -820,7 +796,7 @@
       "file_type": "code",
       "norm_label": "generatedeterministicfindings()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L497"
+      "source_location": "L501"
     },
     {
       "id": "src_services_claudeservice_generatesp2dkresponsewithclaude",
@@ -832,7 +808,7 @@
       "file_type": "code",
       "norm_label": "generatesp2dkresponsewithclaude()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L693"
+      "source_location": "L777"
     },
     {
       "id": "src_services_claudeservice_getsavedapikey",
@@ -1783,6 +1759,30 @@
       "source_location": "L143"
     },
     {
+      "id": "src_tax_engine_taxmapping_autoclassifyaccount",
+      "label": "autoClassifyAccount()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "kkpWorkbookGenerator.js",
+      "file_type": "code",
+      "norm_label": "autoclassifyaccount()",
+      "source_file": "src/tax-engine/taxMapping.js",
+      "source_location": "L31"
+    },
+    {
+      "id": "src_tax_engine_taxmapping_buildtaxmappingfromgl",
+      "label": "buildTaxMappingFromGL()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "kkpWorkbookGenerator.js",
+      "file_type": "code",
+      "norm_label": "buildtaxmappingfromgl()",
+      "source_file": "src/tax-engine/taxMapping.js",
+      "source_location": "L95"
+    },
+    {
       "id": "index_html_root",
       "label": "Application HTML Entry Point",
       "_origin": "ast",
@@ -1858,15 +1858,15 @@
       "source_url": null
     },
     {
-      "id": "pdf_worker_min_mjs_url",
-      "label": "pdfjs-dist/build/pdf.worker.min.mjs?url",
+      "id": "oxlintrc_plugins",
+      "label": "plugins",
       "_origin": "ast",
       "community": 0,
       "community_name": "App.jsx",
-      "confidence": "EXTRACTED",
       "file_type": "code",
-      "norm_label": "pdfjs-dist/build/pdf.worker.min.mjs?url",
-      "source_file": "pdfjs-dist/build/pdf.worker.min.mjs?url"
+      "norm_label": "plugins",
+      "source_file": ".oxlintrc.json",
+      "source_location": "L3"
     },
     {
       "id": "src_app",
@@ -2100,37 +2100,15 @@
       "source_location": "L1"
     },
     {
-      "id": "src_tax_engine_taxmapping",
-      "label": "taxMapping.js",
+      "id": "ref_oxc",
+      "label": "oxc",
       "_origin": "ast",
       "community": 0,
       "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "taxmapping.js",
-      "source_file": "src/tax-engine/taxMapping.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_tax_engine_taxmapping_tax_categories",
-      "label": "TAX_CATEGORIES",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "tax_categories",
-      "source_file": "src/tax-engine/taxMapping.js",
-      "source_location": "L15"
-    },
-    {
-      "id": "src_tax_engine_taxmapping_test",
-      "label": "taxMapping.test.js",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "taxmapping.test.js",
-      "source_file": "src/tax-engine/taxMapping.test.js",
-      "source_location": "L1"
+      "file_type": "concept",
+      "norm_label": "oxc",
+      "source_file": ".oxlintrc.json",
+      "source_location": "L3"
     },
     {
       "id": "ref_react",
@@ -3067,6 +3045,17 @@
       "norm_label": "vitest",
       "source_file": "package.json",
       "source_location": "L31"
+    },
+    {
+      "id": "pdf_worker_min_mjs_url",
+      "label": "pdfjs-dist/build/pdf.worker.min.mjs?url",
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SP2DKResponseTab.jsx",
+      "confidence": "EXTRACTED",
+      "file_type": "code",
+      "norm_label": "pdfjs-dist/build/pdf.worker.min.mjs?url",
+      "source_file": "pdfjs-dist/build/pdf.worker.min.mjs?url"
     },
     {
       "id": "src_components_tax_sp2dkresponsetab",
@@ -4064,17 +4053,6 @@
       "source_location": "L1"
     },
     {
-      "id": "oxlintrc_plugins",
-      "label": "plugins",
-      "_origin": "ast",
-      "community": 39,
-      "community_name": ".oxlintrc.json",
-      "file_type": "code",
-      "norm_label": "plugins",
-      "source_file": ".oxlintrc.json",
-      "source_location": "L3"
-    },
-    {
       "id": "oxlintrc_rules",
       "label": "rules",
       "_origin": "ast",
@@ -4117,17 +4095,6 @@
       "norm_label": "$schema",
       "source_file": ".oxlintrc.json",
       "source_location": "L2"
-    },
-    {
-      "id": "ref_oxc",
-      "label": "oxc",
-      "_origin": "ast",
-      "community": 39,
-      "community_name": ".oxlintrc.json",
-      "file_type": "concept",
-      "norm_label": "oxc",
-      "source_file": ".oxlintrc.json",
-      "source_location": "L3"
     },
     {
       "id": "ref_warn",
@@ -5408,6 +5375,39 @@
       "file_type": "code",
       "norm_label": "kkpworkbookgenerator.test.js",
       "source_file": "src/tax-engine/kkpWorkbookGenerator.test.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_tax_engine_taxmapping",
+      "label": "taxMapping.js",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "kkpWorkbookGenerator.js",
+      "file_type": "code",
+      "norm_label": "taxmapping.js",
+      "source_file": "src/tax-engine/taxMapping.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_tax_engine_taxmapping_tax_categories",
+      "label": "TAX_CATEGORIES",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "kkpWorkbookGenerator.js",
+      "file_type": "code",
+      "norm_label": "tax_categories",
+      "source_file": "src/tax-engine/taxMapping.js",
+      "source_location": "L15"
+    },
+    {
+      "id": "src_tax_engine_taxmapping_test",
+      "label": "taxMapping.test.js",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "kkpWorkbookGenerator.js",
+      "file_type": "code",
+      "norm_label": "taxmapping.test.js",
+      "source_file": "src/tax-engine/taxMapping.test.js",
       "source_location": "L1"
     },
     {
@@ -7713,7 +7713,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L110",
+      "source_location": "L112",
       "weight": 1.0
     },
     {
@@ -7725,7 +7725,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L123",
+      "source_location": "L125",
       "weight": 1.0
     },
     {
@@ -7737,7 +7737,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L134",
+      "source_location": "L138",
       "weight": 1.0
     },
     {
@@ -7749,7 +7749,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L179",
+      "source_location": "L205",
       "weight": 1.0
     },
     {
@@ -7761,7 +7761,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L180",
+      "source_location": "L206",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_app",
+      "target": "src_tax_engine_deterministiccalc_reconcilepayrollvspph21",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/App.jsx",
+      "source_location": "L207",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_app",
+      "target": "src_tax_engine_deterministiccalc_reconcilerentvspphfinal",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/App.jsx",
+      "source_location": "L208",
       "weight": 1.0
     },
     {
@@ -7773,7 +7797,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L185",
+      "source_location": "L215",
       "weight": 1.0
     },
     {
@@ -7785,7 +7809,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L235",
+      "source_location": "L268",
       "weight": 1.0
     },
     {
@@ -7797,7 +7821,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L329",
+      "source_location": "L364",
       "weight": 1.0
     },
     {
@@ -7809,7 +7833,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L362",
+      "source_location": "L399",
       "weight": 1.0
     },
     {
@@ -7821,7 +7845,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L375",
+      "source_location": "L412",
       "weight": 1.0
     },
     {
@@ -7833,7 +7857,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L517",
+      "source_location": "L570",
       "weight": 1.0
     },
     {
@@ -7845,7 +7869,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L550",
+      "source_location": "L605",
       "weight": 1.0
     },
     {
@@ -7989,7 +8013,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/tax/TaxReconWorkbench.jsx",
-      "source_location": "L387",
+      "source_location": "L465",
       "weight": 1.0
     },
     {
@@ -8001,7 +8025,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/tax/TaxReconWorkbench.jsx",
-      "source_location": "L67",
+      "source_location": "L89",
       "weight": 1.0
     },
     {
@@ -8337,7 +8361,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L448",
+      "source_location": "L452",
       "weight": 1.0
     },
     {
@@ -8349,7 +8373,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L451",
+      "source_location": "L455",
       "weight": 1.0
     },
     {
@@ -8373,7 +8397,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L506",
+      "source_location": "L510",
       "weight": 1.0
     },
     {
@@ -8385,7 +8409,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L534",
+      "source_location": "L538",
       "weight": 1.0
     },
     {
@@ -8397,7 +8421,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L701",
+      "source_location": "L785",
       "weight": 1.0
     },
     {
@@ -8409,7 +8433,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L706",
+      "source_location": "L790",
       "weight": 1.0
     },
     {
@@ -8421,7 +8445,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L707",
+      "source_location": "L791",
       "weight": 1.0
     },
     {
@@ -8445,7 +8469,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L160",
+      "source_location": "L164",
       "weight": 1.0
     },
     {
@@ -8457,7 +8481,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L122",
+      "source_location": "L126",
       "weight": 1.0
     },
     {
@@ -8481,7 +8505,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/tax-engine/deterministicCalc.js",
-      "source_location": "L138",
+      "source_location": "L136",
       "weight": 1.0
     },
     {
@@ -8493,7 +8517,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/tax-engine/deterministicCalc.js",
-      "source_location": "L167",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -9123,6 +9147,30 @@
     {
       "source": "src_app",
       "target": "src_tax_engine_deterministiccalc_reconcileexpensevspph23",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/App.jsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_tax_engine_deterministiccalc_reconcilepayrollvspph21",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/App.jsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_tax_engine_deterministiccalc_reconcilerentvspphfinal",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -14305,7 +14353,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L497",
+      "source_location": "L501",
       "weight": 1.0
     },
     {
@@ -14349,7 +14397,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L693",
+      "source_location": "L777",
       "weight": 1.0
     },
     {
@@ -14393,7 +14441,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L111",
+      "source_location": "L115",
       "weight": 1.0
     },
     {
@@ -14404,7 +14452,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L139",
+      "source_location": "L143",
       "weight": 1.0
     },
     {
@@ -14426,7 +14474,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L154",
+      "source_location": "L158",
       "weight": 1.0
     },
     {
@@ -14437,7 +14485,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L171",
+      "source_location": "L175",
       "weight": 1.0
     },
     {
@@ -14448,7 +14496,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L63",
+      "source_location": "L67",
       "weight": 1.0
     },
     {
@@ -14459,7 +14507,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L79",
+      "source_location": "L83",
       "weight": 1.0
     },
     {
@@ -14602,7 +14650,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/tax-engine/deterministicCalc.js",
-      "source_location": "L162",
+      "source_location": "L157",
       "weight": 1.0
     },
     {
@@ -14613,7 +14661,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/tax-engine/deterministicCalc.js",
-      "source_location": "L190",
+      "source_location": "L181",
       "weight": 1.0
     },
     {
@@ -14624,7 +14672,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/tax-engine/deterministicCalc.js",
-      "source_location": "L266",
+      "source_location": "L257",
       "weight": 1.0
     },
     {
@@ -14635,7 +14683,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/tax-engine/deterministicCalc.js",
-      "source_location": "L306",
+      "source_location": "L297",
       "weight": 1.0
     },
     {
@@ -14646,7 +14694,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/tax-engine/deterministicCalc.js",
-      "source_location": "L362",
+      "source_location": "L353",
       "weight": 1.0
     },
     {

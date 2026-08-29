@@ -1,16 +1,16 @@
 # Graph Report - ai-tax-agent  (2026-08-29)
 
 ## Corpus Check
-- 112 files · ~117,181 words
+- 125 files · ~124,517 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 570 nodes · 831 edges · 40 communities (30 shown, 10 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 13 edges (avg confidence: 0.85)
+- 618 nodes · 933 edges · 44 communities (32 shown, 12 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `25095f02`
+- Built from commit: `0c439576`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -23,7 +23,7 @@
 - 📘 Buku Panduan Praktis Staff Tax Analyst: Dari Raw GL hingga KKP & Partner Review
 - 🏛️ AI Tax Agent & KKP Partner Platform
 - Linter & Code Quality Rules
-- Module Group 8
+- dependencies
 - kkpWorkbookGenerator.js
 - claudeService.js
 - 📝 Panduan Alur Input Data Staff Tax Analyst (SOP Step-by-Step)
@@ -49,20 +49,24 @@
 - Verify and Stop Agent Config
 - Social and Navigation SVG Icon Sprite
 - Application Secondary Logo Mark PNG
+- setupTests.js
+- AuthContext.jsx
 - caveman-explore/package.json
 - .oxlintrc.json
+- claude.js
+- vercel.json
 
 ## God Nodes (most connected - your core abstractions)
 1. `Graphify Knowledge Graph Pipeline` - 22 edges
-2. `App()` - 17 edges
-3. `compress_file()` - 16 edges
-4. `react` - 15 edges
+2. `react` - 20 edges
+3. `App()` - 19 edges
+4. `compress_file()` - 16 edges
 5. `cleanBalance()` - 15 edges
 6. `validate()` - 14 edges
 7. `📘 Buku Panduan Praktis Staff Tax Analyst: Dari Raw GL hingga KKP & Partner Review` - 14 edges
 8. `📝 Panduan Alur Input Data Staff Tax Analyst (SOP Step-by-Step)` - 13 edges
-9. `generateKKPWorkbook()` - 12 edges
-10. `🏛️ AI Tax Agent & KKP Partner Platform` - 12 edges
+9. `AdminDashboard()` - 12 edges
+10. `generateKKPWorkbook()` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Application HTML Entry Point` --references--> `GL Cleaner Favicon PNG`  [EXTRACTED]
@@ -87,11 +91,11 @@
 - **Caveman Auto-Clarity Safeguards** — _agents_skills_cavecrew_skill_auto_clarity, _agents_skills_caveman_commit_skill_auto_clarity, _agents_skills_caveman_review_skill_auto_clarity [INFERRED 0.85]
 - **Caveman Cloud Lifecycle Pipeline** — _agents_skills_caveman_setup_skill_setup, _agents_skills_caveman_discover_skill_discover, _agents_skills_caveman_evidence_review_skill_evidence_review, _agents_skills_caveman_manage_skill_manage [INFERRED 0.85]
 
-## Communities (40 total, 10 thin omitted)
+## Communities (44 total, 12 thin omitted)
 
 ### Community 0 - "App.jsx"
-Cohesion: 0.09
-Nodes (37): plugins, oxc, react, ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS (+29 more)
+Cohesion: 0.08
+Nodes (36): react, ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail() (+28 more)
 
 ### Community 1 - "parserWorker.js"
 Cohesion: 0.11
@@ -121,9 +125,9 @@ Nodes (28): 10. 💾 Project Save & Load State (.aitax Portable Archive), 11. �
 Cohesion: 0.08
 Nodes (27): Cavecrew Overview, Cavecrew Model Overrides, Cavecrew Auto-Clarity Guard, Cavecrew Skill, Cavecrew Chaining Patterns, Cavecrew Builder Subagent, Cavecrew Investigator Subagent, Cavecrew Reviewer Subagent (+19 more)
 
-### Community 8 - "Module Group 8"
-Cohesion: 0.08
-Nodes (25): lucide-react, dependencies, lucide-react, pdfjs-dist, react, react-dom, @tanstack/react-virtual, xlsx-js-style (+17 more)
+### Community 8 - "dependencies"
+Cohesion: 0.07
+Nodes (27): lucide-react, dependencies, lucide-react, pdfjs-dist, react, react-dom, @supabase/supabase-js, @tanstack/react-virtual (+19 more)
 
 ### Community 9 - "kkpWorkbookGenerator.js"
 Cohesion: 0.12
@@ -131,7 +135,7 @@ Nodes (24): KEYWORD_PRESETS, KeywordScannerTab(), extractTaxBadge(), TaxReconWor
 
 ### Community 10 - "claudeService.js"
 Cohesion: 0.16
-Nodes (22): AISettingsModal(), PRESET_MODELS, analyzeTaxFindings(), callClaudeTaxAnalysis(), extractAndParseClaudeJson(), extractObjectsFromIncompleteJson(), FALLBACK_MODELS, generateDeterministicFindings() (+14 more)
+Nodes (22): AISettingsModal(), PRESET_MODELS, aiClassifyAccounts(), analyzeTaxFindings(), callClaudeProxy(), callClaudeTaxAnalysis(), extractAndParseClaudeJson(), extractObjectsFromIncompleteJson() (+14 more)
 
 ### Community 11 - "📝 Panduan Alur Input Data Staff Tax Analyst (SOP Step-by-Step)"
 Cohesion: 0.09
@@ -185,32 +189,40 @@ Nodes (3): Graphify CLI Commands, Graphify MCP Tools, Graphify Knowledge Graph R
 Cohesion: 0.67
 Nodes (3): Migration OpenAI Interface, Migration Skill, Reversible Compatibility-Safe Transitions
 
+### Community 37 - "AuthContext.jsx"
+Cohesion: 0.15
+Nodes (20): AdminDashboard(), closeEditModal(), fetchUsers(), getAuthHeader(), handleAddUser(), handleDeleteUser(), handleToggleActive(), handleUpdateUser() (+12 more)
+
 ### Community 38 - "caveman-explore/package.json"
 Cohesion: 0.18
 Nodes (10): description, files, SKILL.md, license, name, private, scripts, test (+2 more)
 
 ### Community 39 - ".oxlintrc.json"
-Cohesion: 0.33
-Nodes (5): rules, react/only-export-components, react/rules-of-hooks, $schema, warn
+Cohesion: 0.25
+Nodes (7): plugins, rules, react/only-export-components, react/rules-of-hooks, $schema, oxc, warn
+
+### Community 41 - "claude.js"
+Cohesion: 0.67
+Nodes (3): checkRateLimit(), handler(), rateLimitMap
 
 ## Knowledge Gaps
-- **212 isolated node(s):** `name`, `version`, `license`, `private`, `type` (+207 more)
+- **217 isolated node(s):** `name`, `version`, `license`, `private`, `type` (+212 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **10 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `App.jsx` to `kkpWorkbookGenerator.js`, `claudeService.js`, `SP2DKResponseTab.jsx`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
-- **Why does `plugins` connect `App.jsx` to `.oxlintrc.json`?**
-  _High betweenness centrality (0.005) - this node is a cross-community bridge._
-- **Why does `validate()` connect `Claude AI & Semantics Service` to `compress.py`?**
-  _High betweenness centrality (0.004) - this node is a cross-community bridge._
+- **Why does `react` connect `App.jsx` to `AuthContext.jsx`, `.oxlintrc.json`, `kkpWorkbookGenerator.js`, `claudeService.js`, `SP2DKResponseTab.jsx`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+- **Why does `AdminDashboard()` connect `AuthContext.jsx` to `App.jsx`?**
+  _High betweenness centrality (0.007) - this node is a cross-community bridge._
+- **Why does `plugins` connect `.oxlintrc.json` to `App.jsx`?**
+  _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **What connects `name`, `version`, `license` to the rest of the system?**
-  _212 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _217 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `App.jsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.08941176470588236 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07857142857142857 - nodes in this community are weakly interconnected._
 - **Should `parserWorker.js` be split into smaller, more focused modules?**
   _Cohesion score 0.11382113821138211 - nodes in this community are weakly interconnected._
 - **Should `compress.py` be split into smaller, more focused modules?**
