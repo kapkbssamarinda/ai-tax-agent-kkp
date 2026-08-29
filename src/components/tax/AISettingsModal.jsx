@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, CheckCircle2, AlertCircle, Loader2, X, Eye, EyeOff, ShieldCheck, Sparkles } from 'lucide-react';
-import { getSavedApiKey, saveApiKey, getSavedModel, saveModel, testClaudeConnection } from '../../services/claudeService';
+import { Bot, CheckCircle2, AlertCircle, Loader2, X, ShieldCheck } from 'lucide-react';
+import { getSavedModel, saveModel, testClaudeConnection } from '../../services/claudeService';
 
 const PRESET_MODELS = [
   'claude-sonnet-5',
@@ -14,17 +14,14 @@ const PRESET_MODELS = [
 ];
 
 function AISettingsModal({ isOpen, onClose }) {
-  const [apiKey, setApiKey] = useState('');
-  const [selectedPreset, setSelectedPreset] = useState('claude-3-5-haiku-20241022');
+  const [selectedPreset, setSelectedPreset] = useState('claude-sonnet-5');
   const [customModel, setCustomModel] = useState('');
-  const [showKey, setShowKey] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null); // { success: boolean, message: string }
   const closeButtonRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
-      setApiKey(getSavedApiKey());
       const saved = getSavedModel();
       if (PRESET_MODELS.includes(saved)) {
         setSelectedPreset(saved);
@@ -55,21 +52,15 @@ function AISettingsModal({ isOpen, onClose }) {
     : selectedPreset;
 
   const handleSave = () => {
-    saveApiKey(apiKey.trim());
     saveModel(effectiveModel);
     onClose();
   };
 
   const handleTestConnection = async () => {
-    if (!apiKey.trim()) {
-      setTestResult({ success: false, message: 'Masukkan API Key terlebih dahulu.' });
-      return;
-    }
-
     setTesting(true);
     setTestResult(null);
     try {
-      const res = await testClaudeConnection(apiKey.trim(), effectiveModel);
+      const res = await testClaudeConnection(effectiveModel);
       const activeModelName = res?.activeModel || effectiveModel;
       setTestResult({
         success: true,
@@ -90,12 +81,6 @@ function AISettingsModal({ isOpen, onClose }) {
     }
   };
 
-  const handleClear = () => {
-    setApiKey('');
-    saveApiKey('');
-    setTestResult(null);
-  };
-
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="ai-settings-title">
       <div className="modal-box ai-settings-box">
@@ -103,8 +88,8 @@ function AISettingsModal({ isOpen, onClose }) {
           <div className="modal-title-wrap">
             <Bot className="modal-icon" size={22} />
             <div>
-              <h2 id="ai-settings-title" className="modal-title">Pengaturan AI Tax Agent (Claude BYOK)</h2>
-              <p className="modal-subtitle">Gunakan kunci API Anthropic Anda sendiri secara privat & aman.</p>
+              <h2 id="ai-settings-title" className="modal-title">Pengaturan Model AI Tax Agent</h2>
+              <p className="modal-subtitle">Pilih model Claude AI untuk analisis pajak.</p>
             </div>
           </div>
           <button ref={closeButtonRef} className="btn-icon" onClick={onClose} aria-label="Tutup modal">
@@ -116,34 +101,9 @@ function AISettingsModal({ isOpen, onClose }) {
           <div className="ai-privacy-notice">
             <ShieldCheck size={18} className="privacy-icon" />
             <div>
-              <strong>100% Privasi di Sisi Klien (Browser):</strong>
-              <p>Kunci API disimpan hanya di memori/localStorage peramban Anda. Panggilan API langsung dari browser ke Anthropic tanpa melalui server perantara manapun.</p>
+              <strong>AI Siap Digunakan:</strong>
+              <p>Panggilan AI Claude sudah dikonfigurasi melalui server yang aman dengan rate limiting 10 analisis/jam. Anda cukup memilih model dan mulai analisis.</p>
             </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="api-key-input">
-              Anthropic Claude API Key <span className="text-required">*</span>
-            </label>
-            <div className="input-with-action">
-              <input
-                id="api-key-input"
-                type={showKey ? 'text' : 'password'}
-                className="form-input"
-                placeholder="sk-ant-api03-..."
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-              />
-              <button
-                type="button"
-                className="btn-icon-subtle"
-                onClick={() => setShowKey(!showKey)}
-                title={showKey ? 'Sembunyikan' : 'Tampilkan'}
-              >
-                {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            <span className="form-hint">Dapatkan API key dari <a href="https://console.anthropic.com/" target="_blank" rel="noreferrer">Anthropic Console</a>.</span>
           </div>
 
           <div className="form-group">
@@ -155,18 +115,18 @@ function AISettingsModal({ isOpen, onClose }) {
               onChange={(e) => setSelectedPreset(e.target.value)}
             >
               <optgroup label="✨ Generasi Baru (Claude 5 &amp; Sonnet 5)">
-                <option value="claude-sonnet-5">Claude Sonnet 5 (claude-sonnet-5 — Flagship Generasi 5)</option>
+                <option value="claude-sonnet-5">Claude Sonnet 5 (Rekomendasi — Flagship)</option>
                 <option value="claude-5-sonnet">Claude 5 Sonnet (claude-5-sonnet)</option>
-                <option value="claude-sonnet-4-5-20250929">Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)</option>
-                <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (claude-haiku-4-5-20251001)</option>
+                <option value="claude-sonnet-4-5-20250929">Claude Sonnet 4.5</option>
+                <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (Cepat &amp; Hemat)</option>
               </optgroup>
               <optgroup label="🧠 Model Penalaran Lanjutan &amp; Semantik Mendalam">
-                <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet (claude-3-7-sonnet-20250219 — Penalaran Pajak Kompleks)</option>
-                <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (claude-3-5-sonnet-20241022 — Analisis Semantik)</option>
+                <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet (Penalaran Pajak Kompleks)</option>
+                <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (Analisis Semantik)</option>
               </optgroup>
-              <optgroup label="⚡ Model Cepat &amp; Hemat Biaya (Rekomendasi Operasional)">
-                <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (claude-3-5-haiku-20241022 — Sangat Cepat &amp; Efisien)</option>
-                <option value="claude-3-haiku-20240307">Claude 3 Haiku (claude-3-haiku-20240307 — Standar)</option>
+              <optgroup label="⚡ Model Cepat &amp; Hemat Biaya">
+                <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (Sangat Cepat &amp; Efisien)</option>
+                <option value="claude-3-haiku-20240307">Claude 3 Haiku (Standar)</option>
               </optgroup>
               <optgroup label="🛠️ Kustomisasi">
                 <option value="CUSTOM_MODEL">Ketik ID Model Sendiri / Manual...</option>
@@ -188,7 +148,7 @@ function AISettingsModal({ isOpen, onClose }) {
                 onChange={(e) => setCustomModel(e.target.value)}
               />
               <span className="form-hint">
-                Masukkan ID model resmi Anthropic sesuai dengan hak akses akun API Console Anda.
+                Masukkan ID model resmi Anthropic yang aktif.
               </span>
             </div>
           )}
@@ -202,14 +162,11 @@ function AISettingsModal({ isOpen, onClose }) {
         </div>
 
         <div className="modal-footer">
-          <button type="button" className="btn btn-ghost" onClick={handleClear}>
-            Hapus Kunci
-          </button>
           <button
             type="button"
             className="btn btn-secondary"
             onClick={handleTestConnection}
-            disabled={testing || !apiKey}
+            disabled={testing}
           >
             {testing ? <><Loader2 size={14} className="spinner-inline" /> Menguji...</> : 'Uji Koneksi'}
           </button>

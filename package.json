@@ -11,6 +11,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.112.4",
     "@tanstack/react-virtual": "^3.14.5",
     "@xmldom/xmldom": "^0.9.10",
     "lucide-react": "^1.23.0",

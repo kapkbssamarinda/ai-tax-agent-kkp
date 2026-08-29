@@ -1,8 +1,8 @@
 /**
- * Anthropic Claude API Client (Client-Side BYOK)
- * Menjalankan Master System Prompt AI Tax Agent Indonesia langsung dari browser
- * dengan header anthropic-dangerous-direct-browser-access: true.
- * Dilengkapi AI Semantic Misclassification Scanner & Heuristic Fallback.
+ * Anthropic Claude API Client via Vercel Serverless Proxy
+ * Menjalankan Master System Prompt AI Tax Agent Indonesia melalui /api/claude proxy
+ * dengan rate limiting dan model Sonnet 5 sebagai default.
+ * Dilengkapi AI Semantic Misclassification Scanner, AI Account Classifier & Heuristic Fallback.
  */
 
 import { formatLegalCitation } from './regulationDB.js';
@@ -47,31 +47,16 @@ CONTROL RULES:
 - Field managementResponse dan reviewerDecision WAJIB bernilai string kosong "" dari AI (akan diisi manusia di review workflow).
 `;
 
-
-const LOCAL_STORAGE_KEY = 'gl_claude_api_key';
+const DEFAULT_MODEL = 'claude-sonnet-5';
 const LOCAL_STORAGE_MODEL_KEY = 'gl_claude_model';
-
-export function getSavedApiKey() {
-  try {
-    return localStorage.getItem(LOCAL_STORAGE_KEY) || '';
-  } catch {
-    return '';
-  }
-}
-
-export function saveApiKey(key) {
-  try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, key);
-  } catch { /* ignore */ }
-}
 
 export function getSavedModel() {
   try {
     const saved = localStorage.getItem(LOCAL_STORAGE_MODEL_KEY);
     if (saved && typeof saved === 'string' && saved.trim().length > 0) return saved.trim();
-    return 'claude-3-5-haiku-20241022';
+    return DEFAULT_MODEL;
   } catch {
-    return 'claude-3-5-haiku-20241022';
+    return DEFAULT_MODEL;
   }
 }
 
@@ -93,6 +78,31 @@ const FALLBACK_MODELS = [
   'claude-haiku-4-5-20251001',
   'claude-3-haiku-20240307'
 ];
+
+/**
+ * Unified fetch wrapper ke Claude API via Vercel serverless proxy.
+ * Semua panggilan Claude HARUS melalui fungsi ini.
+ * @param {string} userId - ID user dari Supabase auth (untuk rate limiting di server)
+ */
+async function callClaudeProxy({ model, max_tokens = 4096, system, messages, userId = null }) {
+  const body = { model, max_tokens, messages };
+  if (system) body.system = system;
+  if (userId) body.user_id = userId;
+
+  const response = await fetch('/api/claude', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    const errMsg = errData?.error || `HTTP ${response.status}`;
+    throw new Error(errMsg);
+  }
+
+  return response.json();
+}
 
 /**
  * Ekstraksi objek-objek JSON individual secara toleran (Bracket Counting Parser)
@@ -247,80 +257,56 @@ function extractAndParseClaudeJson(text) {
 }
 
 /**
- * Uji koneksi API Key ke Anthropic dengan candidate model fallback
+ * Uji koneksi ke Claude API melalui proxy server.
+ * Tidak perlu API key — proxy sudah memiliki key.
  */
-export async function testClaudeConnection(apiKey, model = 'claude-3-5-haiku-20241022') {
-  if (!apiKey) throw new Error('API Key tidak boleh kosong.');
-
+export async function testClaudeConnection(model = DEFAULT_MODEL) {
   const candidateModels = [model, ...FALLBACK_MODELS.filter(m => m !== model)];
   let lastError = null;
 
   for (const targetModel of candidateModels) {
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
-          'content-type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: targetModel,
-          max_tokens: 20,
-          messages: [{ role: 'user', content: 'Ping. Respon dengan kata: PONG' }]
-        })
+      const result = await callClaudeProxy({
+        model: targetModel,
+        max_tokens: 20,
+        messages: [{ role: 'user', content: 'Ping. Respon dengan kata: PONG' }]
       });
 
-      if (response.ok) {
-        if (targetModel !== model) {
-          saveModel(targetModel);
-        }
+      if (result.content?.[0]?.text) {
+        if (targetModel !== model) saveModel(targetModel);
         return { success: true, activeModel: targetModel };
       }
-
-      const errData = await response.json().catch(() => ({}));
-      lastError = errData?.error?.message || `HTTP ${response.status}`;
-      if (response.status === 401) {
-        throw new Error('API Key tidak valid (401 Unauthorized). Mohon periksa kembali kunci Anda.');
-      }
     } catch (err) {
-      if (err.message && err.message.includes('401')) throw err;
       lastError = err.message;
     }
   }
 
-  throw new Error(`Gagal terhubung dengan model Anthropic: ${lastError}`);
+  throw new Error(`Gagal terhubung ke AI: ${lastError}`);
 }
 
 /**
- * Analisis Transaksi & Pembuatan Tax Finding Register
+ * Analisis Transaksi & Pembuatan Tax Finding Register.
+ * userId digunakan untuk rate limiting di server proxy.
  */
-export async function analyzeTaxFindings({ glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo, throwOnError = false }) {
-  const apiKey = getSavedApiKey();
+export async function analyzeTaxFindings({ glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo, userId = null, throwOnError = false }) {
   const model = getSavedModel();
 
-  if (apiKey) {
-    try {
-      return await callClaudeTaxAnalysis({ apiKey, model, glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo });
-    } catch (err) {
-      console.warn('Claude API call failed:', err);
-      if (throwOnError) {
-        throw new Error(`Gagal menghubungi API Claude: ${err.message}. Mohon periksa kembali API Key dan kuota akun Anthropic Anda.`);
-      }
+  try {
+    return await callClaudeTaxAnalysis({ model, glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo, userId });
+  } catch (err) {
+    console.warn('Claude API call failed, falling back to deterministic:', err);
+    if (throwOnError) {
+      throw new Error(`Gagal menghubungi AI: ${err.message}`);
     }
-  } else if (throwOnError) {
-    throw new Error('API Key Anthropic belum dimasukkan. Silakan buka menu "Setting Key" di bar atas untuk memasukkan API Key Anda.');
   }
 
-  // Fallback Heuristik Cerdas Lokal (Bila tanpa API key atau offline)
   return generateDeterministicFindings({ glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo });
 }
 
 /**
- * Panggilan langsung ke Claude Messages API
+ * Panggilan ke Claude Messages API via serverless proxy
  */
-async function callClaudeTaxAnalysis({ apiKey, model, glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo }) {
+async function callClaudeTaxAnalysis({ model, glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo, userId = null }) {
   // Ambil sample transaksi representatif:
   // 1. Transaksi material (> 10jt)
   // 2. Transaksi dari akun penampung umum (Biaya Lain-lain, Uang Muka, Rupa-rupa)
@@ -424,29 +410,14 @@ Format objek temuan:
 
   for (const targetModel of candidateModels) {
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
-          'content-type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: targetModel,
-          max_tokens: 4096,
-          system: MASTER_SYSTEM_PROMPT,
-          messages: [{ role: 'user', content: userPrompt }]
-        })
+      const resultData = await callClaudeProxy({
+        model: targetModel,
+        max_tokens: 4096,
+        system: MASTER_SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userPrompt }],
+        userId
       });
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        lastError = errData?.error?.message || `HTTP ${response.status}`;
-        continue;
-      }
-
-      const resultData = await response.json();
       const text = resultData.content?.[0]?.text || '';
       
       const parsedArray = extractAndParseClaudeJson(text);
@@ -771,8 +742,117 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
 }
 
 
+
 /**
- * Menghasilkan draf surat tanggapan SP2DK resmi dengan Claude AI (BYOK).
+ * AI-Assisted Account Classification — Mengklasifikasi akun GL via Claude
+ * berdasarkan substansi transaksi (bukan hanya nama akun).
+ */
+export async function aiClassifyAccounts(accounts, glRows = [], userId = null) {
+  if (!accounts || accounts.length === 0) return accounts;
+
+  const model = getSavedModel();
+
+  // Ringkasan akun + sample memo per akun (maks 3 memo per akun)
+  const accountSummaries = accounts.map(acc => {
+    const sampleRows = glRows
+      .filter(r => r.namaAkun === acc.namaAkun && r.keterangan !== 'Saldo Awal')
+      .slice(0, 3)
+      .map(r => r.keterangan || r.communication || '-');
+
+    return {
+      coa: acc.coa,
+      namaAkun: acc.namaAkun,
+      heuristicCategory: acc.category,
+      totalDebit: acc.totalDebit,
+      totalCredit: acc.totalCredit,
+      rowCount: acc.rowCount,
+      sampleMemo: sampleRows
+    };
+  });
+
+  const classificationPrompt = `
+Anda adalah AI Tax Agent Indonesia. Tugas: klasifikasikan setiap akun buku besar (GL) ke kategori pajak yang BENAR berdasarkan substansi transaksi.
+
+Kategori yang tersedia (gunakan persis ID ini):
+- REVENUE: Penjualan / Pendapatan / Omzet (Objek PPN & PPh Badan)
+- PPH23: Objek PPh 23 (Jasa Teknik/Manajemen/Konsultan, Sewa Alat/Mesin, Pemeliharaan)
+- PPH21: Objek PPh 21 (Gaji, Upah, Bonus, THR, Honorarium, Tunjangan)
+- PPH42: Objek PPh Final 4(2) (Sewa Tanah/Bangunan, Konstruksi, Bunga Deposito)
+- PPH22: Objek PPh 22 (Pembelian dari BUMN, Impor, BBM)
+- PPN_IN: PPN Masukan
+- PPN_OUT: PPN Keluaran
+- FISCAL_CORRECTION: Potensi Koreksi Fiskal Positif (Jamuan tanpa nominatif, Natura, Sumbangan, Denda)
+- RELATED_PARTY: Transaksi Pihak Berelasi (Transfer Pricing, Afiliasi)
+- NON_TAX: Non-Tax / Balance Sheet (Kas, Bank, Piutang, Hutang, Ekuitas, Aset Tetap)
+
+Aturan:
+1. PERHATIKAN sample memo/keterangan transaksi, bukan hanya nama akun.
+2. "Biaya Lain-lain" + memo "jasa notaris" → PPH23.
+3. "Biaya Umum" + memo "sewa gedung" → PPH42.
+4. Confidence: 1.0 = sangat yakin, 0.5 = cukup yakin.
+5. Jika heuristik sudah benar, kembalikan kategori yang sama.
+
+Daftar Akun:
+${JSON.stringify(accountSummaries, null, 2)}
+
+Output HANYA berupa array JSON murni, mulai dengan '[':
+[{"coa":"...","namaAkun":"...","aiCategory":"ID_KATEGORI","aiConfidence":0.0-1.0,"aiReason":"Penjelasan singkat"}]
+`;
+
+  const candidateModels = [model, ...FALLBACK_MODELS.filter(m => m !== model)];
+
+  for (const targetModel of candidateModels) {
+    try {
+      const resultData = await callClaudeProxy({
+        model: targetModel,
+        max_tokens: 2048,
+        system: 'Anda adalah AI Tax Agent Indonesia. Klasifikasikan akun buku besar ke pos pajak yang benar berdasarkan substansi transaksi.',
+        messages: [{ role: 'user', content: classificationPrompt }],
+        userId
+      });
+
+      const text = resultData.content?.[0]?.text || '';
+      const parsed = extractAndParseClaudeJson(text);
+
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const aiMap = new Map();
+        parsed.forEach(item => {
+          if (item.namaAkun && item.aiCategory) aiMap.set(item.namaAkun, item);
+        });
+
+        return accounts.map(acc => {
+          const ai = aiMap.get(acc.namaAkun);
+          if (ai && ai.aiCategory !== acc.category) {
+            return {
+              ...acc,
+              category: ai.aiCategory,
+              heuristicCategory: acc.category,
+              aiCategory: ai.aiCategory,
+              aiConfidence: Number(ai.aiConfidence) || 0.5,
+              aiReason: ai.aiReason || '',
+              aiOverridden: true
+            };
+          }
+          return {
+            ...acc,
+            aiCategory: ai?.aiCategory || acc.category,
+            aiConfidence: ai ? Number(ai.aiConfidence) || 0.8 : null,
+            aiReason: ai?.aiReason || '',
+            aiOverridden: false
+          };
+        });
+      }
+    } catch (err) {
+      console.warn(`AI classification failed with ${targetModel}:`, err);
+    }
+  }
+
+  console.warn('AI account classification gagal, menggunakan heuristik saja');
+  return accounts;
+}
+
+/**
+ * Menghasilkan draf surat tanggapan SP2DK resmi dengan Claude AI via proxy.
  */
 export async function generateSP2DKResponseWithClaude({
   clientInfo = {},
@@ -780,13 +860,9 @@ export async function generateSP2DKResponseWithClaude({
   items = [],
   revenueRecon = {},
   expenseRecon = {},
-  taxMappings = []
+  taxMappings = [],
+  userId = null
 }) {
-  const apiKey = getSavedApiKey();
-  if (!apiKey) {
-    throw new Error('API Key Anthropic Claude belum diatur. Silakan masukkan API Key Anda di menu Pengaturan AI (BYOK).');
-  }
-
   const model = getSavedModel();
   const userPrompt = buildSP2DKClaudePrompt({
     clientInfo,
@@ -802,29 +878,14 @@ export async function generateSP2DKResponseWithClaude({
 
   for (const targetModel of candidateModels) {
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
-          'content-type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: targetModel,
-          max_tokens: 4096,
-          system: MASTER_SYSTEM_PROMPT,
-          messages: [{ role: 'user', content: userPrompt }]
-        })
+      const resultData = await callClaudeProxy({
+        model: targetModel,
+        max_tokens: 4096,
+        system: MASTER_SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userPrompt }],
+        userId
       });
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        lastError = errData?.error?.message || `HTTP ${response.status}`;
-        continue;
-      }
-
-      const resultData = await response.json();
       const text = resultData.content?.[0]?.text || '';
       const modelLabel = targetModel.includes('sonnet') ? 'AI Claude Sonnet' : 'AI Claude Haiku';
 
@@ -870,4 +931,5 @@ export async function generateSP2DKResponseWithClaude({
 
   throw new Error(`Gagal menghasilkan surat tanggapan dengan Claude AI: ${lastError}`);
 }
+
 

@@ -14,7 +14,9 @@ import {
   LayoutDashboard,
   Save,
   FolderOpen,
-  ChevronDown
+  ChevronDown,
+  LogOut,
+  Shield
 } from 'lucide-react';
 // logo2-mark.png = crop mark "RV" dari logo/logo2.png
 import logoImage from '../assets/logo2-mark.png';
@@ -35,7 +37,11 @@ function Topbar({
   onSelectViewMode,
   onOpenAISettings,
   onOpenClientMaster,
-  clientInfo = {}
+  clientInfo = {},
+  userProfile = null,
+  isAdmin = false,
+  onSignOut,
+  onOpenAdmin
 }) {
   const hasData = step === 'success';
   const [isProjectMenuOpen, setIsProjectMenuOpen] = useState(false);
@@ -293,6 +299,38 @@ function Topbar({
               <span className="topbar-divider" aria-hidden="true" />
             </>
           )
+        )}
+
+        {/* User Info & Actions */}
+        {userProfile && (
+          <div className="topbar-user-section">
+            <span className="topbar-user-name" title={userProfile.email}>
+              {userProfile.full_name || userProfile.email}
+            </span>
+            {isAdmin && onOpenAdmin && (
+              <button
+                type="button"
+                className="btn btn-ghost btn-action-sm"
+                onClick={onOpenAdmin}
+                title="Kelola Pengguna (Admin)"
+              >
+                <Shield size={14} className="text-accent" />
+                <span className="btn-label-responsive">Admin</span>
+              </button>
+            )}
+            {onSignOut && (
+              <button
+                type="button"
+                className="btn-icon"
+                onClick={onSignOut}
+                title="Keluar (Logout)"
+                aria-label="Logout"
+              >
+                <LogOut size={16} />
+              </button>
+            )}
+            <span className="topbar-divider" aria-hidden="true" />
+          </div>
         )}
 
         {/* Theme Toggle */}

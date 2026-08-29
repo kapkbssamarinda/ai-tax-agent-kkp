@@ -12,9 +12,12 @@ import AISettingsModal from './components/tax/AISettingsModal';
 import ClientMasterModal from './components/tax/ClientMasterModal';
 import PartnerDashboard from './components/tax/PartnerDashboard';
 import TaxReconWorkbench from './components/tax/TaxReconWorkbench';
+import LoginPage from './components/auth/LoginPage';
+import AdminDashboard from './components/admin/AdminDashboard';
+import { useAuth } from './contexts/AuthContext';
 import { buildTaxMappingFromGL } from './tax-engine/taxMapping';
 import { reconcileRevenueVsPPN, reconcileExpenseVsPPh23, reconcilePayrollVsPPh21, reconcileRentVsPPhFinal } from './tax-engine/deterministicCalc';
-import { analyzeTaxFindings, generateDeterministicFindings } from './services/claudeService';
+import { analyzeTaxFindings, generateDeterministicFindings, aiClassifyAccounts } from './services/claudeService';
 import { downloadKKPWorkbook } from './tax-engine/kkpWorkbookGenerator';
 import {
   createProjectSnapshot,
@@ -75,6 +78,8 @@ const DEFAULT_CLIENT_INFO = {
 };
 
 function App() {
+  const { profile, loading: authLoading, signOut, isAdmin, isAuthenticated, userId } = useAuth();
+
   const [step, setStep] = useState('upload');
   const [theme, setTheme] = useState(getInitialTheme);
   const [viewMode, setViewMode] = useState('GL_CLEANER'); // 'GL_CLEANER' | 'TAX_AGENT' | 'PARTNER_DASHBOARD'
@@ -105,6 +110,8 @@ function App() {
   const [findings, setFindings] = useState([]);
   const [isAnalyzingTax, setIsAnalyzingTax] = useState(false);
   const [aiAnalysisSummary, setAiAnalysisSummary] = useState(null);
+  const [isAIMappingInProgress, setIsAIMappingInProgress] = useState(false);
+  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
 
   // Periksa draft pekerjaan tersimpan di peramban saat inisialisasi
   useEffect(() => {
@@ -264,10 +271,20 @@ function App() {
           }));
         }
 
-        // Otomatis buat tax mapping awal & rekonsiliasi deterministik
+        // Otomatis buat tax mapping awal & rekonsiliasi deterministik (instan)
         const mappings = buildTaxMappingFromGL(data);
         setTaxMappings(mappings);
         recalculateTaxRecons(mappings, data);
+
+        // Lalu jalankan AI classification di background (non-blocking)
+        setIsAIMappingInProgress(true);
+        aiClassifyAccounts(mappings, data, userId)
+          .then(aiMappings => {
+            setTaxMappings(aiMappings);
+            recalculateTaxRecons(aiMappings, data);
+          })
+          .catch(err => console.warn('AI mapping gagal:', err))
+          .finally(() => setIsAIMappingInProgress(false));
       } else if (status === 'export_success') {
         setIsExporting(false);
         const isCsv = kind === 'csv';
@@ -292,7 +309,7 @@ function App() {
     return () => {
       if (workerRef.current) workerRef.current.terminate();
     };
-  }, [recalculateTaxRecons]);
+  }, [recalculateTaxRecons, userId]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -575,6 +592,7 @@ function App() {
         payrollRecon,
         finalTaxRecon,
         clientInfo,
+        userId,
         throwOnError: true
       });
       setFindings(aiFindings);
@@ -618,6 +636,29 @@ function App() {
     ? accounts.find(a => a.nama === selectedAccount)
     : null;
 
+  // Loading state saat periksa session Supabase
+  if (authLoading) {
+    return (
+      <div className="app-shell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <Loader2 size={32} className="spinner" />
+      </div>
+    );
+  }
+
+  // Belum login → tampilkan halaman Login
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
+
+  // Admin Dashboard view
+  if (showAdminDashboard) {
+    return (
+      <div className="app-shell">
+        <AdminDashboard onBack={() => setShowAdminDashboard(false)} />
+      </div>
+    );
+  }
+
   return (
     <div className="app-shell">
       <div className="sr-only" role="status" aria-live="polite">{statusMessage}</div>
@@ -639,6 +680,10 @@ function App() {
         onOpenAISettings={() => setIsAISettingsOpen(true)}
         onOpenClientMaster={() => setIsClientMasterOpen(true)}
         clientInfo={clientInfo}
+        userProfile={profile}
+        isAdmin={isAdmin}
+        onSignOut={signOut}
+        onOpenAdmin={() => setShowAdminDashboard(true)}
       />
 
       {error && (
@@ -772,6 +817,7 @@ function App() {
               findings={findings}
               onRunAIAnalysis={handleRunAIAnalysis}
               isAnalyzing={isAnalyzingTax}
+              isAIMappingInProgress={isAIMappingInProgress}
               onUpdateFindingStatus={handleUpdateFindingStatus}
               clientInfo={clientInfo}
               onOpenAISettings={() => setIsAISettingsOpen(true)}

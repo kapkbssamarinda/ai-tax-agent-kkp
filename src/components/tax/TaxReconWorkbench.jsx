@@ -43,7 +43,8 @@ function TaxReconWorkbench({
   onOpenAISettings,
   onOpenClientMaster,
   aiAnalysisSummary = null,
-  onDismissAISummary
+  onDismissAISummary,
+  isAIMappingInProgress = false
 }) {
   const [activeTab, setActiveTab] = useState('REVENUE_PPN');
   const [sptInput, setSptInput] = useState(revenueRecon.sptDPPTotal || 0);
@@ -959,7 +960,15 @@ function TaxReconWorkbench({
               <thead>
                 <tr>
                   <th>Kode COA</th>
-                  <th>Nama Akun</th>
+                  <th>
+                    Nama Akun
+                    {isAIMappingInProgress && (
+                      <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: 'var(--accent)', fontWeight: 'normal' }}>
+                        <Loader2 size={12} className="spinner-inline" style={{ display: 'inline', marginRight: '0.25rem' }} />
+                        AI sedang mengklasifikasi...
+                      </span>
+                    )}
+                  </th>
                   <th>Klasifikasi Pos Pajak</th>
                   <th className="align-right">Total Debit</th>
                   <th className="align-right">Total Kredit</th>
@@ -968,9 +977,19 @@ function TaxReconWorkbench({
               </thead>
               <tbody>
                 {taxMappings.map((m) => (
-                  <tr key={m.namaAkun}>
+                  <tr key={m.namaAkun} className={m.aiOverridden ? 'ai-reclassified-row' : ''}>
                     <td><span className="badge-code">{m.coa}</span></td>
-                    <td className="font-medium">{m.namaAkun}</td>
+                    <td className="font-medium">
+                      {m.namaAkun}
+                      {m.aiOverridden && (
+                        <span
+                          className="ai-badge"
+                          title={`AI: ${m.aiReason || 'Reklasifikasi berdasarkan substansi transaksi'}\nAsal heuristik: ${m.heuristicCategory}\nConfidence: ${Math.round((m.aiConfidence || 0) * 100)}%`}
+                        >
+                          🤖 AI
+                        </span>
+                      )}
+                    </td>
                     <td>
                       <select
                         className="form-select-sm"
