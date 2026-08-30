@@ -60,8 +60,8 @@ export default async function handler(req, res) {
     });
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_KEY;
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
   let supabaseAdmin = null;
   if (supabaseUrl && serviceKey) {
     supabaseAdmin = createClient(supabaseUrl, serviceKey, {
@@ -90,6 +90,21 @@ export default async function handler(req, res) {
     } catch (e) {
       console.warn('Token verification error:', e);
     }
+  }
+
+  // Jika effectiveUserId ada namun nama/email belum terisi, coba ambil dari tabel profiles
+  if (effectiveUserId && supabaseAdmin && (!effectiveEmail || !effectiveName)) {
+    try {
+      const { data: prof } = await supabaseAdmin
+        .from('profiles')
+        .select('email, full_name')
+        .eq('id', effectiveUserId)
+        .single();
+      if (prof) {
+        effectiveEmail = effectiveEmail || prof.email;
+        effectiveName = effectiveName || prof.full_name || prof.email?.split('@')[0];
+      }
+    } catch { /* ignore */ }
   }
 
   // Rate limiting per user
@@ -142,22 +157,24 @@ export default async function handler(req, res) {
           const currentMonthCost = (usageAgg || []).reduce((acc, row) => acc + Number(row.estimated_cost_usd || 0), 0);
 
           if (currentMonthTokens >= quotaLimit || currentMonthCost >= costLimit) {
-            // Catat log QUOTA_EXCEEDED
-            supabaseAdmin.from('ai_usage_logs').insert({
-              user_id: effectiveUserId,
-              user_email: effectiveEmail,
-              user_name: effectiveName,
-              feature: feature || 'general',
-              model,
-              tier: String(model).includes('haiku') ? 'haiku' : 'sonnet',
-              input_tokens: 0,
-              output_tokens: 0,
-              total_tokens: 0,
-              estimated_cost_usd: 0,
-              client_name: client_name || null,
-              tax_year: tax_year || null,
-              status: 'QUOTA_EXCEEDED'
-            }).then(() => {}).catch(() => {});
+            // Catat log QUOTA_EXCEEDED (Awaited)
+            try {
+              await supabaseAdmin.from('ai_usage_logs').insert({
+                user_id: effectiveUserId,
+                user_email: effectiveEmail,
+                user_name: effectiveName,
+                feature: feature || 'general',
+                model,
+                tier: String(model).includes('haiku') ? 'haiku' : 'sonnet',
+                input_tokens: 0,
+                output_tokens: 0,
+                total_tokens: 0,
+                estimated_cost_usd: 0,
+                client_name: client_name || null,
+                tax_year: tax_year || null,
+                status: 'QUOTA_EXCEEDED'
+              });
+            } catch { /* ignore */ }
 
             return res.status(403).json({
               error: `Batas kuota bulanan AI staf telah tercapai (${currentMonthTokens.toLocaleString('id-ID')} / ${quotaLimit.toLocaleString('id-ID')} Tokens). Silakan hubungi Partner / Administrator untuk penyesuaian kuota.`,
@@ -210,25 +227,27 @@ export default async function handler(req, res) {
     const outputTokens = Number(data.usage?.output_tokens) || 0;
     const { tier, estimatedCostUSD } = calculateCost(model, inputTokens, outputTokens);
 
-    // Asynchronous Logging ke database Supabase (Non-blocking)
+    // Logging ke database Supabase (Wajib di-await agar tidak di-terminate oleh serverless lambda)
     if (effectiveUserId && supabaseAdmin && response.ok) {
-      supabaseAdmin.from('ai_usage_logs').insert({
-        user_id: effectiveUserId,
-        user_email: effectiveEmail,
-        user_name: effectiveName,
-        feature: feature || 'general',
-        model,
-        tier,
-        input_tokens: inputTokens,
-        output_tokens: outputTokens,
-        total_tokens: inputTokens + outputTokens,
-        estimated_cost_usd: estimatedCostUSD,
-        client_name: client_name || null,
-        tax_year: tax_year || null,
-        status: 'SUCCESS'
-      }).then(() => {}).catch(logErr => {
-        console.warn('Async usage log insert failed:', logErr.message);
-      });
+      try {
+        await supabaseAdmin.from('ai_usage_logs').insert({
+          user_id: effectiveUserId,
+          user_email: effectiveEmail,
+          user_name: effectiveName,
+          feature: feature || 'general',
+          model,
+          tier,
+          input_tokens: inputTokens,
+          output_tokens: outputTokens,
+          total_tokens: inputTokens + outputTokens,
+          estimated_cost_usd: estimatedCostUSD,
+          client_name: client_name || null,
+          tax_year: tax_year || null,
+          status: 'SUCCESS'
+        });
+      } catch (logErr) {
+        console.warn('Usage log insert failed:', logErr.message);
+      }
     }
 
     // Sertakan info header

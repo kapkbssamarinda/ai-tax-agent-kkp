@@ -1,16 +1,16 @@
 # Graph Report - ai-tax-agent  (2026-08-30)
 
 ## Corpus Check
-- 133 files · ~138,451 words
+- 133 files · ~139,393 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 695 nodes · 1089 edges · 47 communities (35 shown, 12 thin omitted)
+- 696 nodes · 1091 edges · 47 communities (35 shown, 12 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0971b8a3`
+- Built from commit: `182fbaed`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -50,14 +50,14 @@
 - Social and Navigation SVG Icon Sprite
 - Application Secondary Logo Mark PNG
 - setupTests.js
-- aiUsageService.js
+- AuthContext.jsx
 - caveman-explore/package.json
 - .oxlintrc.json
 - claude.js
 - vercel.json
 - Langkah Implementasi
 - Langkah Implementasi
-- AdminDashboard
+- aiUsageService.js
 
 ## God Nodes (most connected - your core abstractions)
 1. `react` - 22 edges
@@ -97,8 +97,8 @@
 ## Communities (47 total, 12 thin omitted)
 
 ### Community 0 - "App.jsx"
-Cohesion: 0.07
-Nodes (42): react, ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail() (+34 more)
+Cohesion: 0.06
+Nodes (45): react, ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail() (+37 more)
 
 ### Community 1 - "parserWorker.js"
 Cohesion: 0.11
@@ -133,12 +133,12 @@ Cohesion: 0.07
 Nodes (29): jsdom, oxlint, devDependencies, jsdom, oxlint, @testing-library/jest-dom, @testing-library/react, @types/react (+21 more)
 
 ### Community 9 - "kkpWorkbookGenerator.js"
-Cohesion: 0.12
-Nodes (24): KEYWORD_PRESETS, KeywordScannerTab(), extractTaxBadge(), TaxReconWorkbench(), TaxRiskRegister(), REGULATION_DATABASE, ALIGN, BORDERS (+16 more)
+Cohesion: 0.14
+Nodes (21): KEYWORD_PRESETS, KeywordScannerTab(), extractTaxBadge(), TaxReconWorkbench(), TaxRiskRegister(), REGULATION_DATABASE, ALIGN, BORDERS (+13 more)
 
 ### Community 10 - "claudeService.js"
 Cohesion: 0.11
-Nodes (37): AISettingsModal(), PRESET_MODELS, ACCOUNT_CLASSIFICATION_TOOL, aiClassifyAccounts(), analyzeHonorariumClassification(), analyzeTaxFindings(), callClaudeProxy(), callClaudeTaxAnalysis() (+29 more)
+Nodes (38): AISettingsModal(), PRESET_MODELS, ACCOUNT_CLASSIFICATION_TOOL, aiClassifyAccounts(), analyzeHonorariumClassification(), analyzeTaxFindings(), callClaudeProxy(), callClaudeTaxAnalysis() (+30 more)
 
 ### Community 11 - "📝 Panduan Alur Input Data Staff Tax Analyst (SOP Step-by-Step)"
 Cohesion: 0.09
@@ -192,9 +192,9 @@ Nodes (3): Graphify CLI Commands, Graphify MCP Tools, Graphify Knowledge Graph R
 Cohesion: 0.67
 Nodes (3): Migration OpenAI Interface, Migration Skill, Reversible Compatibility-Safe Transitions
 
-### Community 37 - "aiUsageService.js"
-Cohesion: 0.14
-Nodes (26): AIUsageMonitoringTab(), loadData(), MONTH_NAMES, LoginPage(), UserProfileModal(), AuthContext, AuthProvider(), fetchProfile() (+18 more)
+### Community 37 - "AuthContext.jsx"
+Cohesion: 0.16
+Nodes (20): AdminDashboard(), closeEditModal(), fetchUsers(), getAuthHeader(), handleAddUser(), handleDeleteUser(), handleToggleActive(), handleUpdateUser() (+12 more)
 
 ### Community 38 - "caveman-explore/package.json"
 Cohesion: 0.18
@@ -216,9 +216,9 @@ Nodes (15): 1. Buat proxy pakai Supabase Edge Function, 2. Sertakan identitas us
 Cohesion: 0.12
 Nodes (15): 1. Buat proxy pakai Supabase Edge Function, 2. Sertakan identitas user di setiap request, 3. Log setiap pemanggilan AI ke tabel Supabase, 4. Hitung estimasi cost per panggilan, 5. Bangun dashboard monitoring, 6. Quota & alert (opsional, untuk kontrol cost lebih ketat), Bagian 1: Ekualisasi PPh 21 + Model Routing, Bagian 2: Monitoring Penggunaan AI per User (+7 more)
 
-### Community 46 - "AdminDashboard"
-Cohesion: 0.47
-Nodes (8): AdminDashboard(), closeEditModal(), fetchUsers(), getAuthHeader(), handleAddUser(), handleDeleteUser(), handleToggleActive(), handleUpdateUser()
+### Community 46 - "aiUsageService.js"
+Cohesion: 0.31
+Nodes (14): AIUsageMonitoringTab(), loadData(), MONTH_NAMES, exportUsageLogsToCSV(), fetchFeatureCostBreakdown(), fetchMonthlyUsageSummary(), fetchRecentUsageLogs(), fetchUserUsageBreakdown() (+6 more)
 
 ## Knowledge Gaps
 - **244 isolated node(s):** `name`, `version`, `license`, `private`, `type` (+239 more)
@@ -228,16 +228,16 @@ Nodes (8): AdminDashboard(), closeEditModal(), fetchUsers(), getAuthHeader(), ha
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `App.jsx` to `aiUsageService.js`, `.oxlintrc.json`, `kkpWorkbookGenerator.js`, `claudeService.js`, `SP2DKResponseTab.jsx`?**
+- **Why does `react` connect `App.jsx` to `AuthContext.jsx`, `.oxlintrc.json`, `kkpWorkbookGenerator.js`, `claudeService.js`, `aiUsageService.js`, `SP2DKResponseTab.jsx`?**
   _High betweenness centrality (0.018) - this node is a cross-community bridge._
-- **Why does `AdminDashboard()` connect `AdminDashboard` to `App.jsx`, `aiUsageService.js`?**
+- **Why does `AdminDashboard()` connect `AuthContext.jsx` to `App.jsx`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
 - **Why does `plugins` connect `.oxlintrc.json` to `App.jsx`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **What connects `name`, `version`, `license` to the rest of the system?**
   _244 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `App.jsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.06875 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06335403726708075 - nodes in this community are weakly interconnected._
 - **Should `parserWorker.js` be split into smaller, more focused modules?**
   _Cohesion score 0.11382113821138211 - nodes in this community are weakly interconnected._
 - **Should `compress.py` be split into smaller, more focused modules?**

@@ -311,10 +311,10 @@ async function callClaudeProxy({ model, max_tokens = 4096, system, messages, too
   if (system) body.system = system;
   if (tools) body.tools = tools;
   if (tool_choice) body.tool_choice = tool_choice;
-  if (userId) body.user_id = userId;
   if (client_name) body.client_name = client_name;
   if (tax_year) body.tax_year = tax_year;
 
+  let effectiveUserId = userId;
   const headers = { 'content-type': 'application/json' };
   try {
     if (typeof supabase !== 'undefined' && supabase?.auth) {
@@ -322,8 +322,13 @@ async function callClaudeProxy({ model, max_tokens = 4096, system, messages, too
       if (sessionData?.session?.access_token) {
         headers['authorization'] = `Bearer ${sessionData.session.access_token}`;
       }
+      if (!effectiveUserId && sessionData?.session?.user?.id) {
+        effectiveUserId = sessionData.session.user.id;
+      }
     }
   } catch { /* ignore */ }
+
+  if (effectiveUserId) body.user_id = effectiveUserId;
 
   const response = await fetch('/api/claude', {
     method: 'POST',

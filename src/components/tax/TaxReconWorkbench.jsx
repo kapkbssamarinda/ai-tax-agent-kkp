@@ -44,7 +44,8 @@ function TaxReconWorkbench({
   onOpenClientMaster,
   aiAnalysisSummary = null,
   onDismissAISummary,
-  isAIMappingInProgress = false
+  isAIMappingInProgress = false,
+  userId = null
 }) {
   const [activeTab, setActiveTab] = useState('REVENUE_PPN');
   const [sptInput, setSptInput] = useState(revenueRecon.sptDPPTotal || 0);
@@ -94,7 +95,7 @@ function TaxReconWorkbench({
       const results = await analyzeHonorariumClassification({
         accounts: taxMappings,
         glRows,
-        userId: clientInfo?.userId || null
+        userId: userId || clientInfo?.userId || null
       });
       setDisambiguationResults(results);
     } catch (err) {

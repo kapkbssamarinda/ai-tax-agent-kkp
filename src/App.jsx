@@ -881,6 +881,7 @@ function App() {
               isAIMappingInProgress={isAIMappingInProgress}
               onUpdateFindingStatus={handleUpdateFindingStatus}
               clientInfo={clientInfo}
+              userId={userId}
               onOpenClientMaster={() => setIsClientMasterOpen(true)}
               aiAnalysisSummary={aiAnalysisSummary}
               onDismissAISummary={() => setAiAnalysisSummary(null)}
