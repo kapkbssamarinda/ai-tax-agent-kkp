@@ -76,5 +76,41 @@ describe('projectStateService', () => {
     clearDraftFromStorage();
     expect(loadDraftFromStorage()).toBeNull();
   });
+
+  it('mengisolasi draft per user_id sehingga tidak bercampur antar pengguna di device yang sama', () => {
+    const user1Snapshot = createProjectSnapshot({
+      clientInfo: { name: 'PT Klien User 1', taxYear: '2024' },
+      glRows: [{ coa: '1001', namaAkun: 'Kas User 1' }]
+    });
+
+    const user2Snapshot = createProjectSnapshot({
+      clientInfo: { name: 'PT Klien User 2', taxYear: '2025' },
+      glRows: [{ coa: '2001', namaAkun: 'Hutang User 2' }]
+    });
+
+    // User 1 simpan draft
+    saveDraftToStorage(user1Snapshot, 'user-1-uuid');
+
+    // User 2 belum punya draft
+    expect(loadDraftFromStorage('user-2-uuid')).toBeNull();
+
+    // User 1 bisa memuat draft miliknya
+    const user1Loaded = loadDraftFromStorage('user-1-uuid');
+    expect(user1Loaded).not.toBeNull();
+    expect(user1Loaded.clientInfo.name).toBe('PT Klien User 1');
+
+    // User 2 simpan draft miliknya
+    saveDraftToStorage(user2Snapshot, 'user-2-uuid');
+
+    // Keduanya punya draft terpisah
+    expect(loadDraftFromStorage('user-1-uuid').clientInfo.name).toBe('PT Klien User 1');
+    expect(loadDraftFromStorage('user-2-uuid').clientInfo.name).toBe('PT Klien User 2');
+
+    // User 1 clear draft miliknya, draft User 2 tetap utuh
+    clearDraftFromStorage('user-1-uuid');
+    expect(loadDraftFromStorage('user-1-uuid')).toBeNull();
+    expect(loadDraftFromStorage('user-2-uuid')).not.toBeNull();
+    expect(loadDraftFromStorage('user-2-uuid').clientInfo.name).toBe('PT Klien User 2');
+  });
 });
 

@@ -137,14 +137,19 @@ export function parseProjectFile(file) {
   });
 }
 
+function getStorageKey(userId) {
+  return userId ? `${STORAGE_DRAFT_KEY}_${userId}` : STORAGE_DRAFT_KEY;
+}
+
 /**
- * Menyimpan draft pekerjaan aktif ke localStorage.
+ * Menyimpan draft pekerjaan aktif ke localStorage (terisolasi per user_id).
  */
-export function saveDraftToStorage(projectSnapshot) {
+export function saveDraftToStorage(projectSnapshot, userId = null) {
   try {
     if (typeof window === 'undefined' || !window.localStorage) return false;
     const jsonString = JSON.stringify(projectSnapshot);
-    localStorage.setItem(STORAGE_DRAFT_KEY, jsonString);
+    const key = getStorageKey(userId);
+    localStorage.setItem(key, jsonString);
     return true;
   } catch (err) {
     console.warn('Gagal menyimpan draft lokal ke localStorage:', err);
@@ -153,12 +158,13 @@ export function saveDraftToStorage(projectSnapshot) {
 }
 
 /**
- * Mengambil draft proyek yang tersimpan di localStorage.
+ * Mengambil draft proyek yang tersimpan di localStorage khusus untuk user terkait.
  */
-export function loadDraftFromStorage() {
+export function loadDraftFromStorage(userId = null) {
   try {
     if (typeof window === 'undefined' || !window.localStorage) return null;
-    const raw = localStorage.getItem(STORAGE_DRAFT_KEY);
+    const key = getStorageKey(userId);
+    const raw = localStorage.getItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     const validation = validateProjectSchema(parsed);
@@ -170,15 +176,37 @@ export function loadDraftFromStorage() {
 }
 
 /**
- * Menghapus draft dari localStorage (misal saat user memilih File Baru).
+ * Menghapus draft dari localStorage untuk user tertentu atau seluruhnya.
  */
-export function clearDraftFromStorage() {
+export function clearDraftFromStorage(userId = null) {
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.removeItem(STORAGE_DRAFT_KEY);
+      const key = getStorageKey(userId);
+      localStorage.removeItem(key);
+      if (!userId) {
+        localStorage.removeItem(STORAGE_DRAFT_KEY);
+      }
     }
   } catch (err) {
     console.warn('Gagal menghapus draft dari localStorage:', err);
+  }
+}
+
+/**
+ * Menghapus semua draft lokal dari semua user (misal saat hard reset).
+ */
+export function clearAllDraftsFromStorage() {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem(STORAGE_DRAFT_KEY);
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith(STORAGE_DRAFT_KEY)) {
+          localStorage.removeItem(k);
+        }
+      });
+    }
+  } catch (err) {
+    console.warn('Gagal menghapus seluruh draft:', err);
   }
 }
 

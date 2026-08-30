@@ -51,5 +51,24 @@ describe('UserProfileModal Component', () => {
       expect(screen.getByText(/Konfirmasi password tidak cocok/i)).toBeInTheDocument();
     });
   });
+
+  it('memanggil onSignOut saat tombol logout diklik', () => {
+    const handleSignOutMock = vi.fn();
+    vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
+      user: { email: 'analyst@kkp.com' },
+      profile: { email: 'analyst@kkp.com', full_name: 'Staf Pajak A', role: 'analyst' },
+      updateProfile: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+      isAdmin: false
+    });
+
+    render(<UserProfileModal isOpen={true} onClose={vi.fn()} onSignOut={handleSignOutMock} />);
+
+    const logoutBtn = screen.getByRole('button', { name: /Keluar \(Logout\)/i });
+    fireEvent.click(logoutBtn);
+
+    expect(handleSignOutMock).toHaveBeenCalledTimes(1);
+  });
 });
 

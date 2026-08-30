@@ -14,11 +14,12 @@ import PartnerDashboard from './components/tax/PartnerDashboard';
 import TaxReconWorkbench from './components/tax/TaxReconWorkbench';
 import LoginPage from './components/auth/LoginPage';
 import UserProfileModal from './components/auth/UserProfileModal';
+import LogoutConfirmModal from './components/auth/LogoutConfirmModal';
 import AdminDashboard from './components/admin/AdminDashboard';
 import { useAuth } from './contexts/AuthContext';
 import { buildTaxMappingFromGL } from './tax-engine/taxMapping';
 import { reconcileRevenueVsPPN, reconcileExpenseVsPPh23, reconcilePayrollVsPPh21, reconcileRentVsPPhFinal } from './tax-engine/deterministicCalc';
-import { analyzeTaxFindings, generateDeterministicFindings, aiClassifyAccounts } from './services/claudeService';
+import { analyzeTaxFindings, generateDeterministicFindings, aiClassifyAccounts, clearAIUsageLogs } from './services/claudeService';
 import { downloadKKPWorkbook } from './tax-engine/kkpWorkbookGenerator';
 import {
   createProjectSnapshot,
@@ -114,22 +115,57 @@ function App() {
   const [aiAnalysisSummary, setAiAnalysisSummary] = useState(null);
   const [isAIMappingInProgress, setIsAIMappingInProgress] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const prevUserIdRef = useRef(userId);
 
-  // Periksa draft pekerjaan tersimpan di peramban saat inisialisasi
+  // Bersihkan data dan muat draft saat terjadi pergantian user (multi-user on same device)
   useEffect(() => {
-    try {
-      const draft = loadDraftFromStorage();
-      if (draft && Array.isArray(draft.glRows) && draft.glRows.length > 0) {
-        setAvailableDraft(draft);
+    if (prevUserIdRef.current !== userId) {
+      // User berubah atau logout -> bersihkan workspace state
+      setAvailableDraft(null);
+      setStep('upload');
+      setViewMode('GL_CLEANER');
+      setProcessedData([]);
+      setWarnings([]);
+      setFileName('');
+      setSourceFormat('');
+      setCurrentColumns([]);
+      setSelectedAccount(null);
+      setFilters({});
+      setTaxMappings([]);
+      setFindings([]);
+      setAiAnalysisSummary(null);
+      setRevenueRecon({ glRevenueTotal: 0, sptDPPTotal: 0, difference: 0, potentialPPNExposure: 0, status: 'RECONCILED' });
+      setExpenseRecon({ glExpenseTotal: 0, bupotDPPTotal: 0, unmatchedDPP: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
+      setPayrollRecon({ glPayrollTotal: 0, sptBrutoTotal: 0, unmatchedBase: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
+      setFinalTaxRecon({ glFinalTaxTotal: 0, bupotDPPTotal: 0, unmatchedBase: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
+      setError(null);
+      setClientInfo(DEFAULT_CLIENT_INFO);
+
+      prevUserIdRef.current = userId;
+
+      // Jika user baru login, muat draft khusus miliknya
+      if (userId) {
+        try {
+          const draft = loadDraftFromStorage(userId);
+          if (draft && Array.isArray(draft.glRows) && draft.glRows.length > 0) {
+            setAvailableDraft(draft);
+          }
+        } catch { /* ignore */ }
       }
-    } catch {
-      // Abaikan jika storage bermasalah
+    } else if (userId && !availableDraft && step === 'upload') {
+      try {
+        const draft = loadDraftFromStorage(userId);
+        if (draft && Array.isArray(draft.glRows) && draft.glRows.length > 0) {
+          setAvailableDraft(draft);
+        }
+      } catch { /* ignore */ }
     }
-  }, []);
+  }, [userId]);
 
   // Auto-save snapshot pengerjaan ke localStorage saat data aktif berubah (debounced 1.5 detik)
   useEffect(() => {
-    if (step === 'success' && processedData.length > 0) {
+    if (step === 'success' && processedData.length > 0 && userId) {
       const timer = setTimeout(() => {
         const snapshot = createProjectSnapshot({
           clientInfo,
@@ -144,11 +180,11 @@ function App() {
           aiAnalysisSummary,
           uiState: { viewMode }
         });
-        saveDraftToStorage(snapshot);
+        saveDraftToStorage(snapshot, userId);
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [step, processedData, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, findings, clientInfo, fileName, sourceFormat, currentColumns, aiAnalysisSummary, viewMode]);
+  }, [step, processedData, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, findings, clientInfo, fileName, sourceFormat, currentColumns, aiAnalysisSummary, viewMode, userId]);
 
   // Daftar akun untuk rail: nama unik + kode COA pertama + jumlah baris
   const accounts = useMemo(() => {
@@ -502,7 +538,11 @@ function App() {
   };
 
   const resetWorkflow = () => {
-    clearDraftFromStorage();
+    if (userId) {
+      clearDraftFromStorage(userId);
+    } else {
+      clearDraftFromStorage();
+    }
     setAvailableDraft(null);
     setStep('upload');
     setViewMode('GL_CLEANER');
@@ -522,6 +562,18 @@ function App() {
     setFinalTaxRecon({ glFinalTaxTotal: 0, bupotDPPTotal: 0, unmatchedBase: 0, potentialTax: 0, interestSanction: 0, totalExposure: 0, status: 'RECONCILED' });
     setError(null);
     setClientInfo(DEFAULT_CLIENT_INFO);
+  };
+
+  const handleRequestSignOut = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const handleConfirmSignOut = async () => {
+    setShowLogoutConfirm(false);
+    setIsUserProfileOpen(false);
+    resetWorkflow();
+    clearAIUsageLogs();
+    await signOut();
   };
 
   const handleFilterChange = (key, value) => {
@@ -686,7 +738,7 @@ function App() {
         clientInfo={clientInfo}
         userProfile={profile}
         isAdmin={isAdmin}
-        onSignOut={signOut}
+        onSignOut={handleRequestSignOut}
         onOpenAdmin={() => setShowAdminDashboard(true)}
       />
 
@@ -863,6 +915,15 @@ function App() {
       <UserProfileModal
         isOpen={isUserProfileOpen}
         onClose={() => setIsUserProfileOpen(false)}
+        onSignOut={handleRequestSignOut}
+      />
+
+      <LogoutConfirmModal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={handleConfirmSignOut}
+        userName={profile?.full_name}
+        userEmail={profile?.email || profile?.id}
       />
 
       <footer className="app-footer">

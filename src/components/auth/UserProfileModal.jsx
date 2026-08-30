@@ -18,7 +18,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 
-function UserProfileModal({ isOpen, onClose }) {
+function UserProfileModal({ isOpen, onClose, onSignOut }) {
   const { profile, user, updateProfile, updatePassword, signOut, isAdmin } = useAuth();
 
   const [fullName, setFullName] = useState('');
@@ -121,10 +121,12 @@ function UserProfileModal({ isOpen, onClose }) {
     }
   };
 
-  const handleLogout = async () => {
-    if (window.confirm('Apakah Anda yakin ingin keluar (logout)?')) {
-      onClose();
-      await signOut();
+  const handleLogout = () => {
+    onClose();
+    if (onSignOut) {
+      onSignOut();
+    } else {
+      signOut();
     }
   };
 
