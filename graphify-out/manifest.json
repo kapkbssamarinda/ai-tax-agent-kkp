@@ -270,9 +270,9 @@
     "semantic_hash": "f0303e47d2e0c595058202c7e204267c"
   },
   "src/services/claudeService.js": {
-    "mtime": 1788107095.9061556,
-    "seen": 1788107193.9695554,
-    "ast_hash": "ed116e11cfabc62484e45dac0ed89c09",
+    "mtime": 1788109529.3278372,
+    "seen": 1788109558.4752483,
+    "ast_hash": "5a80de54c2efdccccc81506a63558e32",
     "semantic_hash": ""
   },
   "src/services/regulationDB.js": {
@@ -792,8 +792,8 @@
     "semantic_hash": ""
   },
   "src/components/auth/UserProfileModal.jsx": {
-    "mtime": 1788107110.1591613,
-    "seen": 1788107193.9634814,
+    "mtime": 1788107230.379261,
+    "seen": 1788108278.1339872,
     "ast_hash": "bf1c85a46b96a2862e6d2a8b2da78b17",
     "semantic_hash": ""
   },
@@ -852,8 +852,8 @@
     "semantic_hash": ""
   },
   "src/services/aiUsageService.js": {
-    "mtime": 1788107163.1143537,
-    "seen": 1788107193.9693215,
+    "mtime": 1788107230.2696686,
+    "seen": 1788108278.1402955,
     "ast_hash": "e643e34dfd803f7cfc86c0d1a0f5b029",
     "semantic_hash": ""
   },

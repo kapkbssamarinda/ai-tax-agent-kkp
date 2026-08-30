@@ -197,7 +197,7 @@
       "file_type": "code",
       "norm_label": "userprofilemodal()",
       "source_file": "src/components/auth/UserProfileModal.jsx",
-      "source_location": "L21"
+      "source_location": "L22"
     },
     {
       "id": "src_components_common_errorboundary_errorboundary_componentdidcatch",
@@ -426,6 +426,18 @@
       "norm_label": "useauth()",
       "source_file": "src/contexts/AuthContext.jsx",
       "source_location": "L207"
+    },
+    {
+      "id": "src_services_claudeservice_clearaiusagelogs",
+      "label": "clearAIUsageLogs()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "clearaiusagelogs()",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L317"
     },
     {
       "id": "src_services_projectstateservice_clearalldraftsfromstorage",
@@ -845,7 +857,7 @@
       "file_type": "code",
       "norm_label": "aiclassifyaccounts()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1278"
+      "source_location": "L1375"
     },
     {
       "id": "src_services_claudeservice_analyzehonorariumclassification",
@@ -857,7 +869,7 @@
       "file_type": "code",
       "norm_label": "analyzehonorariumclassification()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1438"
+      "source_location": "L1535"
     },
     {
       "id": "src_services_claudeservice_analyzetaxfindings",
@@ -869,7 +881,7 @@
       "file_type": "code",
       "norm_label": "analyzetaxfindings()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L697"
+      "source_location": "L768"
     },
     {
       "id": "src_services_claudeservice_callclaudeproxy",
@@ -881,7 +893,7 @@
       "file_type": "code",
       "norm_label": "callclaudeproxy()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L309"
+      "source_location": "L333"
     },
     {
       "id": "src_services_claudeservice_callclaudetaxanalysis",
@@ -893,7 +905,7 @@
       "file_type": "code",
       "norm_label": "callclaudetaxanalysis()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L813"
+      "source_location": "L910"
     },
     {
       "id": "src_services_claudeservice_callhaiku",
@@ -905,7 +917,7 @@
       "file_type": "code",
       "norm_label": "callhaiku()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L432"
+      "source_location": "L503"
     },
     {
       "id": "src_services_claudeservice_callsonnet",
@@ -917,19 +929,7 @@
       "file_type": "code",
       "norm_label": "callsonnet()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L465"
-    },
-    {
-      "id": "src_services_claudeservice_clearaiusagelogs",
-      "label": "clearAIUsageLogs()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "claudeService.js",
-      "file_type": "code",
-      "norm_label": "clearaiusagelogs()",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L296"
+      "source_location": "L536"
     },
     {
       "id": "src_services_claudeservice_executetaxauditbatch",
@@ -941,7 +941,7 @@
       "file_type": "code",
       "norm_label": "executetaxauditbatch()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L718"
+      "source_location": "L789"
     },
     {
       "id": "src_services_claudeservice_extractandparseclaudejson",
@@ -953,7 +953,7 @@
       "file_type": "code",
       "norm_label": "extractandparseclaudejson()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L570"
+      "source_location": "L641"
     },
     {
       "id": "src_services_claudeservice_extractobjectsfromincompletejson",
@@ -965,7 +965,7 @@
       "file_type": "code",
       "norm_label": "extractobjectsfromincompletejson()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L503"
+      "source_location": "L574"
     },
     {
       "id": "src_services_claudeservice_extracttextfromclauderesponse",
@@ -977,7 +977,7 @@
       "file_type": "code",
       "norm_label": "extracttextfromclauderesponse()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L382"
+      "source_location": "L453"
     },
     {
       "id": "src_services_claudeservice_extracttoolinputfromclauderesponse",
@@ -989,7 +989,7 @@
       "file_type": "code",
       "norm_label": "extracttoolinputfromclauderesponse()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L372"
+      "source_location": "L443"
     },
     {
       "id": "src_services_claudeservice_generatedeterministicfindings",
@@ -1001,7 +1001,7 @@
       "file_type": "code",
       "norm_label": "generatedeterministicfindings()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1000"
+      "source_location": "L1097"
     },
     {
       "id": "src_services_claudeservice_generatesp2dkresponsewithclaude",
@@ -1013,7 +1013,7 @@
       "file_type": "code",
       "norm_label": "generatesp2dkresponsewithclaude()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1529"
+      "source_location": "L1626"
     },
     {
       "id": "src_services_claudeservice_getaiusagelogs",
@@ -1025,7 +1025,7 @@
       "file_type": "code",
       "norm_label": "getaiusagelogs()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L286"
+      "source_location": "L302"
     },
     {
       "id": "src_services_claudeservice_getsavedmodel",
@@ -1073,7 +1073,7 @@
       "file_type": "code",
       "norm_label": "testclaudeconnection()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L668"
+      "source_location": "L739"
     },
     {
       "id": "src_services_regulationdb_formatlegalcitation",
@@ -1661,7 +1661,7 @@
       "file_type": "code",
       "norm_label": "exportusagelogstocsv()",
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L364"
+      "source_location": "L433"
     },
     {
       "id": "src_services_aiusageservice_fetchfeaturecostbreakdown",
@@ -1673,7 +1673,7 @@
       "file_type": "code",
       "norm_label": "fetchfeaturecostbreakdown()",
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L242"
+      "source_location": "L304"
     },
     {
       "id": "src_services_aiusageservice_fetchmonthlyusagesummary",
@@ -1685,7 +1685,7 @@
       "file_type": "code",
       "norm_label": "fetchmonthlyusagesummary()",
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L48"
+      "source_location": "L89"
     },
     {
       "id": "src_services_aiusageservice_fetchrecentusagelogs",
@@ -1697,7 +1697,7 @@
       "file_type": "code",
       "norm_label": "fetchrecentusagelogs()",
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L303"
+      "source_location": "L365"
     },
     {
       "id": "src_services_aiusageservice_fetchuserusagebreakdown",
@@ -1709,7 +1709,7 @@
       "file_type": "code",
       "norm_label": "fetchuserusagebreakdown()",
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L138"
+      "source_location": "L179"
     },
     {
       "id": "src_services_aiusageservice_formatidr",
@@ -1721,7 +1721,7 @@
       "file_type": "code",
       "norm_label": "formatidr()",
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L34"
+      "source_location": "L29"
     },
     {
       "id": "src_services_aiusageservice_formatusd",
@@ -1733,7 +1733,7 @@
       "file_type": "code",
       "norm_label": "formatusd()",
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L21"
+      "source_location": "L16"
     },
     {
       "id": "src_services_aiusageservice_getfallbacksummary",
@@ -1745,7 +1745,19 @@
       "file_type": "code",
       "norm_label": "getfallbacksummary()",
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L400"
+      "source_location": "L469"
+    },
+    {
+      "id": "src_services_aiusageservice_mergewithlocallogs",
+      "label": "mergeWithLocalLogs()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "mergewithlocallogs()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L41"
     },
     {
       "id": "src_services_aiusageservice_updateuserquota",
@@ -1757,7 +1769,7 @@
       "file_type": "code",
       "norm_label": "updateuserquota()",
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L340"
+      "source_location": "L409"
     },
     {
       "id": "agents_skills_caveman_compress_scripts_benchmark_benchmark_pair",
@@ -4624,7 +4636,7 @@
       "file_type": "code",
       "norm_label": "model_rates",
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L13"
+      "source_location": "L8"
     },
     {
       "id": "src_services_aiusageservice_test",
@@ -4646,7 +4658,7 @@
       "file_type": "code",
       "norm_label": "usd_to_idr_rate",
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L10"
+      "source_location": "L5"
     },
     {
       "id": "agents_skills_caveman_explore_package",
@@ -9701,7 +9713,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/auth/UserProfileModal.jsx",
-      "source_location": "L103",
+      "source_location": "L118",
       "weight": 1.0
     },
     {
@@ -9713,7 +9725,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/auth/UserProfileModal.jsx",
-      "source_location": "L108",
+      "source_location": "L123",
       "weight": 1.0
     },
     {
@@ -9725,7 +9737,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/auth/UserProfileModal.jsx",
-      "source_location": "L129",
+      "source_location": "L144",
       "weight": 1.0
     },
     {
@@ -9737,7 +9749,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/auth/UserProfileModal.jsx",
-      "source_location": "L22",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_auth_userprofilemodal_userprofilemodal",
+      "target": "src_services_claudeservice_getaiusagelogs",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/components/auth/UserProfileModal.jsx",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
@@ -10209,63 +10233,63 @@
       "weight": 1.0
     },
     {
-      "source": "src_services_aiusageservice_fetchmonthlyusagesummary",
-      "target": "src_services_aiusageservice_getfallbacksummary",
+      "source": "src_services_aiusageservice_fetchfeaturecostbreakdown",
+      "target": "src_services_aiusageservice_mergewithlocallogs",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L61",
+      "source_location": "L328",
       "weight": 1.0
     },
     {
-      "source": "src_services_claudeservice_aiclassifyaccounts",
-      "target": "src_services_claudeservice_callsonnet",
+      "source": "src_services_aiusageservice_fetchmonthlyusagesummary",
+      "target": "src_services_aiusageservice_mergewithlocallogs",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1345",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L108",
       "weight": 1.0
     },
     {
-      "source": "src_services_claudeservice_aiclassifyaccounts",
-      "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
+      "source": "src_services_aiusageservice_fetchrecentusagelogs",
+      "target": "src_services_aiusageservice_mergewithlocallogs",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1356",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L391",
       "weight": 1.0
     },
     {
-      "source": "src_services_claudeservice_aiclassifyaccounts",
-      "target": "src_services_claudeservice_extracttextfromclauderesponse",
+      "source": "src_services_aiusageservice_fetchuserusagebreakdown",
+      "target": "src_services_aiusageservice_mergewithlocallogs",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1364",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L205",
       "weight": 1.0
     },
     {
-      "source": "src_services_claudeservice_aiclassifyaccounts",
-      "target": "src_services_claudeservice_extractandparseclaudejson",
+      "source": "src_services_aiusageservice_mergewithlocallogs",
+      "target": "src_services_claudeservice_getaiusagelogs",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1365",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L42",
       "weight": 1.0
     },
     {
@@ -10277,7 +10301,55 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1379",
+      "source_location": "L1442",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_aiclassifyaccounts",
+      "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1453",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_aiclassifyaccounts",
+      "target": "src_services_claudeservice_extracttextfromclauderesponse",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1461",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_aiclassifyaccounts",
+      "target": "src_services_claudeservice_extractandparseclaudejson",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1462",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_aiclassifyaccounts",
+      "target": "src_services_claudeservice_callsonnet",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1476",
       "weight": 1.0
     },
     {
@@ -10289,7 +10361,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1489",
+      "source_location": "L1586",
       "weight": 1.0
     },
     {
@@ -10301,7 +10373,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1504",
+      "source_location": "L1601",
       "weight": 1.0
     },
     {
@@ -10313,7 +10385,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1512",
+      "source_location": "L1609",
       "weight": 1.0
     },
     {
@@ -10325,7 +10397,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1513",
+      "source_location": "L1610",
       "weight": 1.0
     },
     {
@@ -10337,7 +10409,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L698",
+      "source_location": "L769",
       "weight": 1.0
     },
     {
@@ -10349,7 +10421,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L701",
+      "source_location": "L772",
       "weight": 1.0
     },
     {
@@ -10361,7 +10433,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L712",
+      "source_location": "L783",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_callclaudeproxy",
+      "target": "src_services_claudeservice_logaiusage",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L396",
       "weight": 1.0
     },
     {
@@ -10373,7 +10457,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L927",
+      "source_location": "L1024",
       "weight": 1.0
     },
     {
@@ -10385,7 +10469,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L438",
+      "source_location": "L509",
       "weight": 1.0
     },
     {
@@ -10397,7 +10481,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L452",
+      "source_location": "L523",
       "weight": 1.0
     },
     {
@@ -10409,7 +10493,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L466",
+      "source_location": "L537",
       "weight": 1.0
     },
     {
@@ -10421,7 +10505,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L475",
+      "source_location": "L546",
       "weight": 1.0
     },
     {
@@ -10433,19 +10517,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L489",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_executetaxauditbatch",
-      "target": "src_services_claudeservice_callsonnet",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L755",
+      "source_location": "L560",
       "weight": 1.0
     },
     {
@@ -10457,7 +10529,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L780",
+      "source_location": "L877",
       "weight": 1.0
     },
     {
@@ -10469,7 +10541,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L789",
+      "source_location": "L886",
       "weight": 1.0
     },
     {
@@ -10481,7 +10553,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L791",
+      "source_location": "L888",
       "weight": 1.0
     },
     {
@@ -10493,7 +10565,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L625",
+      "source_location": "L696",
       "weight": 1.0
     },
     {
@@ -10505,7 +10577,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1009",
+      "source_location": "L1106",
       "weight": 1.0
     },
     {
@@ -10517,7 +10589,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1037",
+      "source_location": "L1134",
       "weight": 1.0
     },
     {
@@ -10529,7 +10601,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1538",
+      "source_location": "L1635",
       "weight": 1.0
     },
     {
@@ -10541,7 +10613,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1548",
+      "source_location": "L1645",
       "weight": 1.0
     },
     {
@@ -10553,7 +10625,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1563",
+      "source_location": "L1660",
       "weight": 1.0
     },
     {
@@ -10565,7 +10637,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1577",
+      "source_location": "L1674",
       "weight": 1.0
     },
     {
@@ -10577,7 +10649,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L275",
+      "source_location": "L286",
       "weight": 1.0
     },
     {
@@ -10589,7 +10661,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L674",
+      "source_location": "L745",
       "weight": 1.0
     },
     {
@@ -10601,7 +10673,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L680",
+      "source_location": "L751",
       "weight": 1.0
     },
     {
@@ -10613,7 +10685,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L682",
+      "source_location": "L753",
       "weight": 1.0
     },
     {
@@ -12009,6 +12081,18 @@
       "weight": 1.0
     },
     {
+      "source": "src_components_auth_userprofilemodal",
+      "target": "src_services_claudeservice_getaiusagelogs",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/components/auth/UserProfileModal.jsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
       "source": "src_components_auth_userprofilemodal_test",
       "target": "src_components_auth_userprofilemodal_userprofilemodal",
       "relation": "imports",
@@ -12629,7 +12713,19 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L7",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_aiusageservice",
+      "target": "src_services_claudeservice_getaiusagelogs",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L2",
       "weight": 1.0
     },
     {
@@ -14025,6 +14121,18 @@
       "weight": 1.0
     },
     {
+      "source": "src_components_auth_userprofilemodal",
+      "target": "src_services_claudeservice",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/components/auth/UserProfileModal.jsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
       "source": "src_components_auth_userprofilemodal_test",
       "target": "src_components_auth_userprofilemodal",
       "relation": "imports_from",
@@ -14717,7 +14825,19 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L7",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_aiusageservice",
+      "target": "src_services_claudeservice",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L2",
       "weight": 1.0
     },
     {
@@ -17923,7 +18043,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/auth/UserProfileModal.jsx",
-      "source_location": "L21",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -18434,24 +18554,13 @@
     },
     {
       "source": "src_services_aiusageservice",
-      "target": "src_services_aiusageservice_usd_to_idr_rate",
+      "target": "src_services_aiusageservice_formatusd",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L10",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_aiusageservice",
-      "target": "src_services_aiusageservice_model_rates",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L13",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -18462,40 +18571,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L138",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_aiusageservice",
-      "target": "src_services_aiusageservice_formatusd",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L21",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_aiusageservice",
-      "target": "src_services_aiusageservice_fetchfeaturecostbreakdown",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L242",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_aiusageservice",
-      "target": "src_services_aiusageservice_fetchrecentusagelogs",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L303",
+      "source_location": "L179",
       "weight": 1.0
     },
     {
@@ -18506,7 +18582,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L34",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_aiusageservice",
+      "target": "src_services_aiusageservice_fetchfeaturecostbreakdown",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L304",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_aiusageservice",
+      "target": "src_services_aiusageservice_fetchrecentusagelogs",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L365",
       "weight": 1.0
     },
     {
@@ -18517,7 +18615,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L340",
+      "source_location": "L409",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_aiusageservice",
+      "target": "src_services_aiusageservice_mergewithlocallogs",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L41",
       "weight": 1.0
     },
     {
@@ -18528,7 +18637,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L364",
+      "source_location": "L433",
       "weight": 1.0
     },
     {
@@ -18539,7 +18648,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L400",
+      "source_location": "L469",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_aiusageservice",
+      "target": "src_services_aiusageservice_usd_to_idr_rate",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_aiusageservice",
+      "target": "src_services_aiusageservice_model_rates",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -18550,7 +18681,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/aiUsageService.js",
-      "source_location": "L48",
+      "source_location": "L89",
       "weight": 1.0
     },
     {
@@ -18561,7 +18692,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1000",
+      "source_location": "L1097",
       "weight": 1.0
     },
     {
@@ -18583,7 +18714,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1278",
+      "source_location": "L1375",
       "weight": 1.0
     },
     {
@@ -18605,7 +18736,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1438",
+      "source_location": "L1535",
       "weight": 1.0
     },
     {
@@ -18616,7 +18747,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1529",
+      "source_location": "L1626",
       "weight": 1.0
     },
     {
@@ -18704,7 +18835,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L286",
+      "source_location": "L302",
       "weight": 1.0
     },
     {
@@ -18715,7 +18846,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L296",
+      "source_location": "L317",
       "weight": 1.0
     },
     {
@@ -18726,7 +18857,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L309",
+      "source_location": "L333",
       "weight": 1.0
     },
     {
@@ -18737,7 +18868,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L372",
+      "source_location": "L443",
       "weight": 1.0
     },
     {
@@ -18748,7 +18879,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L382",
+      "source_location": "L453",
       "weight": 1.0
     },
     {
@@ -18759,7 +18890,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L432",
+      "source_location": "L503",
       "weight": 1.0
     },
     {
@@ -18770,7 +18901,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L465",
+      "source_location": "L536",
       "weight": 1.0
     },
     {
@@ -18781,7 +18912,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L503",
+      "source_location": "L574",
       "weight": 1.0
     },
     {
@@ -18792,7 +18923,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L570",
+      "source_location": "L641",
       "weight": 1.0
     },
     {
@@ -18814,7 +18945,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L668",
+      "source_location": "L739",
       "weight": 1.0
     },
     {
@@ -18825,7 +18956,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L697",
+      "source_location": "L768",
       "weight": 1.0
     },
     {
@@ -18836,7 +18967,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L718",
+      "source_location": "L789",
       "weight": 1.0
     },
     {
@@ -18847,7 +18978,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L813",
+      "source_location": "L910",
       "weight": 1.0
     },
     {
@@ -21312,5 +21443,5 @@
       "source_file": ".agents/skills/caveman-evidence-review/SKILL.md"
     }
   ],
-  "built_at_commit": "36eaf66047bd898824996845a11f0ff1fe22b8f9"
+  "built_at_commit": "3e2294bc60e420575bf3bb035d05e73153813984"
 }

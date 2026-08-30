@@ -857,7 +857,7 @@
       "file_type": "code",
       "norm_label": "aiclassifyaccounts()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1349"
+      "source_location": "L1375"
     },
     {
       "id": "src_services_claudeservice_analyzehonorariumclassification",
@@ -869,7 +869,7 @@
       "file_type": "code",
       "norm_label": "analyzehonorariumclassification()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1509"
+      "source_location": "L1535"
     },
     {
       "id": "src_services_claudeservice_analyzetaxfindings",
@@ -905,7 +905,7 @@
       "file_type": "code",
       "norm_label": "callclaudetaxanalysis()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L884"
+      "source_location": "L910"
     },
     {
       "id": "src_services_claudeservice_callhaiku",
@@ -1001,19 +1001,7 @@
       "file_type": "code",
       "norm_label": "generatedeterministicfindings()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1071"
-    },
-    {
-      "id": "src_services_claudeservice_generatesp2dkresponsewithclaude",
-      "label": "generateSP2DKResponseWithClaude()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "claudeService.js",
-      "file_type": "code",
-      "norm_label": "generatesp2dkresponsewithclaude()",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1600"
+      "source_location": "L1097"
     },
     {
       "id": "src_services_claudeservice_getaiusagelogs",
@@ -1086,18 +1074,6 @@
       "norm_label": "formatlegalcitation()",
       "source_file": "src/services/regulationDB.js",
       "source_location": "L311"
-    },
-    {
-      "id": "src_services_sp2dkservice_buildsp2dkclaudeprompt",
-      "label": "buildSP2DKClaudePrompt()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "claudeService.js",
-      "file_type": "code",
-      "norm_label": "buildsp2dkclaudeprompt()",
-      "source_file": "src/services/sp2dkService.js",
-      "source_location": "L406"
     },
     {
       "id": "src_tax_engine_riskscoring_calculateriskscore",
@@ -1242,6 +1218,30 @@
       "norm_label": "sp2dkresponsetab()",
       "source_file": "src/components/tax/SP2DKResponseTab.jsx",
       "source_location": "L33"
+    },
+    {
+      "id": "src_services_claudeservice_generatesp2dkresponsewithclaude",
+      "label": "generateSP2DKResponseWithClaude()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SP2DKResponseTab.jsx",
+      "file_type": "code",
+      "norm_label": "generatesp2dkresponsewithclaude()",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1628"
+    },
+    {
+      "id": "src_services_sp2dkservice_buildsp2dkclaudeprompt",
+      "label": "buildSP2DKClaudePrompt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SP2DKResponseTab.jsx",
+      "file_type": "code",
+      "norm_label": "buildsp2dkclaudeprompt()",
+      "source_file": "src/services/sp2dkService.js",
+      "source_location": "L406"
     },
     {
       "id": "src_services_sp2dkservice_calculatesp2dkdeadline",
@@ -10294,54 +10294,6 @@
     },
     {
       "source": "src_services_claudeservice_aiclassifyaccounts",
-      "target": "src_services_claudeservice_callsonnet",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1416",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_aiclassifyaccounts",
-      "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1427",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_aiclassifyaccounts",
-      "target": "src_services_claudeservice_extracttextfromclauderesponse",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1435",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_aiclassifyaccounts",
-      "target": "src_services_claudeservice_extractandparseclaudejson",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1436",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_aiclassifyaccounts",
       "target": "src_services_claudeservice_callhaiku",
       "relation": "calls",
       "_origin": "ast",
@@ -10349,7 +10301,55 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1450",
+      "source_location": "L1442",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_aiclassifyaccounts",
+      "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1453",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_aiclassifyaccounts",
+      "target": "src_services_claudeservice_extracttextfromclauderesponse",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1461",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_aiclassifyaccounts",
+      "target": "src_services_claudeservice_extractandparseclaudejson",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1462",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_aiclassifyaccounts",
+      "target": "src_services_claudeservice_callsonnet",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1476",
       "weight": 1.0
     },
     {
@@ -10361,7 +10361,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1560",
+      "source_location": "L1586",
       "weight": 1.0
     },
     {
@@ -10373,7 +10373,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1575",
+      "source_location": "L1601",
       "weight": 1.0
     },
     {
@@ -10385,7 +10385,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1583",
+      "source_location": "L1609",
       "weight": 1.0
     },
     {
@@ -10397,7 +10397,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1584",
+      "source_location": "L1610",
       "weight": 1.0
     },
     {
@@ -10457,7 +10457,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L998",
+      "source_location": "L1024",
       "weight": 1.0
     },
     {
@@ -10522,18 +10522,6 @@
     },
     {
       "source": "src_services_claudeservice_executetaxauditbatch",
-      "target": "src_services_claudeservice_callsonnet",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L826",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_executetaxauditbatch",
       "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
       "relation": "calls",
       "_origin": "ast",
@@ -10541,7 +10529,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L851",
+      "source_location": "L877",
       "weight": 1.0
     },
     {
@@ -10553,7 +10541,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L860",
+      "source_location": "L886",
       "weight": 1.0
     },
     {
@@ -10565,7 +10553,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L862",
+      "source_location": "L888",
       "weight": 1.0
     },
     {
@@ -10589,7 +10577,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1080",
+      "source_location": "L1106",
       "weight": 1.0
     },
     {
@@ -10601,55 +10589,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1108",
+      "source_location": "L1134",
       "weight": 1.0
     },
     {
       "source": "src_services_claudeservice_generatesp2dkresponsewithclaude",
-      "target": "src_services_sp2dkservice_buildsp2dkclaudeprompt",
+      "target": "src_services_sp2dkservice_generatefallbacksp2dkresponse",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1609",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_generatesp2dkresponsewithclaude",
-      "target": "src_services_claudeservice_callsonnet",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1619",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_generatesp2dkresponsewithclaude",
-      "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1634",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_generatesp2dkresponsewithclaude",
-      "target": "src_services_claudeservice_extracttextfromclauderesponse",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1648",
+      "source_location": "L1637",
       "weight": 1.0
     },
     {
@@ -12863,6 +12815,18 @@
     {
       "source": "src_services_claudeservice",
       "target": "src_services_sp2dkservice_buildsp2dkclaudeprompt",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_sp2dkservice_generatefallbacksp2dkresponse",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18704,7 +18668,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1071",
+      "source_location": "L1097",
       "weight": 1.0
     },
     {
@@ -18726,7 +18690,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1349",
+      "source_location": "L1375",
       "weight": 1.0
     },
     {
@@ -18748,7 +18712,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1509",
+      "source_location": "L1535",
       "weight": 1.0
     },
     {
@@ -18759,7 +18723,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1600",
+      "source_location": "L1628",
       "weight": 1.0
     },
     {
@@ -18990,7 +18954,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L884",
+      "source_location": "L910",
       "weight": 1.0
     },
     {
@@ -21455,5 +21419,5 @@
       "source_file": ".agents/skills/caveman-evidence-review/SKILL.md"
     }
   ],
-  "built_at_commit": "159131957c2539399598941b539b491b451a1ed7"
+  "built_at_commit": "3e2294bc60e420575bf3bb035d05e73153813984"
 }

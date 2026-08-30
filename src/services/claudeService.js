@@ -7,7 +7,7 @@
 
 import { formatLegalCitation } from './regulationDB.js';
 import { estimateFindingRisk } from '../tax-engine/riskScoring.js';
-import { buildSP2DKClaudePrompt } from './sp2dkService.js';
+import { buildSP2DKClaudePrompt, generateFallbackSP2DKResponse } from './sp2dkService.js';
 import { supabase } from '../lib/supabase.js';
 import { jsonrepair } from 'jsonrepair';
 
@@ -822,25 +822,51 @@ Tugas Batch Anda:
 5. Field managementResponse dan reviewerDecision wajib bernilai string kosong "".
 `;
 
+  // Smart-Tiered AI Model Selection (Rekomendasi 3):
+  // - Batch dengan transaksi bernilai material (>= materialityThreshold) atau area berisiko tinggi (PPN / Koreksi Fiskal) diarahkan ke Claude Sonnet.
+  // - Batch dengan transaksi rutin di bawah ambang batas materialitas diproses oleh Claude Haiku 4.5 (cepat & hemat biaya hingga 92%).
+  const hasMaterialTransaction = sampleRows.some(r => Math.max(r.debit || 0, r.kredit || 0) >= materialityThreshold);
+  const requiresSonnet = hasMaterialTransaction || batchKey === 'FINAL_AND_FISCAL' || batchKey === 'PPN';
+
+  const primaryRunner = requiresSonnet ? callSonnet : callHaiku;
+  const fallbackRunner = requiresSonnet ? callHaiku : callSonnet;
+  const tokenBudget = requiresSonnet ? maxTokens : Math.min(maxTokens, 4096);
+
   try {
-    const res = await callSonnet({
-      system: MASTER_SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: userPrompt }],
-      tools: [TAX_FINDINGS_TOOL],
-      tool_choice: { type: 'tool', name: 'submit_tax_findings' },
-      maxTokens,
-      userId,
-      feature: `tax-findings-${batchKey.toLowerCase()}`,
-      clientName: clientInfo?.name || null,
-      taxYear: clientInfo?.taxYear || null
-    });
+    let res;
+    try {
+      res = await primaryRunner({
+        system: MASTER_SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userPrompt }],
+        tools: [TAX_FINDINGS_TOOL],
+        tool_choice: { type: 'tool', name: 'submit_tax_findings' },
+        maxTokens: tokenBudget,
+        userId,
+        feature: `tax-findings-${batchKey.toLowerCase()}`,
+        clientName: clientInfo?.name || null,
+        taxYear: clientInfo?.taxYear || null
+      });
+    } catch (primaryErr) {
+      console.warn(`[Batch ${batchKey} - ${batchLabel}] Primary runner gagal (${primaryErr.message}), beralih ke fallback runner...`);
+      res = await fallbackRunner({
+        system: MASTER_SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userPrompt }],
+        tools: [TAX_FINDINGS_TOOL],
+        tool_choice: { type: 'tool', name: 'submit_tax_findings' },
+        maxTokens: tokenBudget,
+        userId,
+        feature: `tax-findings-${batchKey.toLowerCase()}`,
+        clientName: clientInfo?.name || null,
+        taxYear: clientInfo?.taxYear || null
+      });
+    }
 
     const resultData = res.data;
     const usedModel = res.model;
 
     const inTokens = Number(resultData.usage?.input_tokens) || 0;
     const outTokens = Number(resultData.usage?.output_tokens) || 0;
-    console.log(`[Batch ${batchKey} - ${batchLabel}] Tokens: Input=${inTokens}, Output=${outTokens}, Stop Reason=${resultData?.stop_reason || 'unknown'}`);
+    console.log(`[Batch ${batchKey} - ${batchLabel}] (${usedModel}) Tokens: Input=${inTokens}, Output=${outTokens}, Stop Reason=${resultData?.stop_reason || 'unknown'}`);
 
     if (resultData?.stop_reason === 'max_tokens') {
       throw new Error(`Respons AI terpotong karena limit token pada ${batchLabel}, silakan naikkan max_tokens atau kurangi sample.`);
@@ -1413,7 +1439,7 @@ ${JSON.stringify(currentChunk, null, 2)}
 `;
 
     try {
-      const { data: resultData } = await callSonnet({
+      const { data: resultData } = await callHaiku({
         system: MASTER_SYSTEM_PROMPT,
         messages: [{ role: 'user', content: classificationPrompt }],
         tools: [ACCOUNT_CLASSIFICATION_TOOL],
@@ -1444,10 +1470,10 @@ ${JSON.stringify(currentChunk, null, 2)}
         });
       }
     } catch (err) {
-      console.warn(`[aiClassifyAccounts] Batch ${chunkIdx + 1} gagal dengan Sonnet:`, err.message);
-      // Fallback per batch ke Haiku jika Sonnet gagal
+      console.warn(`[aiClassifyAccounts] Batch ${chunkIdx + 1} gagal dengan Haiku:`, err.message);
+      // Fallback per batch ke Sonnet jika Haiku gagal
       try {
-        const { data: haikuData } = await callHaiku({
+        const { data: sonnetData } = await callSonnet({
           system: MASTER_SYSTEM_PROMPT,
           messages: [{ role: 'user', content: classificationPrompt }],
           tools: [ACCOUNT_CLASSIFICATION_TOOL],
@@ -1456,17 +1482,17 @@ ${JSON.stringify(currentChunk, null, 2)}
           userId,
           feature: 'tax-mapping'
         });
-        const hInput = extractToolInputFromClaudeResponse(haikuData, 'submit_account_classifications');
-        const hParsed = hInput?.classifications || extractAndParseClaudeJson(extractTextFromClaudeResponse(haikuData));
-        if (Array.isArray(hParsed)) {
-          hParsed.forEach(item => {
+        const sInput = extractToolInputFromClaudeResponse(sonnetData, 'submit_account_classifications');
+        const sParsed = sInput?.classifications || extractAndParseClaudeJson(extractTextFromClaudeResponse(sonnetData));
+        if (Array.isArray(sParsed)) {
+          sParsed.forEach(item => {
             if (item.namaAkun && item.aiCategory) {
               aiMap.set(item.namaAkun, item);
             }
           });
         }
-      } catch (hErr) {
-        console.warn(`[aiClassifyAccounts] Fallback Haiku juga gagal untuk batch ${chunkIdx + 1}:`, hErr.message);
+      } catch (sErr) {
+        console.warn(`[aiClassifyAccounts] Fallback Sonnet juga gagal untuk batch ${chunkIdx + 1}:`, sErr.message);
       }
     }
   }
@@ -1595,7 +1621,9 @@ ${JSON.stringify(accountSummaries, null, 2)}
 }
 
 /**
- * Menghasilkan draf surat tanggapan SP2DK resmi dengan Claude AI via proxy.
+ * Fitur Draf Surat Tanggapan SP2DK via AI saat ini DINONAKTIFKAN sesuai instruksi.
+ * Mengembalikan draf tanggapan SP2DK berbasis template deterministik standar (Non-AI)
+ * secara instan tanpa melakukan pemanggilan API Claude maupun konsumsi token.
  */
 export async function generateSP2DKResponseWithClaude({
   clientInfo = {},
@@ -1606,89 +1634,13 @@ export async function generateSP2DKResponseWithClaude({
   taxMappings = [],
   userId = null
 }) {
-  const userPrompt = buildSP2DKClaudePrompt({
+  return generateFallbackSP2DKResponse({
     clientInfo,
     sp2dkMeta,
     items,
     revenueRecon,
-    expenseRecon,
-    taxMappings
+    expenseRecon
   });
-
-  try {
-    const { data: resultData, model: usedModel } = await callSonnet({
-      system: MASTER_SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: userPrompt }],
-      tools: [SP2DK_RESPONSE_TOOL],
-      tool_choice: { type: 'tool', name: 'submit_sp2dk_response' },
-      maxTokens: 8192,
-      userId,
-      feature: 'sp2dk-response',
-      clientName: clientInfo?.name || null,
-      taxYear: clientInfo?.taxYear || null
-    });
-
-    const modelLabel = usedModel.includes('sonnet') ? 'AI Claude Sonnet' : 'AI Claude Haiku';
-
-    // 1. Ambil dari Anthropic Tool Use jika tersedia
-    const toolInput = extractToolInputFromClaudeResponse(resultData, 'submit_sp2dk_response');
-    if (toolInput && (toolInput.naskahLengkapSurat || toolInput.pembuka)) {
-      return {
-        sourceEngine: 'AI_CLAUDE',
-        engineLabel: modelLabel,
-        nomorSuratTanggapan: toolInput.nomorSuratTanggapan || `${clientInfo.npwp ? clientInfo.npwp.replace(/\D/g, '').slice(0, 4) : '001'}/EXT/TAX/${new Date().getFullYear()}`,
-        tanggalTanggapan: toolInput.tanggalTanggapan || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-        fullLetter: toolInput.naskahLengkapSurat || '',
-        poinTanggapan: toolInput.poinTanggapan || [],
-        docList: toolInput.daftarLampiranDokumen || []
-      };
-    }
-
-    // 2. Fallback: Ekstraksi teks jika Tool Use tidak tersedia
-    const text = extractTextFromClaudeResponse(resultData);
-    let parsed = null;
-    try {
-      const clean = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-      const jsonMatch = clean.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        parsed = JSON.parse(jsonMatch[0]);
-      }
-    } catch {
-      try {
-        parsed = JSON.parse(jsonrepair(text));
-      } catch (e) {
-        console.warn('SP2DK response JSON parsing fallback:', e);
-      }
-    }
-
-    if (parsed && (parsed.naskahLengkapSurat || parsed.pembuka)) {
-      return {
-        sourceEngine: 'AI_CLAUDE',
-        engineLabel: modelLabel,
-        nomorSuratTanggapan: parsed.nomorSuratTanggapan || `${clientInfo.npwp ? clientInfo.npwp.replace(/\D/g, '').slice(0, 4) : '001'}/EXT/TAX/${new Date().getFullYear()}`,
-        tanggalTanggapan: parsed.tanggalTanggapan || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-        fullLetter: parsed.naskahLengkapSurat || text,
-        poinTanggapan: parsed.poinTanggapan || [],
-        docList: parsed.daftarLampiranDokumen || []
-      };
-    }
-
-    // Fallback jika dikembalikan langsung sebagai teks surat
-    if (text.length > 100) {
-      return {
-        sourceEngine: 'AI_CLAUDE',
-        engineLabel: modelLabel,
-        nomorSuratTanggapan: `${clientInfo.npwp ? clientInfo.npwp.replace(/\D/g, '').slice(0, 4) : '001'}/EXT/TAX/${new Date().getFullYear()}`,
-        tanggalTanggapan: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-        fullLetter: text,
-        docList: ['Buku Besar (General Ledger)', 'Rekapitulasi Faktur Pajak & SPT', 'Bukti Transaksi Pendukung']
-      };
-    }
-  } catch (err) {
-    throw new Error(`Gagal menghasilkan surat tanggapan dengan Claude AI: ${err.message}`);
-  }
-
-  throw new Error('Gagal menghasilkan surat tanggapan: format respons AI tidak dikenali.');
 }
 
 

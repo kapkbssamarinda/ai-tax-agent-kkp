@@ -1,16 +1,16 @@
 # Graph Report - ai-tax-agent  (2026-08-31)
 
 ## Corpus Check
-- 135 files · ~141,216 words
+- 135 files · ~142,032 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 699 nodes · 1099 edges · 47 communities (35 shown, 12 thin omitted)
+- 700 nodes · 1109 edges · 47 communities (35 shown, 12 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `36eaf660`
+- Built from commit: `3e2294bc`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -98,7 +98,7 @@
 
 ### Community 0 - "App.jsx"
 Cohesion: 0.07
-Nodes (38): react, ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail() (+30 more)
+Nodes (39): react, ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail() (+31 more)
 
 ### Community 1 - "parserWorker.js"
 Cohesion: 0.11
@@ -137,8 +137,8 @@ Cohesion: 0.12
 Nodes (24): KEYWORD_PRESETS, KeywordScannerTab(), extractTaxBadge(), TaxReconWorkbench(), TaxRiskRegister(), REGULATION_DATABASE, ALIGN, BORDERS (+16 more)
 
 ### Community 10 - "claudeService.js"
-Cohesion: 0.11
-Nodes (38): AISettingsModal(), PRESET_MODELS, ACCOUNT_CLASSIFICATION_TOOL, aiClassifyAccounts(), analyzeHonorariumClassification(), analyzeTaxFindings(), callClaudeProxy(), callClaudeTaxAnalysis() (+30 more)
+Cohesion: 0.12
+Nodes (37): AISettingsModal(), PRESET_MODELS, ACCOUNT_CLASSIFICATION_TOOL, aiClassifyAccounts(), analyzeHonorariumClassification(), analyzeTaxFindings(), callClaudeProxy(), callClaudeTaxAnalysis() (+29 more)
 
 ### Community 11 - "📝 Panduan Alur Input Data Staff Tax Analyst (SOP Step-by-Step)"
 Cohesion: 0.09
@@ -193,7 +193,7 @@ Cohesion: 0.67
 Nodes (3): Migration OpenAI Interface, Migration Skill, Reversible Compatibility-Safe Transitions
 
 ### Community 37 - "aiUsageService.js"
-Cohesion: 0.31
+Cohesion: 0.30
 Nodes (14): AIUsageMonitoringTab(), loadData(), MONTH_NAMES, exportUsageLogsToCSV(), fetchFeatureCostBreakdown(), fetchMonthlyUsageSummary(), fetchRecentUsageLogs(), fetchUserUsageBreakdown() (+6 more)
 
 ### Community 38 - "caveman-explore/package.json"
@@ -229,7 +229,7 @@ Nodes (17): PartnerDashboard(), calculateInterestSanction(), calculatePartnerDas
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `react` connect `App.jsx` to `aiUsageService.js`, `.oxlintrc.json`, `kkpWorkbookGenerator.js`, `claudeService.js`, `deterministicCalc.js`, `SP2DKResponseTab.jsx`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+  _High betweenness centrality (0.018) - this node is a cross-community bridge._
 - **Why does `AdminDashboard()` connect `AdminDashboard` to `App.jsx`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
 - **Why does `plugins` connect `.oxlintrc.json` to `App.jsx`?**
@@ -237,7 +237,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `name`, `version`, `license` to the rest of the system?**
   _244 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `App.jsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.06760316066725197 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06649616368286446 - nodes in this community are weakly interconnected._
 - **Should `parserWorker.js` be split into smaller, more focused modules?**
   _Cohesion score 0.11382113821138211 - nodes in this community are weakly interconnected._
 - **Should `compress.py` be split into smaller, more focused modules?**
