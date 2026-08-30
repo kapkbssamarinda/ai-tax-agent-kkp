@@ -1,16 +1,16 @@
 # Graph Report - ai-tax-agent  (2026-08-30)
 
 ## Corpus Check
-- 126 files · ~128,742 words
+- 131 files · ~135,637 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 647 nodes · 984 edges · 46 communities (34 shown, 12 thin omitted)
+- 682 nodes · 1055 edges · 46 communities (34 shown, 12 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4a177117`
+- Built from commit: `25887835`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -23,12 +23,12 @@
 - 📘 Buku Panduan Praktis Staff Tax Analyst: Dari Raw GL hingga KKP & Partner Review
 - 🏛️ AI Tax Agent & KKP Partner Platform
 - Linter & Code Quality Rules
-- dependencies
+- devDependencies
 - kkpWorkbookGenerator.js
 - claudeService.js
 - 📝 Panduan Alur Input Data Staff Tax Analyst (SOP Step-by-Step)
 - Caveman Agent Tools & Skills
-- devDependencies
+- aiUsageService.js
 - Caveman Discover Skill
 - SP2DKResponseTab.jsx
 - Changelog — GL Cleaner
@@ -50,17 +50,17 @@
 - Social and Navigation SVG Icon Sprite
 - Application Secondary Logo Mark PNG
 - setupTests.js
-- AuthContext.jsx
+- react
 - caveman-explore/package.json
 - .oxlintrc.json
 - claude.js
 - vercel.json
-- deterministicCalc.js
+- Langkah Implementasi
 - Langkah Implementasi
 
 ## God Nodes (most connected - your core abstractions)
 1. `Graphify Knowledge Graph Pipeline` - 22 edges
-2. `react` - 20 edges
+2. `react` - 21 edges
 3. `App()` - 19 edges
 4. `compress_file()` - 16 edges
 5. `cleanBalance()` - 15 edges
@@ -96,8 +96,8 @@
 ## Communities (46 total, 12 thin omitted)
 
 ### Community 0 - "App.jsx"
-Cohesion: 0.07
-Nodes (32): react, ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail() (+24 more)
+Cohesion: 0.09
+Nodes (38): ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail(), DataTable() (+30 more)
 
 ### Community 1 - "parserWorker.js"
 Cohesion: 0.11
@@ -127,17 +127,17 @@ Nodes (28): 10. 💾 Project Save & Load State (.aitax Portable Archive), 11. �
 Cohesion: 0.08
 Nodes (27): Cavecrew Overview, Cavecrew Model Overrides, Cavecrew Auto-Clarity Guard, Cavecrew Skill, Cavecrew Chaining Patterns, Cavecrew Builder Subagent, Cavecrew Investigator Subagent, Cavecrew Reviewer Subagent (+19 more)
 
-### Community 8 - "dependencies"
-Cohesion: 0.07
-Nodes (27): lucide-react, dependencies, lucide-react, pdfjs-dist, react, react-dom, @supabase/supabase-js, @tanstack/react-virtual (+19 more)
+### Community 8 - "devDependencies"
+Cohesion: 0.04
+Nodes (46): jsdom, lucide-react, oxlint, dependencies, lucide-react, pdfjs-dist, react, react-dom (+38 more)
 
 ### Community 9 - "kkpWorkbookGenerator.js"
-Cohesion: 0.24
-Nodes (15): ALIGN, BORDERS, colLetter(), COLORS, downloadKKPWorkbook(), FONTS, generateKKPWorkbook(), getRiskStyle() (+7 more)
+Cohesion: 0.12
+Nodes (24): KEYWORD_PRESETS, KeywordScannerTab(), extractTaxBadge(), TaxReconWorkbench(), TaxRiskRegister(), REGULATION_DATABASE, ALIGN, BORDERS (+16 more)
 
 ### Community 10 - "claudeService.js"
-Cohesion: 0.12
-Nodes (31): AISettingsModal(), PRESET_MODELS, aiClassifyAccounts(), analyzeHonorariumClassification(), analyzeTaxFindings(), callClaudeProxy(), callClaudeTaxAnalysis(), callHaiku() (+23 more)
+Cohesion: 0.13
+Nodes (29): AISettingsModal(), PRESET_MODELS, aiClassifyAccounts(), analyzeHonorariumClassification(), analyzeTaxFindings(), callClaudeProxy(), callClaudeTaxAnalysis(), callHaiku() (+21 more)
 
 ### Community 11 - "📝 Panduan Alur Input Data Staff Tax Analyst (SOP Step-by-Step)"
 Cohesion: 0.09
@@ -147,17 +147,17 @@ Nodes (22): A. Ekualisasi Omzet vs PPN (Tab 1: `Ekualisasi Omzet vs PPN`), A. Me
 Cohesion: 0.18
 Nodes (10): description, files, SKILL.md, license, name, private, scripts, test (+2 more)
 
-### Community 13 - "devDependencies"
-Cohesion: 0.11
-Nodes (19): jsdom, oxlint, devDependencies, jsdom, oxlint, @testing-library/jest-dom, @testing-library/react, @types/react (+11 more)
+### Community 13 - "aiUsageService.js"
+Cohesion: 0.31
+Nodes (14): AIUsageMonitoringTab(), loadData(), MONTH_NAMES, exportUsageLogsToCSV(), fetchFeatureCostBreakdown(), fetchMonthlyUsageSummary(), fetchRecentUsageLogs(), fetchUserUsageBreakdown() (+6 more)
 
 ### Community 14 - "Caveman Discover Skill"
 Cohesion: 0.13
 Nodes (15): Caveman Discover Skill, Operator Approval Protocol, Workflow Labeling Convention, Evidence Accounting Buckets, Caveman Evidence Review Skill, Trace Inspection Protocol, Server-Authoritative Execution Gate, Experiment Lifecycle Actions (+7 more)
 
 ### Community 15 - "SP2DKResponseTab.jsx"
-Cohesion: 0.28
-Nodes (10): SP2DKResponseTab(), calculateSP2DKDeadline(), CAUSE_CATEGORIES, downloadSP2DKWordDocument(), generateFallbackSP2DKResponse(), parseSP2DKText(), SP2DK_DEMO_PRESETS, fmtRupiah() (+2 more)
+Cohesion: 0.24
+Nodes (12): SP2DKResponseTab(), generateSP2DKResponseWithClaude(), buildSP2DKClaudePrompt(), calculateSP2DKDeadline(), CAUSE_CATEGORIES, downloadSP2DKWordDocument(), generateFallbackSP2DKResponse(), parseSP2DKText() (+4 more)
 
 ### Community 16 - "Changelog — GL Cleaner"
 Cohesion: 0.09
@@ -191,9 +191,9 @@ Nodes (3): Graphify CLI Commands, Graphify MCP Tools, Graphify Knowledge Graph R
 Cohesion: 0.67
 Nodes (3): Migration OpenAI Interface, Migration Skill, Reversible Compatibility-Safe Transitions
 
-### Community 37 - "AuthContext.jsx"
-Cohesion: 0.15
-Nodes (20): AdminDashboard(), closeEditModal(), fetchUsers(), getAuthHeader(), handleAddUser(), handleDeleteUser(), handleToggleActive(), handleUpdateUser() (+12 more)
+### Community 37 - "react"
+Cohesion: 0.11
+Nodes (22): react, AdminDashboard(), closeEditModal(), fetchUsers(), getAuthHeader(), handleAddUser(), handleDeleteUser(), handleToggleActive() (+14 more)
 
 ### Community 38 - "caveman-explore/package.json"
 Cohesion: 0.18
@@ -204,35 +204,35 @@ Cohesion: 0.25
 Nodes (7): plugins, rules, react/only-export-components, react/rules-of-hooks, $schema, oxc, warn
 
 ### Community 41 - "claude.js"
-Cohesion: 0.67
-Nodes (3): checkRateLimit(), handler(), rateLimitMap
+Cohesion: 0.47
+Nodes (5): calculateCost(), checkRateLimit(), handler(), PRICING_RATES, rateLimitMap
 
-### Community 44 - "deterministicCalc.js"
-Cohesion: 0.23
-Nodes (17): PartnerDashboard(), calculateInterestSanction(), calculatePartnerDashboardMetrics(), calculatePPh21TERMonthly(), calculatePPh23Exposure(), getTERCategory(), getTERMonthlyRate(), reconcileCommercialVsFiscalProfit() (+9 more)
+### Community 44 - "Langkah Implementasi"
+Cohesion: 0.12
+Nodes (15): 1. Buat proxy pakai Supabase Edge Function, 2. Sertakan identitas user di setiap request, 3. Log setiap pemanggilan AI ke tabel Supabase, 4. Hitung estimasi cost per panggilan, 5. Bangun dashboard monitoring, 6. Quota & alert (opsional, untuk kontrol cost lebih ketat), Bagian 1: Ekualisasi PPh 21 + Model Routing, Bagian 2: Monitoring Penggunaan AI per User (+7 more)
 
 ### Community 45 - "Langkah Implementasi"
 Cohesion: 0.12
 Nodes (15): 1. Buat proxy pakai Supabase Edge Function, 2. Sertakan identitas user di setiap request, 3. Log setiap pemanggilan AI ke tabel Supabase, 4. Hitung estimasi cost per panggilan, 5. Bangun dashboard monitoring, 6. Quota & alert (opsional, untuk kontrol cost lebih ketat), Bagian 1: Ekualisasi PPh 21 + Model Routing, Bagian 2: Monitoring Penggunaan AI per User (+7 more)
 
 ## Knowledge Gaps
-- **229 isolated node(s):** `name`, `version`, `license`, `private`, `type` (+224 more)
+- **243 isolated node(s):** `name`, `version`, `license`, `private`, `type` (+238 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `App.jsx` to `AuthContext.jsx`, `.oxlintrc.json`, `claudeService.js`, `deterministicCalc.js`, `SP2DKResponseTab.jsx`?**
-  _High betweenness centrality (0.014) - this node is a cross-community bridge._
-- **Why does `AdminDashboard()` connect `AuthContext.jsx` to `App.jsx`?**
+- **Why does `react` connect `react` to `App.jsx`, `.oxlintrc.json`, `kkpWorkbookGenerator.js`, `claudeService.js`, `aiUsageService.js`, `SP2DKResponseTab.jsx`?**
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
+- **Why does `AdminDashboard()` connect `react` to `App.jsx`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
-- **Why does `plugins` connect `.oxlintrc.json` to `App.jsx`?**
+- **Why does `plugins` connect `.oxlintrc.json` to `react`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **What connects `name`, `version`, `license` to the rest of the system?**
-  _229 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _243 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `App.jsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.07077922077922078 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08784313725490196 - nodes in this community are weakly interconnected._
 - **Should `parserWorker.js` be split into smaller, more focused modules?**
   _Cohesion score 0.11382113821138211 - nodes in this community are weakly interconnected._
 - **Should `compress.py` be split into smaller, more focused modules?**

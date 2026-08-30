@@ -80,5 +80,33 @@ describe('AdminDashboard Component', () => {
     expect(screen.getByText('Budi Santoso')).toBeInTheDocument();
     expect(screen.queryByText('Citra Dewi')).not.toBeInTheDocument();
   });
+
+  it('dapat berpindah ke tab Monitoring Penggunaan AI', async () => {
+    vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
+      isAdmin: true,
+      user: { id: 'admin-1' }
+    });
+
+    vi.spyOn(supabase, 'from').mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        order: vi.fn().mockResolvedValue({ data: [], error: null }),
+        gte: vi.fn().mockReturnValue({
+          lte: vi.fn().mockResolvedValue({ data: [], error: null })
+        }),
+        range: vi.fn().mockResolvedValue({ data: [], count: 0, error: null })
+      })
+    });
+
+    render(<AdminDashboard onBack={vi.fn()} />);
+
+    const monitoringTabBtn = screen.getByText(/Monitoring Penggunaan AI/i);
+    expect(monitoringTabBtn).toBeInTheDocument();
+
+    fireEvent.click(monitoringTabBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Monitoring Pemakaian AI/i)).toBeInTheDocument();
+    });
+  });
 });
 

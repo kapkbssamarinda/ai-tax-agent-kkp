@@ -11,9 +11,12 @@ import {
   EyeOff,
   LogOut,
   Mail,
-  Calendar
+  Calendar,
+  Sparkles,
+  Cpu
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 function UserProfileModal({ isOpen, onClose }) {
   const { profile, user, updateProfile, updatePassword, signOut, isAdmin } = useAuth();
@@ -22,6 +25,7 @@ function UserProfileModal({ isOpen, onClose }) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [userUsage, setUserUsage] = useState({ totalTokens: 0, quota: 1000000 });
 
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -37,8 +41,26 @@ function UserProfileModal({ isOpen, onClose }) {
       setError('');
       setSuccess('');
       setTimeout(() => closeButtonRef.current?.focus(), 50);
+
+      // Ambil pemakaian token bulan ini
+      if (user?.id) {
+        const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+        supabase
+          .from('ai_usage_logs')
+          .select('total_tokens')
+          .eq('user_id', user.id)
+          .gte('created_at', startOfMonth)
+          .then(({ data }) => {
+            const used = (data || []).reduce((acc, r) => acc + (r.total_tokens || 0), 0);
+            setUserUsage({
+              totalTokens: used,
+              quota: profile?.monthly_token_quota || 1000000
+            });
+          })
+          .catch(() => {});
+      }
     }
-  }, [isOpen, profile]);
+  }, [isOpen, profile, user?.id]);
 
   // Tutup modal dengan tombol Escape
   useEffect(() => {
@@ -161,6 +183,36 @@ function UserProfileModal({ isOpen, onClose }) {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* AI Quota Tracker Card */}
+            <div style={{
+              marginTop: '0.75rem',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(124, 58, 237, 0.06))',
+              border: '1px solid rgba(37, 99, 235, 0.18)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Sparkles size={13} className="text-accent" />
+                  <strong style={{ fontSize: '11px', color: 'var(--text-main, #1e293b)' }}>Kuota AI Bulan Ini</strong>
+                </div>
+                <span style={{ fontSize: '11px', fontWeight: 600, color: (userUsage.totalTokens / userUsage.quota) >= 0.8 ? '#ef4444' : '#2563eb' }}>
+                  {userUsage.totalTokens.toLocaleString('id-ID')} / {userUsage.quota.toLocaleString('id-ID')} Tokens
+                </span>
+              </div>
+              <div style={{ width: '100%', height: '6px', borderRadius: '3px', background: '#e2e8f0', overflow: 'hidden' }}>
+                <div style={{
+                  width: `${Math.min(100, Math.round((userUsage.totalTokens / userUsage.quota) * 100))}%`,
+                  height: '100%',
+                  background: (userUsage.totalTokens / userUsage.quota) >= 0.8 ? '#ef4444' : '#3b82f6'
+                }} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--text-muted, #64748b)', marginTop: '4px' }}>
+                <span>Tersisa: {Math.max(0, userUsage.quota - userUsage.totalTokens).toLocaleString('id-ID')} Tokens</span>
+                <span>{Math.round((userUsage.totalTokens / userUsage.quota) * 100)}% Terpakai</span>
+              </div>
             </div>
 
             {/* Form Edit Nama */}

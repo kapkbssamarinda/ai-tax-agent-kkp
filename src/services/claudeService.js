@@ -8,6 +8,7 @@
 import { formatLegalCitation } from './regulationDB.js';
 import { estimateFindingRisk } from '../tax-engine/riskScoring.js';
 import { buildSP2DKClaudePrompt } from './sp2dkService.js';
+import { supabase } from '../lib/supabase.js';
 
 const MASTER_SYSTEM_PROMPT = `
 Anda adalah AI Tax Agent Indonesia yang berfungsi membantu Tax Staff, Tax Manager, Konsultan Pajak, dan Partner melakukan tax diagnostic, tax compliance review, tax reconciliation, serta tax risk assessment.
@@ -156,14 +157,26 @@ export function clearAIUsageLogs() {
  * Semua panggilan Claude HARUS melalui fungsi ini.
  * @param {string} userId - ID user dari Supabase auth (untuk rate limiting di server)
  */
-async function callClaudeProxy({ model, max_tokens = 4096, system, messages, userId = null }) {
-  const body = { model, max_tokens, messages };
+async function callClaudeProxy({ model, max_tokens = 4096, system, messages, userId = null, feature = 'general', client_name = null, tax_year = null }) {
+  const body = { model, max_tokens, messages, feature };
   if (system) body.system = system;
   if (userId) body.user_id = userId;
+  if (client_name) body.client_name = client_name;
+  if (tax_year) body.tax_year = tax_year;
+
+  const headers = { 'content-type': 'application/json' };
+  try {
+    if (typeof supabase !== 'undefined' && supabase?.auth) {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData?.session?.access_token) {
+        headers['authorization'] = `Bearer ${sessionData.session.access_token}`;
+      }
+    }
+  } catch { /* ignore */ }
 
   const response = await fetch('/api/claude', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers,
     body: JSON.stringify(body)
   });
 
@@ -179,13 +192,22 @@ async function callClaudeProxy({ model, max_tokens = 4096, system, messages, use
 /**
  * Wrapper pemanggilan model tier Haiku (Volume tinggi, klasifikasi & scan awal)
  */
-export async function callHaiku({ system, messages, maxTokens = 2048, userId = null, feature = 'haiku-task' }) {
+export async function callHaiku({ system, messages, maxTokens = 2048, userId = null, feature = 'haiku-task', clientName = null, taxYear = null }) {
   const candidateModels = [...HAIKU_MODELS, ...FALLBACK_MODELS.filter(m => !HAIKU_MODELS.includes(m))];
   let lastError = null;
 
   for (const model of candidateModels) {
     try {
-      const data = await callClaudeProxy({ model, max_tokens: maxTokens, system, messages, userId });
+      const data = await callClaudeProxy({
+        model,
+        max_tokens: maxTokens,
+        system,
+        messages,
+        userId,
+        feature,
+        client_name: clientName,
+        tax_year: taxYear
+      });
       const inputTokens = data.usage?.input_tokens || 0;
       const outputTokens = data.usage?.output_tokens || 0;
       logAIUsage({ model, feature, inputTokens, outputTokens });
@@ -201,7 +223,7 @@ export async function callHaiku({ system, messages, maxTokens = 2048, userId = n
 /**
  * Wrapper pemanggilan model tier Sonnet (Reasoning mendalam, exception assessment, disambiguasi, naskah hukum)
  */
-export async function callSonnet({ system, messages, maxTokens = 4096, userId = null, feature = 'sonnet-task' }) {
+export async function callSonnet({ system, messages, maxTokens = 4096, userId = null, feature = 'sonnet-task', clientName = null, taxYear = null }) {
   const saved = getSavedModel();
   const baseList = SONNET_MODELS.includes(saved)
     ? [saved, ...SONNET_MODELS.filter(m => m !== saved)]
@@ -211,7 +233,16 @@ export async function callSonnet({ system, messages, maxTokens = 4096, userId = 
 
   for (const model of candidateModels) {
     try {
-      const data = await callClaudeProxy({ model, max_tokens: maxTokens, system, messages, userId });
+      const data = await callClaudeProxy({
+        model,
+        max_tokens: maxTokens,
+        system,
+        messages,
+        userId,
+        feature,
+        client_name: clientName,
+        tax_year: taxYear
+      });
       const inputTokens = data.usage?.input_tokens || 0;
       const outputTokens = data.usage?.output_tokens || 0;
       logAIUsage({ model, feature, inputTokens, outputTokens });
@@ -531,7 +562,9 @@ Format objek temuan:
       messages: [{ role: 'user', content: userPrompt }],
       maxTokens: 4096,
       userId,
-      feature: 'tax-findings'
+      feature: 'tax-findings',
+      clientName: clientInfo?.name || null,
+      taxYear: clientInfo?.taxYear || null
     });
 
     const text = resultData.content?.[0]?.text || '';
@@ -1075,7 +1108,9 @@ export async function generateSP2DKResponseWithClaude({
       messages: [{ role: 'user', content: userPrompt }],
       maxTokens: 4096,
       userId,
-      feature: 'sp2dk-response'
+      feature: 'sp2dk-response',
+      clientName: clientInfo?.name || null,
+      taxYear: clientInfo?.taxYear || null
     });
 
     const text = resultData.content?.[0]?.text || '';

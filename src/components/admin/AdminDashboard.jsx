@@ -15,13 +15,16 @@ import {
   X,
   Eye,
   EyeOff,
-  Filter
+  Filter,
+  Activity
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
+import AIUsageMonitoringTab from './AIUsageMonitoringTab';
 
 function AdminDashboard({ onBack }) {
   const { isAdmin, user: currentUser } = useAuth();
+  const [activeAdminTab, setActiveAdminTab] = useState('USERS');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -292,33 +295,57 @@ function AdminDashboard({ onBack }) {
             <ArrowLeft size={16} /> Kembali
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Users size={22} className="text-accent" />
-            <h2 className="admin-title">Kelola Pengguna (User Management)</h2>
+            <Shield size={22} className="text-accent" />
+            <h2 className="admin-title">Kelola Pengguna & Monitoring AI KAP</h2>
           </div>
         </div>
-        <button className="btn btn-ghost" onClick={fetchUsers} disabled={loading} title="Muat ulang data">
-          <RefreshCw size={14} className={loading ? 'spinner-inline' : ''} /> Muat Ulang
+        {activeAdminTab === 'USERS' && (
+          <button className="btn btn-ghost" onClick={fetchUsers} disabled={loading} title="Muat ulang data">
+            <RefreshCw size={14} className={loading ? 'spinner-inline' : ''} /> Muat Ulang
+          </button>
+        )}
+      </div>
+
+      {/* Tab Navigation Admin */}
+      <div className="tab-navigation" style={{ marginBottom: '1.5rem', display: 'flex', gap: '8px' }}>
+        <button
+          className={`tab-btn ${activeAdminTab === 'USERS' ? 'active' : ''}`}
+          onClick={() => setActiveAdminTab('USERS')}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+        >
+          <Users size={16} /> Manajemen Pengguna
+        </button>
+        <button
+          className={`tab-btn ${activeAdminTab === 'AI_MONITORING' ? 'active' : ''}`}
+          onClick={() => setActiveAdminTab('AI_MONITORING')}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+        >
+          <Activity size={16} /> Monitoring Penggunaan AI
         </button>
       </div>
 
-      {error && (
-        <div className="admin-alert is-error">
-          <AlertCircle size={16} />
-          <span>{error}</span>
-          <button className="btn-icon-subtle" onClick={() => setError('')} style={{ marginLeft: 'auto' }}>
-            <X size={14} />
-          </button>
-        </div>
-      )}
-      {success && (
-        <div className="admin-alert is-success">
-          <CheckCircle2 size={16} />
-          <span>{success}</span>
-          <button className="btn-icon-subtle" onClick={() => setSuccess('')} style={{ marginLeft: 'auto' }}>
-            <X size={14} />
-          </button>
-        </div>
-      )}
+      {activeAdminTab === 'AI_MONITORING' ? (
+        <AIUsageMonitoringTab />
+      ) : (
+        <>
+          {error && (
+            <div className="admin-alert is-error">
+              <AlertCircle size={16} />
+              <span>{error}</span>
+              <button className="btn-icon-subtle" onClick={() => setError('')} style={{ marginLeft: 'auto' }}>
+                <X size={14} />
+              </button>
+            </div>
+          )}
+          {success && (
+            <div className="admin-alert is-success">
+              <CheckCircle2 size={16} />
+              <span>{success}</span>
+              <button className="btn-icon-subtle" onClick={() => setSuccess('')} style={{ marginLeft: 'auto' }}>
+                <X size={14} />
+              </button>
+            </div>
+          )}
 
       {/* Section 1: Form Tambah User Baru */}
       <div className="admin-section">
@@ -632,6 +659,8 @@ function AdminDashboard({ onBack }) {
             </form>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

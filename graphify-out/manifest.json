@@ -144,8 +144,8 @@
     "semantic_hash": ""
   },
   "src/components/tax/KeywordScannerTab.jsx": {
-    "mtime": 1788097164.0876677,
-    "seen": 1788097529.8882968,
+    "mtime": 1788097572.5092187,
+    "seen": 1788099297.745724,
     "ast_hash": "9bf78708c0527d6a1599e50e1e9ef488",
     "semantic_hash": ""
   },
@@ -162,8 +162,8 @@
     "semantic_hash": ""
   },
   "src/components/tax/TaxReconWorkbench.jsx": {
-    "mtime": 1788097397.969183,
-    "seen": 1788097529.888307,
+    "mtime": 1788097572.5112162,
+    "seen": 1788099297.7472043,
     "ast_hash": "de5f973a61b62f97c90cd596043e7847",
     "semantic_hash": ""
   },
@@ -270,9 +270,9 @@
     "semantic_hash": "f0303e47d2e0c595058202c7e204267c"
   },
   "src/services/claudeService.js": {
-    "mtime": 1788097275.075044,
-    "seen": 1788097529.8883777,
-    "ast_hash": "0ce14a3753066c1c0c3922837de968fb",
+    "mtime": 1788098880.8495603,
+    "seen": 1788099297.7557383,
+    "ast_hash": "5e90e4910ae649ed20176c0b77e24dc4",
     "semantic_hash": ""
   },
   "src/services/regulationDB.js": {
@@ -300,26 +300,26 @@
     "semantic_hash": ""
   },
   "src/tax-engine/deterministicCalc.js": {
-    "mtime": 1788097146.8499043,
-    "seen": 1788097529.8884063,
+    "mtime": 1788097572.5132153,
+    "seen": 1788099297.7586768,
     "ast_hash": "564ff80ecab0d802d1468dcd67436ab1",
     "semantic_hash": ""
   },
   "src/tax-engine/deterministicCalc.test.js": {
-    "mtime": 1788097412.828441,
-    "seen": 1788097529.8884096,
+    "mtime": 1788097572.5152152,
+    "seen": 1788099297.7586803,
     "ast_hash": "5a0795f26fc36ced0f18ae03cbb7667f",
     "semantic_hash": ""
   },
   "src/tax-engine/kkpWorkbookGenerator.js": {
-    "mtime": 1788097354.7446692,
-    "seen": 1788097529.8884125,
+    "mtime": 1788097572.5192165,
+    "seen": 1788099297.7586834,
     "ast_hash": "8dcd56bdf5fedfd1fa1565d43d74b5ba",
     "semantic_hash": ""
   },
   "src/tax-engine/kkpWorkbookGenerator.test.js": {
-    "mtime": 1788097468.7754416,
-    "seen": 1788097529.8884156,
+    "mtime": 1788097572.5212147,
+    "seen": 1788099297.7586873,
     "ast_hash": "49521b68475c33c486efd98313b7538a",
     "semantic_hash": ""
   },
@@ -336,14 +336,14 @@
     "semantic_hash": "0c7eb983c32c07375f723f5bfd5ab08b"
   },
   "src/tax-engine/taxMapping.js": {
-    "mtime": 1788097154.7010677,
-    "seen": 1788097529.888425,
+    "mtime": 1788097572.5252166,
+    "seen": 1788099297.759396,
     "ast_hash": "c9fb75d2add4f7d2dfe4ad0d69f520a3",
     "semantic_hash": ""
   },
   "src/tax-engine/taxMapping.test.js": {
-    "mtime": 1788097419.1060812,
-    "seen": 1788097529.8884287,
+    "mtime": 1788097572.5232165,
+    "seen": 1788099297.7594001,
     "ast_hash": "353dfaeaff68a80a858360784cffcb47",
     "semantic_hash": ""
   },
@@ -762,21 +762,21 @@
     "semantic_hash": ""
   },
   "api/claude.js": {
-    "mtime": 1788003811.501093,
-    "seen": 1788011046.4044263,
-    "ast_hash": "4350bb899905436c9c3dc6d43893bf23",
+    "mtime": 1788098734.7406645,
+    "seen": 1788099297.7320657,
+    "ast_hash": "70ebd33c42d52cf5fe5a25912f04d1f7",
     "semantic_hash": ""
   },
   "src/components/admin/AdminDashboard.jsx": {
-    "mtime": 1788010887.420449,
-    "seen": 1788011046.4044497,
-    "ast_hash": "e120e4382bc1af67471bcdb7b47d4758",
+    "mtime": 1788099232.0165784,
+    "seen": 1788099297.743032,
+    "ast_hash": "2faeac191e9c2927c8d088febff2d455",
     "semantic_hash": ""
   },
   "src/components/admin/AdminDashboard.test.jsx": {
-    "mtime": 1788007069.9254098,
-    "seen": 1788011046.4044518,
-    "ast_hash": "233d1b4dd2dd7757ca50a892230acb1a",
+    "mtime": 1788099169.987518,
+    "seen": 1788099297.7430356,
+    "ast_hash": "d4cb7d77a139081f234191d1f01220b3",
     "semantic_hash": ""
   },
   "src/components/auth/LoginPage.jsx": {
@@ -792,9 +792,9 @@
     "semantic_hash": ""
   },
   "src/components/auth/UserProfileModal.jsx": {
-    "mtime": 1788007460.3676465,
-    "seen": 1788011046.4044566,
-    "ast_hash": "6eb697bad82914c4405b9e79fb2b9aeb",
+    "mtime": 1788099087.9300947,
+    "seen": 1788099297.7440956,
+    "ast_hash": "01b8f5695e7ecbbb8ff16b3a389d2675",
     "semantic_hash": ""
   },
   "src/components/auth/UserProfileModal.test.jsx": {
@@ -822,8 +822,8 @@
     "semantic_hash": ""
   },
   "src/services/claudeService.test.js": {
-    "mtime": 1788097437.4479558,
-    "seen": 1788097529.8883812,
+    "mtime": 1788097572.5122156,
+    "seen": 1788099297.7557452,
     "ast_hash": "972857860418fe6636aae67e31999f08",
     "semantic_hash": ""
   },
@@ -842,6 +842,30 @@
   "plan-monitoring-ai-usage.md": {
     "mtime": 1788096152.761964,
     "seen": 1788097529.8886569,
+    "ast_hash": "50c94e7fea96b7091ecf189c6fd7fbb7",
+    "semantic_hash": ""
+  },
+  "src/components/admin/AIUsageMonitoringTab.jsx": {
+    "mtime": 1788098918.125359,
+    "seen": 1788099297.7430263,
+    "ast_hash": "d1a7bf386c17b63e5b1d1aed904b6b00",
+    "semantic_hash": ""
+  },
+  "src/services/aiUsageService.js": {
+    "mtime": 1788098895.366003,
+    "seen": 1788099297.7557254,
+    "ast_hash": "ffa2c21c0b2df67bfad469449b05743d",
+    "semantic_hash": ""
+  },
+  "src/services/aiUsageService.test.js": {
+    "mtime": 1788099095.411436,
+    "seen": 1788099297.7557318,
+    "ast_hash": "e2d0ac2ae422224c1f1b63549616c289",
+    "semantic_hash": ""
+  },
+  "plan-monitoring-ai-usage copy.md": {
+    "mtime": 1788096152.761964,
+    "seen": 1788099297.7829616,
     "ast_hash": "50c94e7fea96b7091ecf189c6fd7fbb7",
     "semantic_hash": ""
   }
