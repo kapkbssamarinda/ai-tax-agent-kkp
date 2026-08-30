@@ -17,6 +17,11 @@ describe('Tax Mapping Engine', () => {
   it('mengklasifikasikan akun PPh 21 (Gaji/Upah) dan PPh Final 4(2) (Sewa Tanah/Bangunan)', () => {
     expect(autoClassifyAccount('6101', 'Gaji dan Tunjangan Karyawan')).toBe('PPH21');
     expect(autoClassifyAccount('6102', 'Upah Lembur & THR')).toBe('PPH21');
+    expect(autoClassifyAccount('6103', 'Pesangon Karyawan')).toBe('PPH21');
+    expect(autoClassifyAccount('6104', 'Insentif & Bonus Tahunan')).toBe('PPH21');
+    expect(autoClassifyAccount('6110', 'Overtime / Lembur')).toBe('PPH21');
+    expect(autoClassifyAccount('6150', 'Tantiem Komisaris')).toBe('PPH21');
+    expect(autoClassifyAccount('6160', 'Jasa Dokter Spesialis')).toBe('PPH21');
     expect(autoClassifyAccount('6130', 'Sewa Gedung Kantor Samarinda')).toBe('PPH42');
   });
 

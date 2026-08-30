@@ -719,9 +719,9 @@ export function generateKKPWorkbook({
     r++;
 
     // r=6: Estimasi TER Rate
-    sc(ws, `A${r}`, 'Estimasi Tarif Efektif Rata-rata (TER) / Pasal 17', STYLES.labelBold);
+    sc(ws, `A${r}`, 'Estimasi Tarif Efektif Rata-rata (TER) Agregat', STYLES.labelBold);
     sc(ws, `B${r}`, 0.05, STYLES.formulaCell, { z: '0.0%' });
-    sc(ws, `C${r}`, 'PP 58/2023 jo. PMK 168/2023 (TER PPh 21)', STYLES.dataCell);
+    sc(ws, `C${r}`, 'PP 58/2023 jo. PMK 168/2023 (Estimasi TER Kategori A/B/C)', STYLES.dataCell);
     r++;
 
     // r=7: PPh 21 Teoritis
@@ -742,30 +742,43 @@ export function generateKKPWorkbook({
     sc(ws, `C${r}`, 'Selisih Objek Gaji Tanpa Bukti Potong', STYLES.totalRow);
     r++;
 
-    // r=10: Sanksi Bunga
-    sc(ws, `A${r}`, 'Sanksi Administrasi Bunga Keterlambatan Pasal 19 KUP', STYLES.totalLabel);
-    sc(ws, `B${r}`, 0, STYLES.totalRow, { f: '=B9*0.012*24', z: '#,##0' });
-    sc(ws, `C${r}`, 'Maksimal 24 Bulan x 1.2% per bulan', STYLES.totalRow);
+    // r=10: Tarif Bunga
+    sc(ws, `A${r}`, 'Tarif Bunga Sanksi Administrasi per Bulan', STYLES.labelBold);
+    sc(ws, `B${r}`, 0.012, STYLES.formulaCell, { z: '0.0%' });
+    sc(ws, `C${r}`, 'Pasal 19 ayat (1) KUP jo. UU HPP', STYLES.dataCell);
     r++;
 
-    // r=11: Total Exposure
+    // r=11: Max bulan
+    sc(ws, `A${r}`, 'Batas Maksimal Masa Bunga (Bulan)', STYLES.labelBold);
+    sc(ws, `B${r}`, 24, STYLES.formulaCell, { z: '0' });
+    sc(ws, `C${r}`, 'Maksimal 24 Bulan', STYLES.dataCell);
+    r++;
+
+    // r=12: Sanksi Bunga
+    sc(ws, `A${r}`, 'Estimasi Sanksi Administrasi Bunga Pasal 19 KUP', STYLES.totalLabel);
+    sc(ws, `B${r}`, 0, STYLES.totalRow, { f: '=B9*B10*B11', z: '#,##0' });
+    sc(ws, `C${r}`, 'Sanksi Keterlambatan Potong PPh 21', STYLES.totalRow);
+    r++;
+
+    // r=13: Total Exposure
     sc(ws, `A${r}`, 'TOTAL POTENTIAL EXPOSURE PPh 21 (Pokok + Sanksi)', STYLES.totalLabel);
-    sc(ws, `B${r}`, 0, { ...STYLES.totalRow, font: FONTS.riskCritical }, { f: '=B9+B10', z: '#,##0' });
-    sc(ws, `C${r}`, 'Total Estimasi Kurang Potong PPh 21', STYLES.totalRow);
+    sc(ws, `B${r}`, 0, { ...STYLES.totalRow, font: FONTS.riskCritical }, { f: '=B9+B12', z: '#,##0' });
+    sc(ws, `C${r}`, 'Total Estimasi Kurang Potong PPh 21 + Sanksi', STYLES.totalRow);
     r++;
 
-    // r=12: Status
+    // r=14: Status
     sc(ws, `A${r}`, 'Status Evaluasi Kepatuhan PPh 21', STYLES.labelBold);
-    sc(ws, `B${r}`, '', STYLES.formulaCell, { f: '=IF(B9<=0,"RECONCILED - COMPLIANT","POTENSI UNWITHHELD PPH 21")', t: 's' });
+    sc(ws, `B${r}`, '', STYLES.formulaCell, { f: '=IF(B9<=0,"RECONCILED - COMPLIANT","POTENSI UNWITHHELD PPH 21 & SANKSI BUNGA")', t: 's' });
     sc(ws, `C${r}`, 'Evaluasi AI & Tim Audit', STYLES.dataCell);
     r++;
 
     writeTitleRow(ws, r++, '', COLS, STYLES.empty, merges);
     writeTitleRow(ws, r++, 'CATATAN PEMERIKSAAN BUKTI POTONG PPH 21:', COLS, STYLES.sectionRow, merges);
 
-    ['1. Tunjangan PPh 21 (Gross-Up) dapat dibiayakan secara fiskal, sedangkan PPh 21 ditanggung perusahaan (non-gross-up) adalah NDE.',
-     '2. Pembayaran imbalan kepada tenaga ahli / komisaris non-aktif wajib dipotong PPh 21 bukan pegawai berkesinambungan/tidak.',
-     '3. Pemberian Natura & Kenikmatan wajib diuji sesuai PMK 66/2023 (objek PPh 21 vs non-objek).'
+    ['1. Tarif Efektif Rata-Rata (TER) Bulanan (Kategori A/B/C) diterapkan per pegawai sesuai status PTKP (PP 58/2023 jo. PMK 168/2023).',
+     '2. Tunjangan PPh 21 (Gross-Up) dapat dibiayakan secara fiskal, sedangkan PPh 21 ditanggung perusahaan (non-gross-up) adalah NDE.',
+     '3. Pembayaran imbalan kepada tenaga ahli / bukan pegawai / komisaris non-aktif wajib diuji apakah objek PPh 21 (OP) vs PPh 23 (Badan).',
+     '4. Pemberian Natura & Kenikmatan wajib diuji sesuai PMK 66/2023 (objek PPh 21 vs non-objek).'
     ].forEach(n => writeTitleRow(ws, r++, n, COLS, STYLES.noteText, merges));
 
     ws['!ref'] = `A1:C${r - 1}`;

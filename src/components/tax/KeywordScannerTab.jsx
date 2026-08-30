@@ -17,6 +17,12 @@ const KEYWORD_PRESETS = [
     keywords: ['jasa', 'service', 'maint', 'konsul', 'notaris', 'sewa', 'crane', 'outsourc', 'handling', 'repair', 'perbaikan', 'instalasi', 'tenaga ahli', 'forwarding']
   },
   {
+    id: 'PPH21',
+    label: 'Objek PPh 21 (Gaji & Imbalan Kerja)',
+    color: 'preset-pph21',
+    keywords: ['gaji', 'salary', 'upah', 'wage', 'honor', 'tunjangan', 'thr', 'bonus', 'lembur', 'overtime', 'pesangon', 'insentif', 'komisi karyawan', 'tantiem', 'narasumber', 'pemateri', 'natura', 'kenikmatan']
+  },
+  {
     id: 'PPH42',
     label: 'Objek PPh 4(2) (Sewa Gedung/Konstruksi)',
     color: 'preset-pph42',
@@ -67,7 +73,18 @@ function KeywordScannerTab({ glRows = [], taxMappings = [] }) {
       };
     }
 
-    // 2. Cek indikasi PPh 4(2) sewa properti/konstruksi
+    // 2. Cek indikasi PPh 21 tapi akun bukan PPH21
+    const isPph21Substance = ['gaji', 'salary', 'upah', 'honor', 'tunjangan', 'bonus', 'thr', 'lembur', 'pesangon', 'insentif', 'tantiem', 'narasumber'].some(k => memo.includes(k));
+    if (isPph21Substance && currentCategory !== 'PPH21') {
+      return {
+        isMisclassified: true,
+        detectedType: 'PPH21',
+        label: 'Objek PPh 21 Gaji/Imbalan',
+        reason: `Uraian memuat indikasi imbalan kerja/gaji, namun dicatat pada pos '${currentCategory}' (${row.namaAkun}).`
+      };
+    }
+
+    // 3. Cek indikasi PPh 4(2) sewa properti/konstruksi
     const isPph42Substance = ['sewa gedung', 'sewa kantor', 'sewa ruko', 'konstruksi', 'renovasi'].some(k => memo.includes(k));
     if (isPph42Substance && currentCategory !== 'PPH42') {
       return {
@@ -78,7 +95,7 @@ function KeywordScannerTab({ glRows = [], taxMappings = [] }) {
       };
     }
 
-    // 3. Cek indikasi Jamuan/Entertainment (NDE)
+    // 4. Cek indikasi Jamuan/Entertainment (NDE)
     const isNdeSubstance = ['jamuan', 'entertain', 'sumbangan', 'donasi', 'denda', 'sanksi'].some(k => memo.includes(k));
     if (isNdeSubstance && currentCategory !== 'FISCAL_CORRECTION') {
       return {
@@ -89,7 +106,7 @@ function KeywordScannerTab({ glRows = [], taxMappings = [] }) {
       };
     }
 
-    // 4. Akun penampung umum (Biaya Lain-lain / Rupa-rupa)
+    // 5. Akun penampung umum (Biaya Lain-lain / Rupa-rupa)
     if (['lain-lain', 'rupa-rupa', 'biaya umum', 'miscellaneous'].some(k => accountName.includes(k)) && (row.debit > 5000000 || row.kredit > 5000000)) {
       return {
         isMisclassified: true,

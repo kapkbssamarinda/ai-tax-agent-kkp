@@ -68,7 +68,26 @@ export function saveModel(model) {
   } catch { /* ignore */ }
 }
 
-const FALLBACK_MODELS = [
+export const HAIKU_MODELS = [
+  'claude-haiku-4-5-20251001',
+  'claude-3-5-haiku-20241022',
+  'claude-3-haiku-20240307'
+];
+
+export const SONNET_MODELS = [
+  'claude-sonnet-5',
+  'claude-5-sonnet',
+  'claude-3-7-sonnet-20250219',
+  'claude-3-5-sonnet-20241022',
+  'claude-sonnet-4-5-20250929'
+];
+
+export const MODEL_PRICING_RATES = {
+  haiku: { input: 0.25, output: 1.25 }, // USD per 1M tokens
+  sonnet: { input: 3.00, output: 15.00 } // USD per 1M tokens
+};
+
+export const FALLBACK_MODELS = [
   'claude-sonnet-5',
   'claude-5-sonnet',
   'claude-3-7-sonnet-20250219',
@@ -78,6 +97,59 @@ const FALLBACK_MODELS = [
   'claude-haiku-4-5-20251001',
   'claude-3-haiku-20240307'
 ];
+
+const AI_USAGE_KEY = 'gl_ai_usage_logs';
+
+/**
+ * Catat pemakaian AI ke sessionStorage untuk validasi cost split client-side
+ */
+export function logAIUsage({ model, feature = 'general', inputTokens = 0, outputTokens = 0 }) {
+  try {
+    const isHaiku = String(model || '').toLowerCase().includes('haiku');
+    const tier = isHaiku ? 'haiku' : 'sonnet';
+    const rate = MODEL_PRICING_RATES[tier] || MODEL_PRICING_RATES.sonnet;
+    const estimatedCostUSD = (inputTokens / 1_000_000) * rate.input + (outputTokens / 1_000_000) * rate.output;
+
+    const logEntry = {
+      id: `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      timestamp: new Date().toISOString(),
+      model,
+      tier,
+      feature,
+      inputTokens,
+      outputTokens,
+      totalTokens: inputTokens + outputTokens,
+      estimatedCostUSD: Number(estimatedCostUSD.toFixed(6))
+    };
+
+    const existingLogs = getAIUsageLogs();
+    existingLogs.push(logEntry);
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem(AI_USAGE_KEY, JSON.stringify(existingLogs.slice(-100)));
+    }
+    return logEntry;
+  } catch {
+    return null;
+  }
+}
+
+export function getAIUsageLogs() {
+  try {
+    if (typeof sessionStorage === 'undefined') return [];
+    const raw = sessionStorage.getItem(AI_USAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function clearAIUsageLogs() {
+  try {
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(AI_USAGE_KEY);
+    }
+  } catch { /* ignore */ }
+}
 
 /**
  * Unified fetch wrapper ke Claude API via Vercel serverless proxy.
@@ -102,6 +174,54 @@ async function callClaudeProxy({ model, max_tokens = 4096, system, messages, use
   }
 
   return response.json();
+}
+
+/**
+ * Wrapper pemanggilan model tier Haiku (Volume tinggi, klasifikasi & scan awal)
+ */
+export async function callHaiku({ system, messages, maxTokens = 2048, userId = null, feature = 'haiku-task' }) {
+  const candidateModels = [...HAIKU_MODELS, ...FALLBACK_MODELS.filter(m => !HAIKU_MODELS.includes(m))];
+  let lastError = null;
+
+  for (const model of candidateModels) {
+    try {
+      const data = await callClaudeProxy({ model, max_tokens: maxTokens, system, messages, userId });
+      const inputTokens = data.usage?.input_tokens || 0;
+      const outputTokens = data.usage?.output_tokens || 0;
+      logAIUsage({ model, feature, inputTokens, outputTokens });
+      return { data, model };
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('Gagal menghubungi AI model Haiku.');
+}
+
+/**
+ * Wrapper pemanggilan model tier Sonnet (Reasoning mendalam, exception assessment, disambiguasi, naskah hukum)
+ */
+export async function callSonnet({ system, messages, maxTokens = 4096, userId = null, feature = 'sonnet-task' }) {
+  const saved = getSavedModel();
+  const baseList = SONNET_MODELS.includes(saved)
+    ? [saved, ...SONNET_MODELS.filter(m => m !== saved)]
+    : SONNET_MODELS;
+  const candidateModels = [...baseList, ...FALLBACK_MODELS.filter(m => !baseList.includes(m))];
+  let lastError = null;
+
+  for (const model of candidateModels) {
+    try {
+      const data = await callClaudeProxy({ model, max_tokens: maxTokens, system, messages, userId });
+      const inputTokens = data.usage?.input_tokens || 0;
+      const outputTokens = data.usage?.output_tokens || 0;
+      logAIUsage({ model, feature, inputTokens, outputTokens });
+      return { data, model };
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('Gagal menghubungi AI model Sonnet.');
 }
 
 /**
@@ -405,65 +525,55 @@ Format objek temuan:
 ]
 `;
 
-  const candidateModels = [model, ...FALLBACK_MODELS.filter(m => m !== model)];
-  let lastError = null;
+  try {
+    const { data: resultData, model: usedModel } = await callSonnet({
+      system: MASTER_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userPrompt }],
+      maxTokens: 4096,
+      userId,
+      feature: 'tax-findings'
+    });
 
-  for (const targetModel of candidateModels) {
-    try {
-      const resultData = await callClaudeProxy({
-        model: targetModel,
-        max_tokens: 4096,
-        system: MASTER_SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: userPrompt }],
-        userId
-      });
-
-      const text = resultData.content?.[0]?.text || '';
-      
-      const parsedArray = extractAndParseClaudeJson(text);
-      if (Array.isArray(parsedArray) && parsedArray.length > 0) {
-        if (targetModel !== model) {
-          saveModel(targetModel);
-        }
-        const modelLabel = targetModel.includes('sonnet') ? 'AI Claude Sonnet' : 'AI Claude Haiku';
-        return parsedArray.map((f, idx) => ({
-          findingId: f.findingId || `TR-${String(idx + 1).padStart(3, '0')}`,
-          taxArea: f.taxArea || 'Pajak Terkait',
-          account: f.account || 'Akun Buku Besar',
-          period: f.period || (clientInfo?.taxYear ? `Tahun Pajak ${clientInfo.taxYear}` : 'Tahun Berjalan'),
-          condition: f.condition || f.aiAnalysis || 'Kondisi faktual teridentifikasi di Buku Besar.',
-          criteria: f.criteria || f.legalBasis || 'Ketentuan perundang-undangan perpajakan yang berlaku.',
-          cause: f.cause || (f.isMisclassified ? 'Salah kamar pembukuan akun' : 'Perbedaan pengakuan transaksi / kelalaian pemotongan'),
-          effect: f.effect || (f.potentialExposure ? `Potensi eksposur perpajakan sebesar Rp ${new Intl.NumberFormat('id-ID').format(f.potentialExposure)}` : 'Potensi sanksi kepatuhan formal'),
-          substanceCategory: f.substanceCategory || 'Substansi Objek Pajak',
-          exceptionCategory: f.exceptionCategory || (f.isMisclassified ? 'l' : 'a'),
-          isMisclassified: !!f.isMisclassified,
-          glValue: Number(f.glValue) || 0,
-          identifiedValue: Number(f.identifiedValue) || 0,
-          unmatchedValue: Number(f.unmatchedValue) || 0,
-          potentialExposure: Number(f.potentialExposure) || 0,
-          probability: Number(f.probability) || 3,
-          impact: Number(f.impact) || 3,
-          riskScore: Number(f.riskScore) || ((Number(f.probability) || 3) * (Number(f.impact) || 3)),
-          riskLevel: f.riskLevel || 'MEDIUM',
-          legalBasis: f.legalBasis || 'LEGAL BASIS REQUIRES HUMAN VERIFICATION',
-          aiAnalysis: f.aiAnalysis || 'Hasil analisis semantik AI Claude.',
-          evidenceRequired: f.evidenceRequired || 'Dokumen pendukung transaksi.',
-          evidenceMissing: f.evidenceMissing || '',
-          recommendation: f.recommendation || 'Verifikasi dokumen dan konfirmasi klien.',
-          managementResponse: '',
-          reviewerDecision: '',
-          status: f.status || 'PROVISIONAL',
-          sourceEngine: 'AI_CLAUDE',
-          engineLabel: modelLabel
-        }));
-      }
-    } catch (err) {
-      lastError = err.message;
+    const text = resultData.content?.[0]?.text || '';
+    const parsedArray = extractAndParseClaudeJson(text);
+    if (Array.isArray(parsedArray) && parsedArray.length > 0) {
+      const modelLabel = usedModel.includes('sonnet') ? 'AI Claude Sonnet' : 'AI Claude Haiku';
+      return parsedArray.map((f, idx) => ({
+        findingId: f.findingId || `TR-${String(idx + 1).padStart(3, '0')}`,
+        taxArea: f.taxArea || 'Pajak Terkait',
+        account: f.account || 'Akun Buku Besar',
+        period: f.period || (clientInfo?.taxYear ? `Tahun Pajak ${clientInfo.taxYear}` : 'Tahun Berjalan'),
+        condition: f.condition || f.aiAnalysis || 'Kondisi faktual teridentifikasi di Buku Besar.',
+        criteria: f.criteria || f.legalBasis || 'Ketentuan perundang-undangan perpajakan yang berlaku.',
+        cause: f.cause || (f.isMisclassified ? 'Salah kamar pembukuan akun' : 'Perbedaan pengakuan transaksi / kelalaian pemotongan'),
+        effect: f.effect || (f.potentialExposure ? `Potensi eksposur perpajakan sebesar Rp ${new Intl.NumberFormat('id-ID').format(f.potentialExposure)}` : 'Potensi sanksi kepatuhan formal'),
+        substanceCategory: f.substanceCategory || 'Substansi Objek Pajak',
+        exceptionCategory: f.exceptionCategory || (f.isMisclassified ? 'l' : 'a'),
+        isMisclassified: !!f.isMisclassified,
+        glValue: Number(f.glValue) || 0,
+        identifiedValue: Number(f.identifiedValue) || 0,
+        unmatchedValue: Number(f.unmatchedValue) || 0,
+        potentialExposure: Number(f.potentialExposure) || 0,
+        probability: Number(f.probability) || 3,
+        impact: Number(f.impact) || 3,
+        riskScore: Number(f.riskScore) || ((Number(f.probability) || 3) * (Number(f.impact) || 3)),
+        riskLevel: f.riskLevel || 'MEDIUM',
+        legalBasis: f.legalBasis || 'LEGAL BASIS REQUIRES HUMAN VERIFICATION',
+        aiAnalysis: f.aiAnalysis || 'Hasil analisis semantik AI Claude.',
+        evidenceRequired: f.evidenceRequired || 'Dokumen pendukung transaksi.',
+        evidenceMissing: f.evidenceMissing || '',
+        recommendation: f.recommendation || 'Verifikasi dokumen dan konfirmasi klien.',
+        managementResponse: '',
+        reviewerDecision: '',
+        status: f.status || 'PROVISIONAL',
+        sourceEngine: 'AI_CLAUDE',
+        engineLabel: modelLabel
+      }));
     }
+    throw new Error('Hasil analisis AI tidak menghasilkan array temuan yang valid.');
+  } catch (err) {
+    throw new Error(`Gagal mem-parse JSON hasil analisis AI: ${err.message}`);
   }
-
-  throw new Error(`Gagal mem-parse JSON hasil analisis AI: ${lastError}`);
 }
 
 /**
@@ -799,56 +909,143 @@ Output HANYA berupa array JSON murni, mulai dengan '[':
 [{"coa":"...","namaAkun":"...","aiCategory":"ID_KATEGORI","aiConfidence":0.0-1.0,"aiReason":"Penjelasan singkat"}]
 `;
 
-  const candidateModels = [model, ...FALLBACK_MODELS.filter(m => m !== model)];
+  try {
+    const { data: resultData } = await callHaiku({
+      system: 'Anda adalah AI Tax Agent Indonesia. Klasifikasikan akun buku besar ke pos pajak yang benar berdasarkan substansi transaksi.',
+      messages: [{ role: 'user', content: classificationPrompt }],
+      maxTokens: 2048,
+      userId,
+      feature: 'tax-mapping'
+    });
 
-  for (const targetModel of candidateModels) {
-    try {
-      const resultData = await callClaudeProxy({
-        model: targetModel,
-        max_tokens: 2048,
-        system: 'Anda adalah AI Tax Agent Indonesia. Klasifikasikan akun buku besar ke pos pajak yang benar berdasarkan substansi transaksi.',
-        messages: [{ role: 'user', content: classificationPrompt }],
-        userId
+    const text = resultData.content?.[0]?.text || '';
+    const parsed = extractAndParseClaudeJson(text);
+
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      const aiMap = new Map();
+      parsed.forEach(item => {
+        if (item.namaAkun && item.aiCategory) aiMap.set(item.namaAkun, item);
       });
 
-      const text = resultData.content?.[0]?.text || '';
-      const parsed = extractAndParseClaudeJson(text);
-
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        const aiMap = new Map();
-        parsed.forEach(item => {
-          if (item.namaAkun && item.aiCategory) aiMap.set(item.namaAkun, item);
-        });
-
-        return accounts.map(acc => {
-          const ai = aiMap.get(acc.namaAkun);
-          if (ai && ai.aiCategory !== acc.category) {
-            return {
-              ...acc,
-              category: ai.aiCategory,
-              heuristicCategory: acc.category,
-              aiCategory: ai.aiCategory,
-              aiConfidence: Number(ai.aiConfidence) || 0.5,
-              aiReason: ai.aiReason || '',
-              aiOverridden: true
-            };
-          }
+      return accounts.map(acc => {
+        const ai = aiMap.get(acc.namaAkun);
+        if (ai && ai.aiCategory !== acc.category) {
           return {
             ...acc,
-            aiCategory: ai?.aiCategory || acc.category,
-            aiConfidence: ai ? Number(ai.aiConfidence) || 0.8 : null,
-            aiReason: ai?.aiReason || '',
-            aiOverridden: false
+            category: ai.aiCategory,
+            heuristicCategory: acc.category,
+            aiCategory: ai.aiCategory,
+            aiConfidence: Number(ai.aiConfidence) || 0.5,
+            aiReason: ai.aiReason || '',
+            aiOverridden: true
           };
-        });
-      }
-    } catch (err) {
-      console.warn(`AI classification failed with ${targetModel}:`, err);
+        }
+        return {
+          ...acc,
+          aiCategory: ai?.aiCategory || acc.category,
+          aiConfidence: ai ? Number(ai.aiConfidence) || 0.8 : null,
+          aiReason: ai?.aiReason || '',
+          aiOverridden: false
+        };
+      });
     }
+  } catch (err) {
+    console.warn('AI classification failed with Haiku:', err);
   }
 
   console.warn('AI account classification gagal, menggunakan heuristik saja');
   return accounts;
+}
+
+/**
+ * Analisis Disambiguasi Akun Ambigu (PPh 21 Orang Pribadi vs PPh 23 Badan Hukum)
+ * Menggunakan Claude Sonnet untuk menganalisis substansi transaksi pada akun
+ * seperti Honorarium, Komisi, Jasa Konsultan Perorangan, Tenaga Ahli, dll.
+ * @param {{ accounts: Array, glRows: Array, userId?: string }}
+ * @returns {Promise<Array<{ coa: string, namaAkun: string, classification: string, confidence: number, reason: string, recommendedTaxTreatment: string, legalBasis: string }>>}
+ */
+export async function analyzeHonorariumClassification({ accounts = [], glRows = [], userId = null }) {
+  if (!accounts || accounts.length === 0) return [];
+
+  // Filter akun-akun yang berpotensi ambigu (honor, komisi, fee, jasa, tenaga ahli, konsul, dokter)
+  const ambiguousKeywords = ['honor', 'komisi', 'fee', 'jasa', 'konsul', 'tenaga ahli', 'narasumber', 'dokter', 'ahli'];
+  const targetAccounts = accounts.filter(acc => {
+    const name = String(acc.namaAkun || '').toLowerCase();
+    return ambiguousKeywords.some(k => name.includes(k));
+  });
+
+  if (targetAccounts.length === 0) return [];
+
+  const accountSummaries = targetAccounts.map(acc => {
+    const sampleRows = glRows
+      .filter(r => r.namaAkun === acc.namaAkun && r.keterangan !== 'Saldo Awal')
+      .slice(0, 4)
+      .map(r => ({
+        keterangan: r.keterangan || r.communication || '-',
+        nominal: (r.debit || 0) || (r.kredit || r.credit || 0),
+        partner: r.partner || '-'
+      }));
+
+    return {
+      coa: acc.coa,
+      namaAkun: acc.namaAkun,
+      currentCategory: acc.category,
+      totalDebit: acc.totalDebit,
+      sampleTransactions: sampleRows
+    };
+  });
+
+  const prompt = `
+Anda adalah AI Senior Tax Partner Indonesia.
+Tugas: Lakukan analisis disambiguasi apakah akun-akun berikut seharusnya dikenakan pemotongan PPh Pasal 21 (Orang Pribadi) atau PPh Pasal 23 (Badan Hukum/Jasa Lainnya).
+
+Pedoman Regulasi:
+1. PPh Pasal 21 (UU HPP jo. PP 58/2023 & PMK 168/2023):
+   - Imbalan kepada Tenaga Ahli / Bukan Pegawai / Narasumber / Dokter / Pengacara / Konsultan Perorangan (Orang Pribadi).
+   - Honorarium, komisi agen perorangan, upah harian/borongan, uang saku/transport peserta kegiatan OP.
+2. PPh Pasal 23 (UU PPh jo. PMK 141/2015):
+   - Imbalan jasa manajemen, teknik, konsultan, dan jasa lain yang dibayarkan kepada Wajib Pajak Badan Hukum (PT, CV, Firma, Vendor Berbadan Hukum).
+   - Sewa dan penghasilan lain sehubungan dengan penggunaan harta (selain tanah/bangunan).
+3. Jika terdapat indikasi kuat ke Orang Pribadi (nama perorangan di uraian/partner) → PPH21.
+4. Jika terdapat indikasi kuat ke Vendor Badan (PT/CV di uraian/partner) → PPH23.
+5. Jika data belum cukup membedakan, tentukan yang paling probabel dengan confidence < 0.6 dan rekomendasikan pengecekan NPWP/status vendor.
+
+Daftar Akun:
+${JSON.stringify(accountSummaries, null, 2)}
+
+Output HANYA berupa JSON array murni, mulai dengan '[' dan akhiri dengan ']':
+[
+  {
+    "coa": "string",
+    "namaAkun": "string",
+    "classification": "PPH21" | "PPH23",
+    "confidence": 0.0 - 1.0,
+    "reason": "Penjelasan hukum dan substansi singkat mengapa masuk PPh 21 atau PPh 23",
+    "recommendedTaxTreatment": "Tarif & mekanisme pemotongan yang disarankan (misal: TER PPh 21 Bukan Pegawai atau PPh 23 2%)",
+    "legalBasis": "Kutipan pasal regulasi (UU PPh / PMK 168/2023 / PMK 141/2015)"
+  }
+]
+`;
+
+  try {
+    const { data: resultData } = await callSonnet({
+      system: MASTER_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: prompt }],
+      maxTokens: 3000,
+      userId,
+      feature: 'honorarium-disambiguation'
+    });
+
+    const text = resultData.content?.[0]?.text || '';
+    const parsed = extractAndParseClaudeJson(text);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+    return [];
+  } catch (err) {
+    console.warn('Disambiguation analysis failed:', err);
+    return [];
+  }
 }
 
 /**
@@ -863,7 +1060,6 @@ export async function generateSP2DKResponseWithClaude({
   taxMappings = [],
   userId = null
 }) {
-  const model = getSavedModel();
   const userPrompt = buildSP2DKClaudePrompt({
     clientInfo,
     sp2dkMeta,
@@ -873,63 +1069,58 @@ export async function generateSP2DKResponseWithClaude({
     taxMappings
   });
 
-  const candidateModels = [model, ...FALLBACK_MODELS.filter(m => m !== model)];
-  let lastError = null;
+  try {
+    const { data: resultData, model: usedModel } = await callSonnet({
+      system: MASTER_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userPrompt }],
+      maxTokens: 4096,
+      userId,
+      feature: 'sp2dk-response'
+    });
 
-  for (const targetModel of candidateModels) {
+    const text = resultData.content?.[0]?.text || '';
+    const modelLabel = usedModel.includes('sonnet') ? 'AI Claude Sonnet' : 'AI Claude Haiku';
+
+    // Parse respons JSON terstruktur
+    let parsed = null;
     try {
-      const resultData = await callClaudeProxy({
-        model: targetModel,
-        max_tokens: 4096,
-        system: MASTER_SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: userPrompt }],
-        userId
-      });
-
-      const text = resultData.content?.[0]?.text || '';
-      const modelLabel = targetModel.includes('sonnet') ? 'AI Claude Sonnet' : 'AI Claude Haiku';
-
-      // Parse respons JSON terstruktur
-      let parsed = null;
-      try {
-        const clean = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-        const jsonMatch = clean.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          parsed = JSON.parse(jsonMatch[0]);
-        }
-      } catch (e) {
-        console.warn('SP2DK response JSON parsing fallback:', e);
+      const clean = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+      const jsonMatch = clean.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsed = JSON.parse(jsonMatch[0]);
       }
-
-      if (parsed && (parsed.naskahLengkapSurat || parsed.pembuka)) {
-        return {
-          sourceEngine: 'AI_CLAUDE',
-          engineLabel: modelLabel,
-          nomorSuratTanggapan: parsed.nomorSuratTanggapan || `${clientInfo.npwp ? clientInfo.npwp.replace(/\D/g, '').slice(0, 4) : '001'}/EXT/TAX/${new Date().getFullYear()}`,
-          tanggalTanggapan: parsed.tanggalTanggapan || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-          fullLetter: parsed.naskahLengkapSurat || text,
-          poinTanggapan: parsed.poinTanggapan || [],
-          docList: parsed.daftarLampiranDokumen || []
-        };
-      }
-
-      // Fallback jika dikembalikan langsung sebagai teks surat
-      if (text.length > 100) {
-        return {
-          sourceEngine: 'AI_CLAUDE',
-          engineLabel: modelLabel,
-          nomorSuratTanggapan: `${clientInfo.npwp ? clientInfo.npwp.replace(/\D/g, '').slice(0, 4) : '001'}/EXT/TAX/${new Date().getFullYear()}`,
-          tanggalTanggapan: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-          fullLetter: text,
-          docList: ['Buku Besar (General Ledger)', 'Rekapitulasi Faktur Pajak & SPT', 'Bukti Transaksi Pendukung']
-        };
-      }
-    } catch (err) {
-      lastError = err.message;
+    } catch (e) {
+      console.warn('SP2DK response JSON parsing fallback:', e);
     }
+
+    if (parsed && (parsed.naskahLengkapSurat || parsed.pembuka)) {
+      return {
+        sourceEngine: 'AI_CLAUDE',
+        engineLabel: modelLabel,
+        nomorSuratTanggapan: parsed.nomorSuratTanggapan || `${clientInfo.npwp ? clientInfo.npwp.replace(/\D/g, '').slice(0, 4) : '001'}/EXT/TAX/${new Date().getFullYear()}`,
+        tanggalTanggapan: parsed.tanggalTanggapan || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+        fullLetter: parsed.naskahLengkapSurat || text,
+        poinTanggapan: parsed.poinTanggapan || [],
+        docList: parsed.daftarLampiranDokumen || []
+      };
+    }
+
+    // Fallback jika dikembalikan langsung sebagai teks surat
+    if (text.length > 100) {
+      return {
+        sourceEngine: 'AI_CLAUDE',
+        engineLabel: modelLabel,
+        nomorSuratTanggapan: `${clientInfo.npwp ? clientInfo.npwp.replace(/\D/g, '').slice(0, 4) : '001'}/EXT/TAX/${new Date().getFullYear()}`,
+        tanggalTanggapan: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+        fullLetter: text,
+        docList: ['Buku Besar (General Ledger)', 'Rekapitulasi Faktur Pajak & SPT', 'Bukti Transaksi Pendukung']
+      };
+    }
+  } catch (err) {
+    throw new Error(`Gagal menghasilkan surat tanggapan dengan Claude AI: ${err.message}`);
   }
 
-  throw new Error(`Gagal menghasilkan surat tanggapan dengan Claude AI: ${lastError}`);
+  throw new Error('Gagal menghasilkan surat tanggapan: format respons AI tidak dikenali.');
 }
 
 

@@ -32,6 +32,202 @@ export const TAX_RATES = {
 };
 
 /**
+ * Tabel Tarif Efektif Rata-Rata (TER) PPh 21 (PP 58/2023 jo. PMK 168/2023)
+ * Berlaku untuk pemotongan PPh Pasal 21 bulanan Masa Pajak Januari s.d. November.
+ */
+export const TER_RATES = {
+  // Kategori A: PTKP TK/0 (54 jt), TK/1 (58.5 jt), K/0 (58.5 jt)
+  A: [
+    { upTo: 5400000, rate: 0.00 },
+    { upTo: 5650000, rate: 0.0025 },
+    { upTo: 5950000, rate: 0.005 },
+    { upTo: 6300000, rate: 0.0075 },
+    { upTo: 6750000, rate: 0.01 },
+    { upTo: 7500000, rate: 0.0125 },
+    { upTo: 8550000, rate: 0.015 },
+    { upTo: 9650000, rate: 0.0175 },
+    { upTo: 10050000, rate: 0.02 },
+    { upTo: 10350000, rate: 0.0225 },
+    { upTo: 10700000, rate: 0.025 },
+    { upTo: 11050000, rate: 0.03 },
+    { upTo: 11600000, rate: 0.035 },
+    { upTo: 12500000, rate: 0.04 },
+    { upTo: 13750000, rate: 0.05 },
+    { upTo: 15100000, rate: 0.06 },
+    { upTo: 16950000, rate: 0.07 },
+    { upTo: 19750000, rate: 0.08 },
+    { upTo: 24100000, rate: 0.09 },
+    { upTo: 26450000, rate: 0.10 },
+    { upTo: 28000000, rate: 0.11 },
+    { upTo: 30050000, rate: 0.12 },
+    { upTo: 32400000, rate: 0.13 },
+    { upTo: 35400000, rate: 0.14 },
+    { upTo: 39100000, rate: 0.15 },
+    { upTo: 43850000, rate: 0.16 },
+    { upTo: 47800000, rate: 0.17 },
+    { upTo: 51400000, rate: 0.18 },
+    { upTo: 56300000, rate: 0.19 },
+    { upTo: 62200000, rate: 0.20 },
+    { upTo: 68600000, rate: 0.21 },
+    { upTo: 77500000, rate: 0.22 },
+    { upTo: 89000000, rate: 0.23 },
+    { upTo: 103000000, rate: 0.24 },
+    { upTo: 125000000, rate: 0.25 },
+    { upTo: 157000000, rate: 0.26 },
+    { upTo: 206000000, rate: 0.27 },
+    { upTo: 337000000, rate: 0.28 },
+    { upTo: 454000000, rate: 0.29 },
+    { upTo: 550000000, rate: 0.30 },
+    { upTo: 695000000, rate: 0.31 },
+    { upTo: 910000000, rate: 0.32 },
+    { upTo: 1400000000, rate: 0.33 },
+    { upTo: Infinity, rate: 0.34 }
+  ],
+  // Kategori B: PTKP TK/2 (63 jt), TK/3 (67.5 jt), K/1 (63 jt), K/2 (67.5 jt)
+  B: [
+    { upTo: 6200000, rate: 0.00 },
+    { upTo: 6500000, rate: 0.0025 },
+    { upTo: 6850000, rate: 0.005 },
+    { upTo: 7300000, rate: 0.0075 },
+    { upTo: 9200000, rate: 0.01 },
+    { upTo: 10750000, rate: 0.015 },
+    { upTo: 11250000, rate: 0.02 },
+    { upTo: 11600000, rate: 0.025 },
+    { upTo: 12600000, rate: 0.03 },
+    { upTo: 13600000, rate: 0.04 },
+    { upTo: 14950000, rate: 0.05 },
+    { upTo: 16400000, rate: 0.06 },
+    { upTo: 18450000, rate: 0.07 },
+    { upTo: 21850000, rate: 0.08 },
+    { upTo: 26000000, rate: 0.09 },
+    { upTo: 27700000, rate: 0.10 },
+    { upTo: 29350000, rate: 0.11 },
+    { upTo: 31450000, rate: 0.12 },
+    { upTo: 33950000, rate: 0.13 },
+    { upTo: 37100000, rate: 0.14 },
+    { upTo: 41100000, rate: 0.15 },
+    { upTo: 45800000, rate: 0.16 },
+    { upTo: 49500000, rate: 0.17 },
+    { upTo: 53800000, rate: 0.18 },
+    { upTo: 58500000, rate: 0.19 },
+    { upTo: 64000000, rate: 0.20 },
+    { upTo: 71000000, rate: 0.21 },
+    { upTo: 80000000, rate: 0.22 },
+    { upTo: 93000000, rate: 0.23 },
+    { upTo: 109000000, rate: 0.24 },
+    { upTo: 129000000, rate: 0.25 },
+    { upTo: 163000000, rate: 0.26 },
+    { upTo: 211000000, rate: 0.27 },
+    { upTo: 374000000, rate: 0.28 },
+    { upTo: 459000000, rate: 0.29 },
+    { upTo: 555000000, rate: 0.30 },
+    { upTo: 704000000, rate: 0.31 },
+    { upTo: 957000000, rate: 0.32 },
+    { upTo: 1405000000, rate: 0.33 },
+    { upTo: Infinity, rate: 0.34 }
+  ],
+  // Kategori C: PTKP K/3 (72 jt)
+  C: [
+    { upTo: 6600000, rate: 0.00 },
+    { upTo: 6950000, rate: 0.0025 },
+    { upTo: 7350000, rate: 0.005 },
+    { upTo: 7800000, rate: 0.0075 },
+    { upTo: 8850000, rate: 0.01 },
+    { upTo: 9800000, rate: 0.0125 },
+    { upTo: 10950000, rate: 0.015 },
+    { upTo: 11200000, rate: 0.0175 },
+    { upTo: 12050000, rate: 0.02 },
+    { upTo: 12950000, rate: 0.03 },
+    { upTo: 14150000, rate: 0.04 },
+    { upTo: 15550000, rate: 0.05 },
+    { upTo: 17050000, rate: 0.06 },
+    { upTo: 19500000, rate: 0.07 },
+    { upTo: 22700000, rate: 0.08 },
+    { upTo: 26600000, rate: 0.09 },
+    { upTo: 28100000, rate: 0.10 },
+    { upTo: 30100000, rate: 0.11 },
+    { upTo: 32600000, rate: 0.12 },
+    { upTo: 35400000, rate: 0.13 },
+    { upTo: 38900000, rate: 0.14 },
+    { upTo: 43000000, rate: 0.15 },
+    { upTo: 47400000, rate: 0.16 },
+    { upTo: 51200000, rate: 0.17 },
+    { upTo: 55800000, rate: 0.18 },
+    { upTo: 60800000, rate: 0.19 },
+    { upTo: 66700000, rate: 0.20 },
+    { upTo: 74500000, rate: 0.21 },
+    { upTo: 83200000, rate: 0.22 },
+    { upTo: 95600000, rate: 0.23 },
+    { upTo: 110000000, rate: 0.24 },
+    { upTo: 134000000, rate: 0.25 },
+    { upTo: 169000000, rate: 0.26 },
+    { upTo: 221000000, rate: 0.27 },
+    { upTo: 390000000, rate: 0.28 },
+    { upTo: 463000000, rate: 0.29 },
+    { upTo: 561000000, rate: 0.30 },
+    { upTo: 709000000, rate: 0.31 },
+    { upTo: 965000000, rate: 0.32 },
+    { upTo: 1419000000, rate: 0.33 },
+    { upTo: Infinity, rate: 0.34 }
+  ],
+  // TER Harian (PP 58/2023 Pasal 3)
+  HARIAN: [
+    { upTo: 450000, rate: 0.00 },
+    { upTo: 2500000, rate: 0.005 }
+  ]
+};
+
+/**
+ * Menentukan Kategori TER (A, B, atau C) berdasarkan status PTKP.
+ * @param {string} ptkpStatus - Contoh: 'TK/0', 'TK/1', 'K/0', 'TK/2', 'TK/3', 'K/1', 'K/2', 'K/3'
+ * @returns {'A'|'B'|'C'}
+ */
+export function getTERCategory(ptkpStatus = 'TK/0') {
+  const norm = String(ptkpStatus || '').toUpperCase().trim().replace(/\s+/g, '');
+  if (norm === 'K/3' || norm === 'K3') return 'C';
+  if (['TK/2', 'TK2', 'TK/3', 'TK3', 'K/1', 'K1', 'K/2', 'K2'].includes(norm)) return 'B';
+  return 'A'; // Default Kategori A: TK/0, TK/1, K/0
+}
+
+/**
+ * Mengambil persentase tarif TER Bulanan berdasarkan penghasilan bruto dan status PTKP.
+ * @param {number} grossMonthly - Penghasilan bruto bulanan (Rp)
+ * @param {string} ptkpStatus - Status PTKP ('TK/0', 'K/1', dsb.)
+ * @returns {number} Persentase tarif (misal 0.015 untuk 1.5%)
+ */
+export function getTERMonthlyRate(grossMonthly, ptkpStatus = 'TK/0') {
+  const gross = Math.max(0, Number(grossMonthly) || 0);
+  const category = getTERCategory(ptkpStatus);
+  const table = TER_RATES[category] || TER_RATES.A;
+
+  for (const tier of table) {
+    if (gross <= tier.upTo) {
+      return tier.rate;
+    }
+  }
+  return 0.34;
+}
+
+/**
+ * Menghitung pemotongan PPh 21 bulanan berdasarkan TER PMK 168/2023.
+ * @param {number} grossMonthly - Penghasilan bruto bulanan
+ * @param {string} ptkpStatus - Status PTKP
+ * @returns {{ gross: number, category: string, rate: number, tax: number }}
+ */
+export function calculatePPh21TERMonthly(grossMonthly, ptkpStatus = 'TK/0') {
+  const gross = Math.max(0, Number(grossMonthly) || 0);
+  const category = getTERCategory(ptkpStatus);
+  const rate = getTERMonthlyRate(gross, ptkpStatus);
+  const tax = Math.round(gross * rate);
+  return {
+    gross,
+    category,
+    rate,
+    tax
+  };
+}
+
+/**
  * Menghitung potensi pokok pajak PPh 23
  */
 export function calculatePPh23Exposure(unmatchedAmount, hasNpwp = true, isService = true) {

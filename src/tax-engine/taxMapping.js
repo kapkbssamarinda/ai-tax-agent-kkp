@@ -38,9 +38,14 @@ export function autoClassifyAccount(coa, namaAkun) {
     return 'REVENUE';
   }
 
-  // 2. PPh 21 (Gaji, Upah, Honorarium, THR, Bonus, Tunjangan, Pesangon)
+  // 2. PPh 21 (Gaji, Upah, Honorarium, THR, Bonus, Tunjangan, Pesangon, Insentif, Lembur, Tantiem, Jasa Dokter/Narasumber)
   if (name.includes('gaji') || name.includes('salary') || name.includes('upah') || name.includes('wage') || 
-      name.includes('honor') || name.includes('tunjangan') || name.includes('thr') || name.includes('bonus') || name.includes('lembur')) {
+      name.includes('honor') || name.includes('tunjangan') || name.includes('thr') || name.includes('bonus') || 
+      name.includes('lembur') || name.includes('overtime') || name.includes('pesangon') || name.includes('insentif') ||
+      name.includes('incentive') || name.includes('komisi karyawan') || name.includes('tantiem') ||
+      name.includes('jasa dokter') || name.includes('narasumber') || name.includes('pemateri') ||
+      (name.includes('direksi') && !name.includes('prive')) || name.includes('komisaris') ||
+      name.includes('natura') || name.includes('kenikmatan')) {
     return 'PPH21';
   }
 

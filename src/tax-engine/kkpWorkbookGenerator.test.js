@@ -196,8 +196,8 @@ describe('KKP 19-Sheet Styled Workbook Generator', () => {
     const wsPph21 = wb.Sheets['06C_RECON_PPH21'];
     expect(wsPph21['B7'].f).toBe('=B5*B6');
     expect(wsPph21['B9'].f).toBe('=MAX(0,B7-B8)');
-    expect(wsPph21['B10'].f).toBe('=B9*0.012*24');
-    expect(wsPph21['B11'].f).toBe('=B9+B10');
+    expect(wsPph21['B12'].f).toBe('=B9*B10*B11');
+    expect(wsPph21['B13'].f).toBe('=B9+B12');
 
     // 06D_RECON_PPH_FINAL
     const wsPphFinal = wb.Sheets['06D_RECON_PPH_FINAL'];

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Bot, FileSpreadsheet, ShieldCheck, Scale, Calculator, BookOpen, AlertCircle, Loader2, Sparkles, Check, Search, FileText, FileUp, X, Building2, Users } from 'lucide-react';
 import { TAX_CATEGORIES } from '../../tax-engine/taxMapping';
 import { REGULATION_DATABASE } from '../../services/regulationDB';
+import { analyzeHonorariumClassification } from '../../services/claudeService';
 import TaxRiskRegister from './TaxRiskRegister';
 import KeywordScannerTab from './KeywordScannerTab';
 import { downloadKKPWorkbook } from '../../tax-engine/kkpWorkbookGenerator';
@@ -52,6 +53,8 @@ function TaxReconWorkbench({
   const [payrollSptInput, setPayrollSptInput] = useState(payrollRecon.sptBrutoTotal || 0);
   const [finalBupotInput, setFinalBupotInput] = useState(finalTaxRecon.bupotDPPTotal || 0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDisambiguating, setIsDisambiguating] = useState(false);
+  const [disambiguationResults, setDisambiguationResults] = useState(null);
 
   // Sync inputs bila angka rekonsiliasi diperbarui dari luar/ganti file
   useEffect(() => {
@@ -84,6 +87,22 @@ function TaxReconWorkbench({
 
   const handleApplyFinalBupot = () => {
     onUpdateFinalTaxBupot?.(parseFloat(finalBupotInput) || 0);
+  };
+
+  const handleRunDisambiguation = async () => {
+    setIsDisambiguating(true);
+    try {
+      const results = await analyzeHonorariumClassification({
+        accounts: taxMappings,
+        glRows,
+        userId: clientInfo?.userId || null
+      });
+      setDisambiguationResults(results);
+    } catch (err) {
+      console.error('Gagal menjalankan disambiguasi:', err);
+    } finally {
+      setIsDisambiguating(false);
+    }
   };
 
   const handleDownloadKKP = () => {
@@ -721,6 +740,65 @@ function TaxReconWorkbench({
             </div>
           </div>
 
+          {/* Action Bar Disambiguasi Honorarium PPh 21 vs PPh 23 */}
+          <div className="recon-action-banner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Bot size={18} className="text-accent" />
+              <div>
+                <strong style={{ fontSize: '13px', color: 'var(--text-main, #1e293b)' }}>Disambiguasi Honorarium &amp; Jasa Perorangan (Claude Sonnet)</strong>
+                <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-muted, #64748b)' }}>
+                  Analisis substansi transaksi akun ambigu (honorarium/komisi) untuk memisahkan kewajiban PPh 21 (Orang Pribadi / TER) vs PPh 23 (Badan Hukum).
+                </p>
+              </div>
+            </div>
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={handleRunDisambiguation}
+              disabled={isDisambiguating}
+              style={{ whiteSpace: 'nowrap' }}
+            >
+              {isDisambiguating ? (
+                <><Loader2 size={13} className="spinner-inline" /> Menganalisis...</>
+              ) : (
+                <><Sparkles size={13} className="text-accent" /> Scan Akun Ambigu (Sonnet)</>
+              )}
+            </button>
+          </div>
+
+          {/* Callout Hasil Disambiguasi Sonnet jika ada */}
+          {disambiguationResults && disambiguationResults.length > 0 && (
+            <div className="disambiguation-results-box" style={{ background: 'var(--bg-surface, #ffffff)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: '8px', padding: '14px', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <strong style={{ fontSize: '13px', color: 'var(--color-primary, #2563eb)' }}>
+                  Hasil Analisis Disambiguasi AI ({disambiguationResults.length} Akun Ditelaah):
+                </strong>
+                <button className="btn-icon-subtle" onClick={() => setDisambiguationResults(null)} title="Tutup hasil">
+                  <X size={14} />
+                </button>
+              </div>
+              <div style={{ display: 'grid', gap: '8px' }}>
+                {disambiguationResults.map((item, idx) => (
+                  <div key={idx} style={{ padding: '10px', borderRadius: '6px', background: 'var(--bg-muted, #f8fafc)', borderLeft: item.classification === 'PPH21' ? '4px solid #10b981' : '4px solid #f59e0b' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <span style={{ fontWeight: 600, fontSize: '12px' }}>{item.coa} - {item.namaAkun}</span>
+                      <span className={`badge-tax-tag ${item.classification === 'PPH21' ? 'badge-bupot' : 'badge-fp'}`}>
+                        Rekomendasi: {item.classification} (Confidence: {Math.round((item.confidence || 0.8) * 100)}%)
+                      </span>
+                    </div>
+                    <p style={{ margin: '2px 0', fontSize: '11px', color: 'var(--text-main, #334155)' }}>
+                      <strong>Alasan:</strong> {item.reason}
+                    </p>
+                    {item.recommendedTaxTreatment && (
+                      <p style={{ margin: '2px 0', fontSize: '11px', color: 'var(--text-muted, #64748b)' }}>
+                        <strong>Perlakuan Pajak:</strong> {item.recommendedTaxTreatment} &bull; <em>{item.legalBasis}</em>
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Rincian Transaksi Beban Gaji */}
           <div className="recon-detail-section">
             <div className="detail-section-header">
@@ -728,7 +806,7 @@ function TaxReconWorkbench({
                 <Users size={18} className="text-accent" />
                 <div>
                   <h3 className="detail-title">Rincian Transaksi Beban Gaji &amp; Imbalan Tenaga Kerja (Objek PPh 21)</h3>
-                  <p className="detail-subtitle">Daftar baris transaksi biaya gaji, upah, honorarium, bonus, THR, dan lembur.</p>
+                  <p className="detail-subtitle">Daftar baris transaksi biaya gaji, upah, honorarium, bonus, THR, dan lembur (Ref: PP 58/2023 jo. PMK 168/2023).</p>
                 </div>
               </div>
               <div className="detail-search-wrap">

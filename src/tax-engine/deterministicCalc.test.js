@@ -11,6 +11,10 @@ import {
   reconcileCommercialVsFiscalProfit,
   reconcileRelatedPartyVsTPDoc,
   calculatePartnerDashboardMetrics,
+  getTERCategory,
+  getTERMonthlyRate,
+  calculatePPh21TERMonthly,
+  TER_RATES,
   TAX_RATES
 } from './deterministicCalc';
 
@@ -109,6 +113,40 @@ describe('Deterministic Calculation Engine', () => {
     expect(unwithheld.potentialTax).toBe(4000000); // 5% x 80jt
     expect(unwithheld.status).toBe('UNWITHHELD_PPH21_RISK');
     expect(unwithheld.totalExposure).toBeGreaterThan(4000000);
+  });
+
+  it('menentukan kategori TER berdasarkan status PTKP (getTERCategory)', () => {
+    expect(getTERCategory('TK/0')).toBe('A');
+    expect(getTERCategory('TK/1')).toBe('A');
+    expect(getTERCategory('K/0')).toBe('A');
+    expect(getTERCategory('TK/2')).toBe('B');
+    expect(getTERCategory('TK/3')).toBe('B');
+    expect(getTERCategory('K/1')).toBe('B');
+    expect(getTERCategory('K/2')).toBe('B');
+    expect(getTERCategory('K/3')).toBe('C');
+  });
+
+  it('mengambil tarif TER bulanan dan menghitung potongan PPh 21 TER (PMK 168/2023)', () => {
+    // Kategori A (TK/0):
+    // Bruto <= 5.4jt -> 0%
+    expect(getTERMonthlyRate(5000000, 'TK/0')).toBe(0.00);
+    expect(calculatePPh21TERMonthly(5000000, 'TK/0').tax).toBe(0);
+
+    // Bruto 6.0jt (di antara 5.95jt s.d 6.30jt) -> 0.75%
+    expect(getTERMonthlyRate(6000000, 'TK/0')).toBe(0.0075);
+    expect(calculatePPh21TERMonthly(6000000, 'TK/0').tax).toBe(45000);
+
+    // Bruto 10.0jt (di antara 9.65jt s.d 10.05jt) -> 2.0%
+    expect(getTERMonthlyRate(10000000, 'TK/0')).toBe(0.02);
+    expect(calculatePPh21TERMonthly(10000000, 'TK/0').tax).toBe(200000);
+
+    // Kategori B (K/1):
+    // Bruto 6.0jt (di bawah 6.2jt) -> 0%
+    expect(getTERMonthlyRate(6000000, 'K/1')).toBe(0.00);
+
+    // Kategori C (K/3):
+    // Bruto 6.5jt (di bawah 6.6jt) -> 0%
+    expect(getTERMonthlyRate(6500000, 'K/3')).toBe(0.00);
   });
 
   it('melakukan ekualisasi sewa tanah/bangunan & konstruksi vs PPh Final 4(2) (reconcileRentVsPPhFinal)', () => {
