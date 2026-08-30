@@ -28,6 +28,7 @@ function TaxReconWorkbench({
   glRows = [],
   taxMappings = [],
   onUpdateTaxMapping,
+  onRunAIMapping,
   revenueRecon = {},
   onUpdateRevenueSPT,
   expenseRecon = {},
@@ -1052,20 +1053,89 @@ function TaxReconWorkbench({
       {/* Tab Content 3: Tax Mapping Akun */}
       {activeTab === 'TAX_MAPPING' && (
         <div className="tab-pane">
+          {/* Header Summary & Action Toolbar */}
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: 'var(--bg-surface-elevated, rgba(255, 255, 255, 0.05))',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            border: '1px solid var(--border-color, rgba(255, 255, 255, 0.1))',
+            marginBottom: '16px',
+            gap: '12px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary, #f8fafc)' }}>
+                Status Klasifikasi Pajak:
+              </div>
+              <span style={{
+                fontSize: '0.78rem',
+                backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                color: '#3b82f6',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                padding: '3px 10px',
+                borderRadius: '12px',
+                fontWeight: 500
+              }}>
+                📊 Total: {taxMappings.length} Akun
+              </span>
+              <span style={{
+                fontSize: '0.78rem',
+                backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                color: '#10b981',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                padding: '3px 10px',
+                borderRadius: '12px',
+                fontWeight: 500
+              }}>
+                ✨ Terverifikasi AI: {taxMappings.filter(m => m.aiProcessed && !m.aiOverridden).length}
+              </span>
+              {taxMappings.some(m => m.aiOverridden) && (
+                <span style={{
+                  fontSize: '0.78rem',
+                  backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                  color: '#f59e0b',
+                  border: '1px solid rgba(245, 158, 11, 0.3)',
+                  padding: '3px 10px',
+                  borderRadius: '12px',
+                  fontWeight: 500
+                }}>
+                  🤖 Reklasifikasi AI: {taxMappings.filter(m => m.aiOverridden).length}
+                </span>
+              )}
+            </div>
+
+            {onRunAIMapping && (
+              <button
+                type="button"
+                className="btn btn-sm btn-primary"
+                onClick={onRunAIMapping}
+                disabled={isAIMappingInProgress}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem' }}
+              >
+                {isAIMappingInProgress ? (
+                  <>
+                    <Loader2 size={14} className="spinner-inline" />
+                    <span>AI Sedang Mengklasifikasi...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={14} />
+                    <span>Klasifikasi Ulang dengan AI</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+
           <div className="table-responsive">
             <table className="data-table">
               <thead>
                 <tr>
                   <th>Kode COA</th>
-                  <th>
-                    Nama Akun
-                    {isAIMappingInProgress && (
-                      <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: 'var(--accent)', fontWeight: 'normal' }}>
-                        <Loader2 size={12} className="spinner-inline" style={{ display: 'inline', marginRight: '0.25rem' }} />
-                        AI sedang mengklasifikasi...
-                      </span>
-                    )}
-                  </th>
+                  <th>Nama Akun &amp; Hasil Analisis AI</th>
                   <th>Klasifikasi Pos Pajak</th>
                   <th className="align-right">Total Debit</th>
                   <th className="align-right">Total Kredit</th>
@@ -1077,14 +1147,63 @@ function TaxReconWorkbench({
                   <tr key={m.namaAkun} className={m.aiOverridden ? 'ai-reclassified-row' : ''}>
                     <td><span className="badge-code">{m.coa}</span></td>
                     <td className="font-medium">
-                      {m.namaAkun}
-                      {m.aiOverridden && (
-                        <span
-                          className="ai-badge"
-                          title={`AI: ${m.aiReason || 'Reklasifikasi berdasarkan substansi transaksi'}\nAsal heuristik: ${m.heuristicCategory}\nConfidence: ${Math.round((m.aiConfidence || 0) * 100)}%`}
-                        >
-                          🤖 AI
-                        </span>
+                      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
+                        <span>{m.namaAkun}</span>
+                        {m.aiOverridden ? (
+                          <span
+                            className="ai-badge"
+                            style={{
+                              backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                              color: '#f59e0b',
+                              border: '1px solid rgba(245, 158, 11, 0.3)',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              fontSize: '0.72rem',
+                              fontWeight: 600,
+                              cursor: 'help'
+                            }}
+                            title={`AI Reklasifikasi:\n${m.aiReason || 'Substansi transaksi berbeda dengan nama akun'}\nAsal Heuristik: ${m.heuristicCategory || '-'}\nKeyakinan AI: ${Math.round((m.aiConfidence || 0) * 100)}%`}
+                          >
+                            🤖 Reklasifikasi AI ({Math.round((m.aiConfidence || 0) * 100)}%)
+                          </span>
+                        ) : m.aiProcessed ? (
+                          <span
+                            className="ai-badge"
+                            style={{
+                              backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                              color: '#10b981',
+                              border: '1px solid rgba(16, 185, 129, 0.3)',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              fontSize: '0.72rem',
+                              fontWeight: 600,
+                              cursor: 'help'
+                            }}
+                            title={`Diverifikasi oleh AI Claude:\n${m.aiReason || 'Sesuai dengan substansi transaksi'}\nKeyakinan AI: ${Math.round((m.aiConfidence || 0) * 100)}%`}
+                          >
+                            ✨ Terverifikasi AI ({Math.round((m.aiConfidence || 0) * 100)}%)
+                          </span>
+                        ) : (
+                          <span
+                            style={{
+                              backgroundColor: 'rgba(107, 114, 128, 0.1)',
+                              color: '#94a3b8',
+                              border: '1px solid rgba(107, 114, 128, 0.2)',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              fontSize: '0.72rem',
+                              fontWeight: 500
+                            }}
+                            title="Dipetakan otomatis berdasarkan nomor COA & nama akun (Heuristik lokal)"
+                          >
+                            ⚡ Heuristik COA
+                          </span>
+                        )}
+                      </div>
+                      {m.aiReason && (
+                        <div style={{ fontSize: '0.74rem', color: 'var(--text-muted, #94a3b8)', marginTop: '2px', fontWeight: 'normal' }}>
+                          {m.aiReason}
+                        </div>
                       )}
                     </td>
                     <td>

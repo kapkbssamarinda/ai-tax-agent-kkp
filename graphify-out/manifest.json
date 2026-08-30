@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "src/App.jsx": {
-    "mtime": 1788104044.9852345,
-    "seen": 1788104097.3616917,
-    "ast_hash": "8d42440ce674213cdc48d8b326a9fd56",
+    "mtime": 1788104495.7183406,
+    "seen": 1788104554.8620868,
+    "ast_hash": "386e1d62077151b8a1c488b599190e7f",
     "semantic_hash": ""
   },
   "src/App.test.jsx": {
@@ -162,9 +162,9 @@
     "semantic_hash": ""
   },
   "src/components/tax/TaxReconWorkbench.jsx": {
-    "mtime": 1788104059.658071,
-    "seen": 1788104097.3663306,
-    "ast_hash": "a722004ce310163765f48cba2130369b",
+    "mtime": 1788104522.630514,
+    "seen": 1788104554.8703897,
+    "ast_hash": "1c1ab22dc745b515093e731ca923b8e5",
     "semantic_hash": ""
   },
   "src/components/tax/TaxRiskRegister.jsx": {
@@ -270,9 +270,9 @@
     "semantic_hash": "f0303e47d2e0c595058202c7e204267c"
   },
   "src/services/claudeService.js": {
-    "mtime": 1788104040.7984219,
-    "seen": 1788104097.3710284,
-    "ast_hash": "5e8bd6133653c218cb6913038a48adeb",
+    "mtime": 1788104470.730903,
+    "seen": 1788104554.8843362,
+    "ast_hash": "6043fe46962814f536754b5c773da0e0",
     "semantic_hash": ""
   },
   "src/services/regulationDB.js": {
@@ -762,8 +762,8 @@
     "semantic_hash": ""
   },
   "api/claude.js": {
-    "mtime": 1788104035.307962,
-    "seen": 1788104097.361273,
+    "mtime": 1788104123.7286346,
+    "seen": 1788104554.861653,
     "ast_hash": "e2c71f0975ba35375494668f0e1876bb",
     "semantic_hash": ""
   },

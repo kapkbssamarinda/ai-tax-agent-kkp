@@ -1354,23 +1354,26 @@ ${JSON.stringify(accountSummaries, null, 2)}
 
       return accounts.map(acc => {
         const ai = aiMap.get(acc.namaAkun);
-        if (ai && ai.aiCategory !== acc.category) {
+        if (ai) {
+          const isOverridden = Boolean(ai.aiCategory && ai.aiCategory !== acc.category);
           return {
             ...acc,
-            category: ai.aiCategory,
+            category: isOverridden ? ai.aiCategory : acc.category,
             heuristicCategory: acc.category,
-            aiCategory: ai.aiCategory,
-            aiConfidence: Number(ai.aiConfidence) || 0.5,
-            aiReason: ai.aiReason || '',
-            aiOverridden: true
+            aiCategory: ai.aiCategory || acc.category,
+            aiConfidence: Number(ai.aiConfidence) || (isOverridden ? 0.85 : 0.95),
+            aiReason: ai.aiReason || (isOverridden ? 'Reklasifikasi berdasarkan analisis substansi memo transaksi' : 'Substansi transaksi sesuai dengan pos pajak'),
+            aiOverridden: isOverridden,
+            aiProcessed: true
           };
         }
         return {
           ...acc,
-          aiCategory: ai?.aiCategory || acc.category,
-          aiConfidence: ai ? Number(ai.aiConfidence) || 0.8 : null,
-          aiReason: ai?.aiReason || '',
-          aiOverridden: false
+          aiCategory: acc.category,
+          aiConfidence: null,
+          aiReason: '',
+          aiOverridden: false,
+          aiProcessed: false
         };
       });
     }
