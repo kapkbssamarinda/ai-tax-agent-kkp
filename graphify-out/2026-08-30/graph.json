@@ -929,7 +929,7 @@
       "file_type": "code",
       "norm_label": "analyzehonorariumclassification()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1392"
+      "source_location": "L1395"
     },
     {
       "id": "src_services_claudeservice_analyzetaxfindings",
@@ -1085,7 +1085,7 @@
       "file_type": "code",
       "norm_label": "generatesp2dkresponsewithclaude()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1483"
+      "source_location": "L1486"
     },
     {
       "id": "src_services_claudeservice_getaiusagelogs",
@@ -9403,7 +9403,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L683",
+      "source_location": "L697",
       "weight": 1.0
     },
     {
@@ -9823,7 +9823,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/tax/TaxReconWorkbench.jsx",
-      "source_location": "L109",
+      "source_location": "L110",
       "weight": 1.0
     },
     {
@@ -9835,7 +9835,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/tax/TaxReconWorkbench.jsx",
-      "source_location": "L504",
+      "source_location": "L505",
       "weight": 1.0
     },
     {
@@ -9847,7 +9847,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/tax/TaxReconWorkbench.jsx",
-      "source_location": "L95",
+      "source_location": "L96",
       "weight": 1.0
     },
     {
@@ -10243,7 +10243,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1443",
+      "source_location": "L1446",
       "weight": 1.0
     },
     {
@@ -10255,7 +10255,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1458",
+      "source_location": "L1461",
       "weight": 1.0
     },
     {
@@ -10267,7 +10267,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1466",
+      "source_location": "L1469",
       "weight": 1.0
     },
     {
@@ -10279,7 +10279,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1467",
+      "source_location": "L1470",
       "weight": 1.0
     },
     {
@@ -10483,7 +10483,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1492",
+      "source_location": "L1495",
       "weight": 1.0
     },
     {
@@ -10495,7 +10495,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1502",
+      "source_location": "L1505",
       "weight": 1.0
     },
     {
@@ -10507,7 +10507,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1517",
+      "source_location": "L1520",
       "weight": 1.0
     },
     {
@@ -10519,7 +10519,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1531",
+      "source_location": "L1534",
       "weight": 1.0
     },
     {
@@ -18465,7 +18465,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1392",
+      "source_location": "L1395",
       "weight": 1.0
     },
     {
@@ -18487,7 +18487,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1483",
+      "source_location": "L1486",
       "weight": 1.0
     },
     {
@@ -21183,5 +21183,5 @@
       "source_file": ".agents/skills/caveman-evidence-review/SKILL.md"
     }
   ],
-  "built_at_commit": "fc6402516b1bc1c24708ad91719f99fe8fdf14ca"
+  "built_at_commit": "d9a983696bd08b2ffa1d1a451ab0d4062a3cff3a"
 }

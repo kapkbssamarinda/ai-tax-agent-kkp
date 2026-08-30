@@ -1272,18 +1272,22 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
 
 
 /**
- * AI-Assisted Account Classification — Mengklasifikasi akun GL via Claude
- * berdasarkan substansi transaksi (bukan hanya nama akun).
+ * AI-Assisted Account Classification — Mengklasifikasi akun GL langsung via AI Claude
+ * berdasarkan analisis semantik dan substansi ekonomi transaksi (bukan sekadar nomor COA).
  */
 export async function aiClassifyAccounts(accounts, glRows = [], userId = null) {
   if (!accounts || accounts.length === 0) return accounts;
 
-  // Ringkasan akun + sample memo per akun (maks 3 memo per akun)
+  // Ringkasan akun + sample memo & nominal per akun (maks 4 memo per akun)
   const accountSummaries = accounts.map(acc => {
     const sampleRows = glRows
       .filter(r => r.namaAkun === acc.namaAkun && r.keterangan !== 'Saldo Awal')
-      .slice(0, 3)
-      .map(r => r.keterangan || r.communication || '-');
+      .slice(0, 4)
+      .map(r => ({
+        memo: r.keterangan || r.communication || '-',
+        debit: r.debit || 0,
+        kredit: r.kredit || r.credit || 0
+      }));
 
     return {
       coa: acc.coa,
@@ -1292,97 +1296,136 @@ export async function aiClassifyAccounts(accounts, glRows = [], userId = null) {
       totalDebit: acc.totalDebit,
       totalCredit: acc.totalCredit,
       rowCount: acc.rowCount,
-      sampleMemo: sampleRows
+      sampleTransactions: sampleRows
     };
   });
 
-  const classificationPrompt = `
-Anda adalah AI Tax Agent Indonesia. Tugas: klasifikasikan setiap akun buku besar (GL) ke kategori pajak yang BENAR berdasarkan substansi transaksi.
-
-Kategori yang tersedia (gunakan persis ID ini):
-- REVENUE: Penjualan / Pendapatan / Omzet (Objek PPN & PPh Badan)
-- PPH23: Objek PPh 23 (Jasa Teknik/Manajemen/Konsultan, Sewa Alat/Mesin, Pemeliharaan)
-- PPH21: Objek PPh 21 (Gaji, Upah, Bonus, THR, Honorarium, Tunjangan)
-- PPH42: Objek PPh Final 4(2) (Sewa Tanah/Bangunan, Konstruksi, Bunga Deposito)
-- PPH22: Objek PPh 22 (Pembelian dari BUMN, Impor, BBM)
-- PPN_IN: PPN Masukan
-- PPN_OUT: PPN Keluaran
-- FISCAL_CORRECTION: Potensi Koreksi Fiskal Positif (Jamuan tanpa nominatif, Natura, Sumbangan, Denda)
-- RELATED_PARTY: Transaksi Pihak Berelasi (Transfer Pricing, Afiliasi)
-- NON_TAX: Non-Tax / Balance Sheet (Kas, Bank, Piutang, Hutang, Ekuitas, Aset Tetap)
-
-Aturan:
-1. PERHATIKAN sample memo/keterangan transaksi, bukan hanya nama akun.
-2. "Biaya Lain-lain" + memo "jasa notaris" → PPH23.
-3. "Biaya Umum" + memo "sewa gedung" → PPH42.
-4. Confidence: 1.0 = sangat yakin, 0.5 = cukup yakin.
-5. Jika heuristik sudah benar, kembalikan kategori yang sama.
-
-Daftar Akun:
-${JSON.stringify(accountSummaries, null, 2)}
-`;
-
-  try {
-    const { data: resultData } = await callHaiku({
-      system: 'Anda adalah AI Tax Agent Indonesia. Klasifikasikan akun buku besar ke pos pajak yang benar berdasarkan substansi transaksi.',
-      messages: [{ role: 'user', content: classificationPrompt }],
-      tools: [ACCOUNT_CLASSIFICATION_TOOL],
-      tool_choice: { type: 'tool', name: 'submit_account_classifications' },
-      maxTokens: 4096,
-      userId,
-      feature: 'tax-mapping'
-    });
-
-    let parsed = null;
-    const toolInput = extractToolInputFromClaudeResponse(resultData, 'submit_account_classifications');
-    if (toolInput && Array.isArray(toolInput.classifications)) {
-      parsed = toolInput.classifications;
-    } else if (toolInput && Array.isArray(toolInput)) {
-      parsed = toolInput;
-    }
-
-    if (!parsed) {
-      const text = extractTextFromClaudeResponse(resultData);
-      parsed = extractAndParseClaudeJson(text);
-    }
-
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      const aiMap = new Map();
-      parsed.forEach(item => {
-        if (item.namaAkun && item.aiCategory) aiMap.set(item.namaAkun, item);
-      });
-
-      return accounts.map(acc => {
-        const ai = aiMap.get(acc.namaAkun);
-        if (ai) {
-          const isOverridden = Boolean(ai.aiCategory && ai.aiCategory !== acc.category);
-          return {
-            ...acc,
-            category: isOverridden ? ai.aiCategory : acc.category,
-            heuristicCategory: acc.category,
-            aiCategory: ai.aiCategory || acc.category,
-            aiConfidence: Number(ai.aiConfidence) || (isOverridden ? 0.85 : 0.95),
-            aiReason: ai.aiReason || (isOverridden ? 'Reklasifikasi berdasarkan analisis substansi memo transaksi' : 'Substansi transaksi sesuai dengan pos pajak'),
-            aiOverridden: isOverridden,
-            aiProcessed: true
-          };
-        }
-        return {
-          ...acc,
-          aiCategory: acc.category,
-          aiConfidence: null,
-          aiReason: '',
-          aiOverridden: false,
-          aiProcessed: false
-        };
-      });
-    }
-  } catch (err) {
-    console.warn('AI classification failed with Haiku:', err);
+  // Pecah per batch 25 akun agar prompt terfokus dan tidak terpotong
+  const CHUNK_SIZE = 25;
+  const chunks = [];
+  for (let i = 0; i < accountSummaries.length; i += CHUNK_SIZE) {
+    chunks.push(accountSummaries.slice(i, i + CHUNK_SIZE));
   }
 
-  console.warn('AI account classification gagal, menggunakan heuristik saja');
-  return accounts;
+  const aiMap = new Map();
+
+  for (let chunkIdx = 0; chunkIdx < chunks.length; chunkIdx++) {
+    const currentChunk = chunks[chunkIdx];
+    const classificationPrompt = `
+Anda adalah AI Senior Tax Partner Indonesia.
+Tugas: Lakukan analisis klasifikasi pajak komprehensif untuk setiap akun buku besar (GL) berdasarkan nama akun dan substansi transaksi/memo sampelnya.
+
+Daftar Pos Pajak Indonesia yang Valid (Gunakan persis ID berikut):
+- REVENUE: Penjualan / Pendapatan Usaha / Omzet (Objek PPN & PPh Badan)
+- PPH23: Objek PPh 23 (Jasa Teknik/Manajemen/Konsultan, Sewa Alat/Mesin/Kendaraan, Pemeliharaan/Perbaikan, Outsourcing, Jasa Lainnya)
+- PPH21: Objek PPh 21 (Beban Gaji, Upah, Bonus, THR, Honorarium Tenaga Ahli, Komisi OP, Tunjangan, Fasilitas Natura Karyawan)
+- PPH42: Objek PPh Final Pasal 4(2) (Sewa Tanah & Bangunan/Gedung/Ruko/Kantor, Jasa Pelaksanaan/Perencanaan Konstruksi, Bunga Deposito/Giro)
+- PPH22: Objek PPh 22 (Pembelian dari BUMN/Instansi Pemerintah, Impor, Bahan Bakar Minyak)
+- PPN_IN: PPN Masukan
+- PPN_OUT: PPN Keluaran
+- FISCAL_CORRECTION: Potensi Koreksi Fiskal Positif Non-Deductible (Biaya Jamuan/Entertainment tanpa daftar nominatif, Sumbangan, Denda/Sanksi Pajak, Pengeluaran Pribadi/Prive)
+- RELATED_PARTY: Transaksi Hubungan Istimewa / Pihak Berelasi (Transfer Pricing, Bunga Pinjaman Afiliasi, Royalti Afiliasi)
+- NON_TAX: Akun Neraca Murni (Kas, Bank, Piutang Usaha, Hutang Dagang, Ekuitas/Modal, Aset Tetap)
+
+Pedoman Analisis Semantik:
+1. Utamakan SUBSTANSI EKONOMI transaksi di memo sampel daripada sekadar nama akun formal.
+2. Akun penampung umum ("Biaya Lain-Lain", "Biaya Operasional", "Biaya Umum", "Rupa-rupa", "Uang Muka") WAJIB diperiksa memo transaksinya:
+   - Memo "jasa notaris" / "konsultan" / "fee" / "service crane" / "maintenance" -> PPH23.
+   - Memo "sewa kantor" / "sewa ruko" / "renovasi gudang" -> PPH42.
+   - Memo "honor narasumber" / "dokter" / "bonus staff" -> PPH21.
+   - Memo "jamuan makan" / "entertain klien" -> FISCAL_CORRECTION.
+3. Berikan nilai aiConfidence (0.50 s.d. 1.00) dan aiReason yang menjelaskan landasan hukum/substansinya.
+4. Gunakan tool submit_account_classifications untuk mengembalikan hasil terstruktur.
+
+Daftar Akun yang Dianalisis (Batch ${chunkIdx + 1}/${chunks.length}):
+${JSON.stringify(currentChunk, null, 2)}
+`;
+
+    try {
+      const { data: resultData } = await callSonnet({
+        system: MASTER_SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: classificationPrompt }],
+        tools: [ACCOUNT_CLASSIFICATION_TOOL],
+        tool_choice: { type: 'tool', name: 'submit_account_classifications' },
+        maxTokens: 4096,
+        userId,
+        feature: 'tax-mapping'
+      });
+
+      let parsed = null;
+      const toolInput = extractToolInputFromClaudeResponse(resultData, 'submit_account_classifications');
+      if (toolInput && Array.isArray(toolInput.classifications)) {
+        parsed = toolInput.classifications;
+      } else if (toolInput && Array.isArray(toolInput)) {
+        parsed = toolInput;
+      }
+
+      if (!parsed) {
+        const text = extractTextFromClaudeResponse(resultData);
+        parsed = extractAndParseClaudeJson(text);
+      }
+
+      if (Array.isArray(parsed)) {
+        parsed.forEach(item => {
+          if (item.namaAkun && item.aiCategory) {
+            aiMap.set(item.namaAkun, item);
+          }
+        });
+      }
+    } catch (err) {
+      console.warn(`[aiClassifyAccounts] Batch ${chunkIdx + 1} gagal dengan Sonnet:`, err.message);
+      // Fallback per batch ke Haiku jika Sonnet gagal
+      try {
+        const { data: haikuData } = await callHaiku({
+          system: MASTER_SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: classificationPrompt }],
+          tools: [ACCOUNT_CLASSIFICATION_TOOL],
+          tool_choice: { type: 'tool', name: 'submit_account_classifications' },
+          maxTokens: 4096,
+          userId,
+          feature: 'tax-mapping'
+        });
+        const hInput = extractToolInputFromClaudeResponse(haikuData, 'submit_account_classifications');
+        const hParsed = hInput?.classifications || extractAndParseClaudeJson(extractTextFromClaudeResponse(haikuData));
+        if (Array.isArray(hParsed)) {
+          hParsed.forEach(item => {
+            if (item.namaAkun && item.aiCategory) {
+              aiMap.set(item.namaAkun, item);
+            }
+          });
+        }
+      } catch (hErr) {
+        console.warn(`[aiClassifyAccounts] Fallback Haiku juga gagal untuk batch ${chunkIdx + 1}:`, hErr.message);
+      }
+    }
+  }
+
+  // Terapkan hasil analisis AI langsung ke setiap akun
+  return accounts.map(acc => {
+    const ai = aiMap.get(acc.namaAkun);
+    if (ai && ai.aiCategory) {
+      const isOverridden = ai.aiCategory !== acc.category;
+      return {
+        ...acc,
+        category: ai.aiCategory, // Langsung gunakan kategori yang ditentukan oleh AI
+        heuristicCategory: acc.category,
+        aiCategory: ai.aiCategory,
+        aiConfidence: Number(ai.aiConfidence) || (isOverridden ? 0.90 : 0.95),
+        aiReason: ai.aiReason || (isOverridden ? 'Kategori disesuaikan AI berdasarkan analisis substansi transaksi' : 'Substansi transaksi sesuai dengan pos perpajakan'),
+        aiOverridden: isOverridden,
+        aiProcessed: true
+      };
+    }
+    return {
+      ...acc,
+      heuristicCategory: acc.category,
+      aiCategory: acc.category,
+      aiConfidence: 0.80,
+      aiReason: 'Dipetakan berdasarkan heuristik COA standar',
+      aiOverridden: false,
+      aiProcessed: false
+    };
+  });
 }
 
 /**
