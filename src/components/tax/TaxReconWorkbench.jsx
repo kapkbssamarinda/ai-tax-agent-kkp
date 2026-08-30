@@ -41,7 +41,6 @@ function TaxReconWorkbench({
   isAnalyzing = false,
   onUpdateFindingStatus,
   clientInfo = {},
-  onOpenAISettings,
   onOpenClientMaster,
   aiAnalysisSummary = null,
   onDismissAISummary,
@@ -232,11 +231,6 @@ function TaxReconWorkbench({
               <Building2 size={15} /> Profil Klien
             </button>
           )}
-          {onOpenAISettings && (
-            <button className="btn btn-ghost" onClick={onOpenAISettings} title="Pengaturan Kunci API Claude">
-              <Bot size={15} className="text-accent" /> Setting Key
-            </button>
-          )}
           <button
             className="btn btn-secondary"
             onClick={onRunAIAnalysis}
@@ -245,7 +239,7 @@ function TaxReconWorkbench({
             {isAnalyzing ? (
               <><Loader2 size={15} className="spinner-inline" /> Menganalisis dengan Claude...</>
             ) : (
-              <><Sparkles size={15} className="text-accent" /> Analisis Ulang AI (Claude Haiku)</>
+              <><Sparkles size={15} className="text-accent" /> Analisis Ulang AI (Claude)</>
             )}
           </button>
           <button className="btn btn-primary" onClick={handleDownloadKKP}>

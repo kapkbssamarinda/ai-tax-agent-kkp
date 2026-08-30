@@ -137,7 +137,7 @@
       "file_type": "code",
       "norm_label": "app()",
       "source_file": "src/App.jsx",
-      "source_location": "L81"
+      "source_location": "L82"
     },
     {
       "id": "src_app_getinitialtheme",
@@ -149,7 +149,7 @@
       "file_type": "code",
       "norm_label": "getinitialtheme()",
       "source_file": "src/App.jsx",
-      "source_location": "L66"
+      "source_location": "L67"
     },
     {
       "id": "src_components_accountrail_accountrail",
@@ -162,6 +162,18 @@
       "norm_label": "accountrail()",
       "source_file": "src/components/AccountRail.jsx",
       "source_location": "L7"
+    },
+    {
+      "id": "src_components_auth_logoutconfirmmodal_logoutconfirmmodal",
+      "label": "LogoutConfirmModal()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "logoutconfirmmodal()",
+      "source_file": "src/components/auth/LogoutConfirmModal.jsx",
+      "source_location": "L4"
     },
     {
       "id": "src_components_datatable_datatable",
@@ -236,6 +248,18 @@
       "source_location": "L9"
     },
     {
+      "id": "src_services_projectstateservice_clearalldraftsfromstorage",
+      "label": "clearAllDraftsFromStorage()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "clearalldraftsfromstorage()",
+      "source_file": "src/services/projectStateService.js",
+      "source_location": "L198"
+    },
+    {
       "id": "src_services_projectstateservice_cleardraftfromstorage",
       "label": "clearDraftFromStorage()",
       "_callable": true,
@@ -245,7 +269,7 @@
       "file_type": "code",
       "norm_label": "cleardraftfromstorage()",
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L175"
+      "source_location": "L181"
     },
     {
       "id": "src_services_projectstateservice_createprojectsnapshot",
@@ -272,6 +296,18 @@
       "source_location": "L83"
     },
     {
+      "id": "src_services_projectstateservice_getstoragekey",
+      "label": "getStorageKey()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "getstoragekey()",
+      "source_file": "src/services/projectStateService.js",
+      "source_location": "L140"
+    },
+    {
       "id": "src_services_projectstateservice_loaddraftfromstorage",
       "label": "loadDraftFromStorage()",
       "_callable": true,
@@ -281,7 +317,7 @@
       "file_type": "code",
       "norm_label": "loaddraftfromstorage()",
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L158"
+      "source_location": "L163"
     },
     {
       "id": "src_services_projectstateservice_parseprojectfile",
@@ -305,7 +341,7 @@
       "file_type": "code",
       "norm_label": "savedrafttostorage()",
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L143"
+      "source_location": "L147"
     },
     {
       "id": "src_services_projectstateservice_validateprojectschema",
@@ -486,6 +522,30 @@
       "norm_label": "reconcilerevenuevsppn()",
       "source_file": "src/tax-engine/deterministicCalc.js",
       "source_location": "L262"
+    },
+    {
+      "id": "src_tax_engine_taxmapping_autoclassifyaccount",
+      "label": "autoClassifyAccount()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "autoclassifyaccount()",
+      "source_file": "src/tax-engine/taxMapping.js",
+      "source_location": "L31"
+    },
+    {
+      "id": "src_tax_engine_taxmapping_buildtaxmappingfromgl",
+      "label": "buildTaxMappingFromGL()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "buildtaxmappingfromgl()",
+      "source_file": "src/tax-engine/taxMapping.js",
+      "source_location": "L100"
     },
     {
       "id": "src_parsers_accurateexcelparser_parseaccurateexcelrows",
@@ -2348,30 +2408,6 @@
       "source_location": "L143"
     },
     {
-      "id": "src_tax_engine_taxmapping_autoclassifyaccount",
-      "label": "autoClassifyAccount()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "kkpWorkbookGenerator.js",
-      "file_type": "code",
-      "norm_label": "autoclassifyaccount()",
-      "source_file": "src/tax-engine/taxMapping.js",
-      "source_location": "L31"
-    },
-    {
-      "id": "src_tax_engine_taxmapping_buildtaxmappingfromgl",
-      "label": "buildTaxMappingFromGL()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "kkpWorkbookGenerator.js",
-      "file_type": "code",
-      "norm_label": "buildtaxmappingfromgl()",
-      "source_file": "src/tax-engine/taxMapping.js",
-      "source_location": "L100"
-    },
-    {
       "id": "index_html_root",
       "label": "Application HTML Entry Point",
       "_origin": "ast",
@@ -2466,7 +2502,7 @@
       "file_type": "code",
       "norm_label": "accurate_columns",
       "source_file": "src/App.jsx",
-      "source_location": "L32"
+      "source_location": "L33"
     },
     {
       "id": "src_app_default_client_info",
@@ -2477,7 +2513,7 @@
       "file_type": "code",
       "norm_label": "default_client_info",
       "source_file": "src/App.jsx",
-      "source_location": "L71"
+      "source_location": "L72"
     },
     {
       "id": "src_app_krishand_columns",
@@ -2488,7 +2524,7 @@
       "file_type": "code",
       "norm_label": "krishand_columns",
       "source_file": "src/App.jsx",
-      "source_location": "L54"
+      "source_location": "L55"
     },
     {
       "id": "src_app_myob_columns",
@@ -2499,7 +2535,7 @@
       "file_type": "code",
       "norm_label": "myob_columns",
       "source_file": "src/App.jsx",
-      "source_location": "L42"
+      "source_location": "L43"
     },
     {
       "id": "src_components_accountrail",
@@ -2510,6 +2546,28 @@
       "file_type": "code",
       "norm_label": "accountrail.jsx",
       "source_file": "src/components/AccountRail.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_auth_logoutconfirmmodal",
+      "label": "LogoutConfirmModal.jsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "logoutconfirmmodal.jsx",
+      "source_file": "src/components/auth/LogoutConfirmModal.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_auth_logoutconfirmmodal_test",
+      "label": "LogoutConfirmModal.test.jsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "logoutconfirmmodal.test.jsx",
+      "source_file": "src/components/auth/LogoutConfirmModal.test.jsx",
       "source_location": "L1"
     },
     {
@@ -2675,6 +2733,39 @@
       "file_type": "code",
       "norm_label": "deterministiccalc.test.js",
       "source_file": "src/tax-engine/deterministicCalc.test.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_tax_engine_taxmapping",
+      "label": "taxMapping.js",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "taxmapping.js",
+      "source_file": "src/tax-engine/taxMapping.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_tax_engine_taxmapping_tax_categories",
+      "label": "TAX_CATEGORIES",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "tax_categories",
+      "source_file": "src/tax-engine/taxMapping.js",
+      "source_location": "L15"
+    },
+    {
+      "id": "src_tax_engine_taxmapping_test",
+      "label": "taxMapping.test.js",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "taxmapping.test.js",
+      "source_file": "src/tax-engine/taxMapping.test.js",
       "source_location": "L1"
     },
     {
@@ -6692,39 +6783,6 @@
       "source_location": "L1"
     },
     {
-      "id": "src_tax_engine_taxmapping",
-      "label": "taxMapping.js",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "kkpWorkbookGenerator.js",
-      "file_type": "code",
-      "norm_label": "taxmapping.js",
-      "source_file": "src/tax-engine/taxMapping.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_tax_engine_taxmapping_tax_categories",
-      "label": "TAX_CATEGORIES",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "kkpWorkbookGenerator.js",
-      "file_type": "code",
-      "norm_label": "tax_categories",
-      "source_file": "src/tax-engine/taxMapping.js",
-      "source_location": "L15"
-    },
-    {
-      "id": "src_tax_engine_taxmapping_test",
-      "label": "taxMapping.test.js",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "kkpWorkbookGenerator.js",
-      "file_type": "code",
-      "norm_label": "taxmapping.test.js",
-      "source_file": "src/tax-engine/taxMapping.test.js",
-      "source_location": "L1"
-    },
-    {
       "id": "_agents_skills_caveman_discover_skill_workflow_labeling",
       "label": "Workflow Labeling Convention",
       "_origin": "semantic",
@@ -9051,7 +9109,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L121",
+      "source_location": "L150",
       "weight": 1.0
     },
     {
@@ -9063,7 +9121,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L134",
+      "source_location": "L170",
       "weight": 1.0
     },
     {
@@ -9075,7 +9133,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L147",
+      "source_location": "L183",
       "weight": 1.0
     },
     {
@@ -9087,7 +9145,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L214",
+      "source_location": "L250",
       "weight": 1.0
     },
     {
@@ -9099,7 +9157,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L215",
+      "source_location": "L251",
       "weight": 1.0
     },
     {
@@ -9111,7 +9169,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L216",
+      "source_location": "L252",
       "weight": 1.0
     },
     {
@@ -9123,7 +9181,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L217",
+      "source_location": "L253",
       "weight": 1.0
     },
     {
@@ -9135,7 +9193,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L224",
+      "source_location": "L260",
       "weight": 1.0
     },
     {
@@ -9147,7 +9205,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L277",
+      "source_location": "L313",
       "weight": 1.0
     },
     {
@@ -9159,7 +9217,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L283",
+      "source_location": "L319",
       "weight": 1.0
     },
     {
@@ -9171,7 +9229,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L383",
+      "source_location": "L419",
       "weight": 1.0
     },
     {
@@ -9183,7 +9241,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L418",
+      "source_location": "L454",
       "weight": 1.0
     },
     {
@@ -9195,7 +9253,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L431",
+      "source_location": "L467",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_app",
+      "target": "src_services_claudeservice_clearaiusagelogs",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/App.jsx",
+      "source_location": "L575",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_app",
+      "target": "src_contexts_authcontext_authprovider_signout",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/App.jsx",
+      "source_location": "L576",
       "weight": 1.0
     },
     {
@@ -9207,7 +9289,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L589",
+      "source_location": "L641",
       "weight": 1.0
     },
     {
@@ -9219,7 +9301,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L625",
+      "source_location": "L677",
       "weight": 1.0
     },
     {
@@ -9231,7 +9313,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/App.jsx",
-      "source_location": "L82",
+      "source_location": "L83",
       "weight": 1.0
     },
     {
@@ -9507,7 +9589,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/auth/UserProfileModal.jsx",
-      "source_location": "L127",
+      "source_location": "L129",
       "weight": 1.0
     },
     {
@@ -10279,6 +10361,30 @@
       "weight": 1.0
     },
     {
+      "source": "src_services_projectstateservice_cleardraftfromstorage",
+      "target": "src_services_projectstateservice_getstoragekey",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/projectStateService.js",
+      "source_location": "L184",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_projectstateservice_loaddraftfromstorage",
+      "target": "src_services_projectstateservice_getstoragekey",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/projectStateService.js",
+      "source_location": "L166",
+      "weight": 1.0
+    },
+    {
       "source": "src_services_projectstateservice_loaddraftfromstorage",
       "target": "src_services_projectstateservice_validateprojectschema",
       "relation": "calls",
@@ -10287,7 +10393,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L164",
+      "source_location": "L170",
       "weight": 1.0
     },
     {
@@ -10300,6 +10406,18 @@
       "context": "call",
       "source_file": "src/services/projectStateService.js",
       "source_location": "L126",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_projectstateservice_savedrafttostorage",
+      "target": "src_services_projectstateservice_getstoragekey",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/projectStateService.js",
+      "source_location": "L151",
       "weight": 1.0
     },
     {
@@ -11108,7 +11226,7 @@
     },
     {
       "source": "src_app",
-      "target": "src_components_admin_admindashboard_admindashboard",
+      "target": "src_components_auth_logoutconfirmmodal_logoutconfirmmodal",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11120,7 +11238,7 @@
     },
     {
       "source": "src_app",
-      "target": "src_contexts_authcontext_useauth",
+      "target": "src_components_admin_admindashboard_admindashboard",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11132,7 +11250,7 @@
     },
     {
       "source": "src_app",
-      "target": "src_tax_engine_taxmapping_buildtaxmappingfromgl",
+      "target": "src_contexts_authcontext_useauth",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11144,7 +11262,7 @@
     },
     {
       "source": "src_app",
-      "target": "src_tax_engine_deterministiccalc_reconcileexpensevspph23",
+      "target": "src_tax_engine_taxmapping_buildtaxmappingfromgl",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11152,6 +11270,18 @@
       "context": "import",
       "source_file": "src/App.jsx",
       "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_tax_engine_deterministiccalc_reconcileexpensevspph23",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/App.jsx",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -11163,7 +11293,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/App.jsx",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -11175,7 +11305,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/App.jsx",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -11187,7 +11317,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/App.jsx",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -11199,7 +11329,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/App.jsx",
-      "source_location": "L21",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -11211,24 +11341,12 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/App.jsx",
-      "source_location": "L21",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
       "source": "src_app",
-      "target": "src_services_claudeservice_generatedeterministicfindings",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/App.jsx",
-      "source_location": "L21",
-      "weight": 1.0
-    },
-    {
-      "source": "src_app",
-      "target": "src_tax_engine_kkpworkbookgenerator_downloadkkpworkbook",
+      "target": "src_services_claudeservice_clearaiusagelogs",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11240,7 +11358,19 @@
     },
     {
       "source": "src_app",
-      "target": "src_services_projectstateservice_cleardraftfromstorage",
+      "target": "src_services_claudeservice_generatedeterministicfindings",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/App.jsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_tax_engine_kkpworkbookgenerator_downloadkkpworkbook",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11248,6 +11378,18 @@
       "context": "import",
       "source_file": "src/App.jsx",
       "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_services_projectstateservice_cleardraftfromstorage",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/App.jsx",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -11259,7 +11401,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/App.jsx",
-      "source_location": "L23",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -11271,7 +11413,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/App.jsx",
-      "source_location": "L23",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -11283,7 +11425,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/App.jsx",
-      "source_location": "L23",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -11295,7 +11437,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/App.jsx",
-      "source_location": "L23",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -11307,7 +11449,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/App.jsx",
-      "source_location": "L23",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -11559,6 +11701,18 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/auth/LoginPage.test.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_auth_logoutconfirmmodal_test",
+      "target": "src_components_auth_logoutconfirmmodal_logoutconfirmmodal",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/components/auth/LogoutConfirmModal.test.jsx",
       "source_location": "L3",
       "weight": 1.0
     },
@@ -13124,7 +13278,7 @@
     },
     {
       "source": "src_app",
-      "target": "src_components_admin_admindashboard",
+      "target": "src_components_auth_logoutconfirmmodal",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13136,7 +13290,7 @@
     },
     {
       "source": "src_app",
-      "target": "src_contexts_authcontext",
+      "target": "src_components_admin_admindashboard",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13148,7 +13302,7 @@
     },
     {
       "source": "src_app",
-      "target": "src_tax_engine_taxmapping",
+      "target": "src_contexts_authcontext",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13160,7 +13314,7 @@
     },
     {
       "source": "src_app",
-      "target": "src_tax_engine_deterministiccalc",
+      "target": "src_tax_engine_taxmapping",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13172,7 +13326,7 @@
     },
     {
       "source": "src_app",
-      "target": "src_services_claudeservice",
+      "target": "src_tax_engine_deterministiccalc",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13184,7 +13338,7 @@
     },
     {
       "source": "src_app",
-      "target": "src_tax_engine_kkpworkbookgenerator",
+      "target": "src_services_claudeservice",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13196,7 +13350,7 @@
     },
     {
       "source": "src_app",
-      "target": "src_services_projectstateservice",
+      "target": "src_tax_engine_kkpworkbookgenerator",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -13204,6 +13358,18 @@
       "context": "import",
       "source_file": "src/App.jsx",
       "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_services_projectstateservice",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/App.jsx",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -13444,6 +13610,30 @@
       "context": "import",
       "source_file": "src/components/auth/LoginPage.test.jsx",
       "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_auth_logoutconfirmmodal",
+      "target": "ref_react",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/components/auth/LogoutConfirmModal.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_auth_logoutconfirmmodal_test",
+      "target": "src_components_auth_logoutconfirmmodal",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/components/auth/LogoutConfirmModal.test.jsx",
+      "source_location": "L3",
       "weight": 1.0
     },
     {
@@ -17158,7 +17348,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.jsx",
-      "source_location": "L32",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -17169,7 +17359,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.jsx",
-      "source_location": "L42",
+      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -17180,7 +17370,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.jsx",
-      "source_location": "L54",
+      "source_location": "L55",
       "weight": 1.0
     },
     {
@@ -17191,7 +17381,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.jsx",
-      "source_location": "L66",
+      "source_location": "L67",
       "weight": 1.0
     },
     {
@@ -17202,7 +17392,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.jsx",
-      "source_location": "L71",
+      "source_location": "L72",
       "weight": 1.0
     },
     {
@@ -17213,7 +17403,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/App.jsx",
-      "source_location": "L81",
+      "source_location": "L82",
       "weight": 1.0
     },
     {
@@ -17313,6 +17503,17 @@
       "confidence_score": 1.0,
       "source_file": "src/components/auth/LoginPage.jsx",
       "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_auth_logoutconfirmmodal",
+      "target": "src_components_auth_logoutconfirmmodal_logoutconfirmmodal",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/auth/LogoutConfirmModal.jsx",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -18197,13 +18398,24 @@
     },
     {
       "source": "src_services_projectstateservice",
+      "target": "src_services_projectstateservice_getstoragekey",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/projectStateService.js",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_projectstateservice",
       "target": "src_services_projectstateservice_savedrafttostorage",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L143",
+      "source_location": "L147",
       "weight": 1.0
     },
     {
@@ -18225,7 +18437,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L158",
+      "source_location": "L163",
       "weight": 1.0
     },
     {
@@ -18236,7 +18448,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/projectStateService.js",
-      "source_location": "L175",
+      "source_location": "L181",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_projectstateservice",
+      "target": "src_services_projectstateservice_clearalldraftsfromstorage",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/projectStateService.js",
+      "source_location": "L198",
       "weight": 1.0
     },
     {
@@ -19311,7 +19534,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "src/App.jsx",
-      "source_location": "L85",
+      "source_location": "L86",
       "weight": 1.0
     },
     {
@@ -20602,5 +20825,5 @@
       "source_file": ".agents/skills/caveman-evidence-review/SKILL.md"
     }
   ],
-  "built_at_commit": "25887835769a56da5f156aca803d6756cd7fdfe1"
+  "built_at_commit": "e56fddf6a0fa7733c3a7eb0bccf008786ab8756e"
 }

@@ -182,11 +182,54 @@ async function callClaudeProxy({ model, max_tokens = 4096, system, messages, use
 
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    const errMsg = errData?.error || `HTTP ${response.status}`;
+    const errMsg = errData?.error?.message 
+      || (typeof errData?.error === 'string' ? errData.error : '') 
+      || errData?.message 
+      || (typeof errData === 'string' ? errData : '') 
+      || `HTTP ${response.status}`;
     throw new Error(errMsg);
   }
 
   return response.json();
+}
+
+/**
+ * Ekstraksi teks respons dari payload Claude API secara tangguh.
+ * Menangani Claude 3.7/3.5/Sonnet 5/Haiku 4.5 thinking blocks, multi-text blocks, dan format string langsung.
+ */
+export function extractTextFromClaudeResponse(data) {
+  if (!data) return '';
+  if (typeof data === 'string') return data;
+  if (typeof data.text === 'string' && data.text) return data.text;
+  if (typeof data.content === 'string' && data.content) return data.content;
+
+  if (Array.isArray(data.content)) {
+    // Kumpulkan seluruh item bertipe 'text' (abaikan block 'thinking' atau metadata lain)
+    const textBlocks = data.content
+      .filter(item => item && (item.type === 'text' || typeof item.text === 'string'))
+      .map(item => item.text || '');
+
+    if (textBlocks.length > 0) {
+      return textBlocks.join('\n').trim();
+    }
+
+    // Fallback jika tidak ada type='text' eksplisit
+    const fallbackBlocks = data.content
+      .map(item => (typeof item === 'string' ? item : (item?.text || '')))
+      .filter(Boolean);
+
+    if (fallbackBlocks.length > 0) {
+      return fallbackBlocks.join('\n').trim();
+    }
+  }
+
+  // Format pesan kompatibel / alternatif
+  if (data.choices?.[0]?.message?.content) {
+    const content = data.choices[0].message.content;
+    return typeof content === 'string' ? content : '';
+  }
+
+  return '';
 }
 
 /**
@@ -423,7 +466,8 @@ export async function testClaudeConnection(model = DEFAULT_MODEL) {
         messages: [{ role: 'user', content: 'Ping. Respon dengan kata: PONG' }]
       });
 
-      if (result.content?.[0]?.text) {
+      const text = extractTextFromClaudeResponse(result);
+      if (text) {
         if (targetModel !== model) saveModel(targetModel);
         return { success: true, activeModel: targetModel };
       }
@@ -556,8 +600,9 @@ Format objek temuan:
 ]
 `;
 
+  let resultData, usedModel;
   try {
-    const { data: resultData, model: usedModel } = await callSonnet({
+    const res = await callSonnet({
       system: MASTER_SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userPrompt }],
       maxTokens: 4096,
@@ -566,47 +611,55 @@ Format objek temuan:
       clientName: clientInfo?.name || null,
       taxYear: clientInfo?.taxYear || null
     });
-
-    const text = resultData.content?.[0]?.text || '';
-    const parsedArray = extractAndParseClaudeJson(text);
-    if (Array.isArray(parsedArray) && parsedArray.length > 0) {
-      const modelLabel = usedModel.includes('sonnet') ? 'AI Claude Sonnet' : 'AI Claude Haiku';
-      return parsedArray.map((f, idx) => ({
-        findingId: f.findingId || `TR-${String(idx + 1).padStart(3, '0')}`,
-        taxArea: f.taxArea || 'Pajak Terkait',
-        account: f.account || 'Akun Buku Besar',
-        period: f.period || (clientInfo?.taxYear ? `Tahun Pajak ${clientInfo.taxYear}` : 'Tahun Berjalan'),
-        condition: f.condition || f.aiAnalysis || 'Kondisi faktual teridentifikasi di Buku Besar.',
-        criteria: f.criteria || f.legalBasis || 'Ketentuan perundang-undangan perpajakan yang berlaku.',
-        cause: f.cause || (f.isMisclassified ? 'Salah kamar pembukuan akun' : 'Perbedaan pengakuan transaksi / kelalaian pemotongan'),
-        effect: f.effect || (f.potentialExposure ? `Potensi eksposur perpajakan sebesar Rp ${new Intl.NumberFormat('id-ID').format(f.potentialExposure)}` : 'Potensi sanksi kepatuhan formal'),
-        substanceCategory: f.substanceCategory || 'Substansi Objek Pajak',
-        exceptionCategory: f.exceptionCategory || (f.isMisclassified ? 'l' : 'a'),
-        isMisclassified: !!f.isMisclassified,
-        glValue: Number(f.glValue) || 0,
-        identifiedValue: Number(f.identifiedValue) || 0,
-        unmatchedValue: Number(f.unmatchedValue) || 0,
-        potentialExposure: Number(f.potentialExposure) || 0,
-        probability: Number(f.probability) || 3,
-        impact: Number(f.impact) || 3,
-        riskScore: Number(f.riskScore) || ((Number(f.probability) || 3) * (Number(f.impact) || 3)),
-        riskLevel: f.riskLevel || 'MEDIUM',
-        legalBasis: f.legalBasis || 'LEGAL BASIS REQUIRES HUMAN VERIFICATION',
-        aiAnalysis: f.aiAnalysis || 'Hasil analisis semantik AI Claude.',
-        evidenceRequired: f.evidenceRequired || 'Dokumen pendukung transaksi.',
-        evidenceMissing: f.evidenceMissing || '',
-        recommendation: f.recommendation || 'Verifikasi dokumen dan konfirmasi klien.',
-        managementResponse: '',
-        reviewerDecision: '',
-        status: f.status || 'PROVISIONAL',
-        sourceEngine: 'AI_CLAUDE',
-        engineLabel: modelLabel
-      }));
-    }
-    throw new Error('Hasil analisis AI tidak menghasilkan array temuan yang valid.');
-  } catch (err) {
-    throw new Error(`Gagal mem-parse JSON hasil analisis AI: ${err.message}`);
+    resultData = res.data;
+    usedModel = res.model;
+  } catch (apiErr) {
+    throw new Error(`Koneksi AI gagal: ${apiErr.message}`);
   }
+
+  const text = extractTextFromClaudeResponse(resultData);
+  let parsedArray;
+  try {
+    parsedArray = extractAndParseClaudeJson(text);
+  } catch (parseErr) {
+    throw new Error(`Gagal mem-parse JSON hasil analisis AI: ${parseErr.message}`);
+  }
+
+  if (Array.isArray(parsedArray) && parsedArray.length > 0) {
+    const modelLabel = usedModel.includes('sonnet') ? 'AI Claude Sonnet' : 'AI Claude Haiku';
+    return parsedArray.map((f, idx) => ({
+      findingId: f.findingId || `TR-${String(idx + 1).padStart(3, '0')}`,
+      taxArea: f.taxArea || 'Pajak Terkait',
+      account: f.account || 'Akun Buku Besar',
+      period: f.period || (clientInfo?.taxYear ? `Tahun Pajak ${clientInfo.taxYear}` : 'Tahun Berjalan'),
+      condition: f.condition || f.aiAnalysis || 'Kondisi faktual teridentifikasi di Buku Besar.',
+      criteria: f.criteria || f.legalBasis || 'Ketentuan perundang-undangan perpajakan yang berlaku.',
+      cause: f.cause || (f.isMisclassified ? 'Salah kamar pembukuan akun' : 'Perbedaan pengakuan transaksi / kelalaian pemotongan'),
+      effect: f.effect || (f.potentialExposure ? `Potensi eksposur perpajakan sebesar Rp ${new Intl.NumberFormat('id-ID').format(f.potentialExposure)}` : 'Potensi sanksi kepatuhan formal'),
+      substanceCategory: f.substanceCategory || 'Substansi Objek Pajak',
+      exceptionCategory: f.exceptionCategory || (f.isMisclassified ? 'l' : 'a'),
+      isMisclassified: !!f.isMisclassified,
+      glValue: Number(f.glValue) || 0,
+      identifiedValue: Number(f.identifiedValue) || 0,
+      unmatchedValue: Number(f.unmatchedValue) || 0,
+      potentialExposure: Number(f.potentialExposure) || 0,
+      probability: Number(f.probability) || 3,
+      impact: Number(f.impact) || 3,
+      riskScore: Number(f.riskScore) || ((Number(f.probability) || 3) * (Number(f.impact) || 3)),
+      riskLevel: f.riskLevel || 'MEDIUM',
+      legalBasis: f.legalBasis || 'LEGAL BASIS REQUIRES HUMAN VERIFICATION',
+      aiAnalysis: f.aiAnalysis || 'Hasil analisis semantik AI Claude.',
+      evidenceRequired: f.evidenceRequired || 'Dokumen pendukung transaksi.',
+      evidenceMissing: f.evidenceMissing || '',
+      recommendation: f.recommendation || 'Verifikasi dokumen dan konfirmasi klien.',
+      managementResponse: '',
+      reviewerDecision: '',
+      status: f.status || 'PROVISIONAL',
+      sourceEngine: 'AI_CLAUDE',
+      engineLabel: modelLabel
+    }));
+  }
+  throw new Error('Hasil analisis AI tidak menghasilkan array temuan yang valid.');
 }
 
 /**
@@ -893,8 +946,6 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
 export async function aiClassifyAccounts(accounts, glRows = [], userId = null) {
   if (!accounts || accounts.length === 0) return accounts;
 
-  const model = getSavedModel();
-
   // Ringkasan akun + sample memo per akun (maks 3 memo per akun)
   const accountSummaries = accounts.map(acc => {
     const sampleRows = glRows
@@ -951,7 +1002,7 @@ Output HANYA berupa array JSON murni, mulai dengan '[':
       feature: 'tax-mapping'
     });
 
-    const text = resultData.content?.[0]?.text || '';
+    const text = extractTextFromClaudeResponse(resultData);
     const parsed = extractAndParseClaudeJson(text);
 
     if (Array.isArray(parsed) && parsed.length > 0) {
@@ -1069,7 +1120,7 @@ Output HANYA berupa JSON array murni, mulai dengan '[' dan akhiri dengan ']':
       feature: 'honorarium-disambiguation'
     });
 
-    const text = resultData.content?.[0]?.text || '';
+    const text = extractTextFromClaudeResponse(resultData);
     const parsed = extractAndParseClaudeJson(text);
     if (Array.isArray(parsed)) {
       return parsed;
@@ -1113,7 +1164,7 @@ export async function generateSP2DKResponseWithClaude({
       taxYear: clientInfo?.taxYear || null
     });
 
-    const text = resultData.content?.[0]?.text || '';
+    const text = extractTextFromClaudeResponse(resultData);
     const modelLabel = usedModel.includes('sonnet') ? 'AI Claude Sonnet' : 'AI Claude Haiku';
 
     // Parse respons JSON terstruktur

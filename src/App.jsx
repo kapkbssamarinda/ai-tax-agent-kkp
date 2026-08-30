@@ -8,7 +8,6 @@ import DataTable from './components/DataTable';
 import WarningsPanel from './components/WarningsPanel';
 
 // AI Tax & KKP Modules
-import AISettingsModal from './components/tax/AISettingsModal';
 import ClientMasterModal from './components/tax/ClientMasterModal';
 import PartnerDashboard from './components/tax/PartnerDashboard';
 import TaxReconWorkbench from './components/tax/TaxReconWorkbench';
@@ -98,7 +97,6 @@ function App() {
   const workerRef = useRef(null);
 
   // Modals & Client Master State
-  const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
   const [isClientMasterOpen, setIsClientMasterOpen] = useState(false);
   const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
   const [clientInfo, setClientInfo] = useState(DEFAULT_CLIENT_INFO);
@@ -661,9 +659,6 @@ function App() {
       });
     } catch (err) {
       setError(`Analisis AI gagal: ${err.message}`);
-      if (err.message && err.message.includes('API Key')) {
-        setIsAISettingsOpen(true);
-      }
     } finally {
       setIsAnalyzingTax(false);
     }
@@ -732,7 +727,6 @@ function App() {
         isExporting={isExporting}
         viewMode={viewMode}
         onSelectViewMode={setViewMode}
-        onOpenAISettings={() => setIsAISettingsOpen(true)}
         onOpenClientMaster={() => setIsClientMasterOpen(true)}
         onOpenUserProfile={() => setIsUserProfileOpen(true)}
         clientInfo={clientInfo}
@@ -876,7 +870,6 @@ function App() {
               isAIMappingInProgress={isAIMappingInProgress}
               onUpdateFindingStatus={handleUpdateFindingStatus}
               clientInfo={clientInfo}
-              onOpenAISettings={() => setIsAISettingsOpen(true)}
               onOpenClientMaster={() => setIsClientMasterOpen(true)}
               aiAnalysisSummary={aiAnalysisSummary}
               onDismissAISummary={() => setAiAnalysisSummary(null)}
@@ -900,11 +893,6 @@ function App() {
       )}
 
       {/* Modals Pajak */}
-      <AISettingsModal
-        isOpen={isAISettingsOpen}
-        onClose={() => setIsAISettingsOpen(false)}
-      />
-
       <ClientMasterModal
         isOpen={isClientMasterOpen}
         onClose={() => setIsClientMasterOpen(false)}

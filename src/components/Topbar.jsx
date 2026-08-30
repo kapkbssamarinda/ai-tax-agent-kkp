@@ -7,7 +7,6 @@ import {
   Loader2,
   FileSpreadsheet,
   FileText,
-  Bot,
   Building2,
   Table,
   Scale,
@@ -36,7 +35,6 @@ function Topbar({
   isExporting,
   viewMode = 'GL_CLEANER', // 'GL_CLEANER' | 'TAX_AGENT' | 'PARTNER_DASHBOARD'
   onSelectViewMode,
-  onOpenAISettings,
   onOpenClientMaster,
   onOpenUserProfile,
   clientInfo = {},
@@ -231,19 +229,8 @@ function Topbar({
             </nav>
           </div>
 
-          {/* Sisi Kanan: Action Tools (AI Key, Proyek, Ekspor, File Baru) */}
+          {/* Sisi Kanan: Action Tools (Proyek, Ekspor, File Baru) */}
           <div className="topbar-bottom-right">
-            {/* AI Key Settings */}
-            <button
-              type="button"
-              className="btn btn-ghost btn-action-sm"
-              onClick={onOpenAISettings}
-              title="Pengaturan Kunci API Anthropic Claude (BYOK)"
-            >
-              <Bot size={15} className="text-accent" />
-              <span>AI Key</span>
-            </button>
-
             {/* Proyek Dropdown (.aitax) */}
             <div className="topbar-dropdown-wrap" ref={projectMenuRef}>
               <button

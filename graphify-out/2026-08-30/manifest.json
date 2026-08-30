@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "src/App.jsx": {
-    "mtime": 1788007808.860688,
-    "seen": 1788011046.4044342,
-    "ast_hash": "31ec5cd07d838f1bd4181916ee8bd27e",
+    "mtime": 1788099908.5182557,
+    "seen": 1788099975.7604136,
+    "ast_hash": "9221561e9dc91ad4292094aac9378525",
     "semantic_hash": ""
   },
   "src/App.test.jsx": {
@@ -270,8 +270,8 @@
     "semantic_hash": "f0303e47d2e0c595058202c7e204267c"
   },
   "src/services/claudeService.js": {
-    "mtime": 1788098880.8495603,
-    "seen": 1788099297.7557383,
+    "mtime": 1788099336.2705204,
+    "seen": 1788099975.7683902,
     "ast_hash": "5e90e4910ae649ed20176c0b77e24dc4",
     "semantic_hash": ""
   },
@@ -744,15 +744,15 @@
     "semantic_hash": "ce0db79c55c0c2db448213338ffd91a7"
   },
   "src/services/projectStateService.js": {
-    "mtime": 1787969241.9149532,
-    "seen": 1788011046.4045115,
-    "ast_hash": "ad5adfaac81a9df3e9c8c0d6defa9d07",
+    "mtime": 1788099820.338281,
+    "seen": 1788099975.7686117,
+    "ast_hash": "097ec8d0826bcd58da84fd9891f91b03",
     "semantic_hash": ""
   },
   "src/services/projectStateService.test.js": {
-    "mtime": 1787969241.916958,
-    "seen": 1788011046.4045131,
-    "ast_hash": "0c92bf814692082bc19d2062308841fc",
+    "mtime": 1788099925.6559124,
+    "seen": 1788099975.7686143,
+    "ast_hash": "cb65213c4681e7f7712c1a5c42e01296",
     "semantic_hash": ""
   },
   "api/admin/users.js": {
@@ -762,8 +762,8 @@
     "semantic_hash": ""
   },
   "api/claude.js": {
-    "mtime": 1788098734.7406645,
-    "seen": 1788099297.7320657,
+    "mtime": 1788099336.271517,
+    "seen": 1788099975.7599676,
     "ast_hash": "70ebd33c42d52cf5fe5a25912f04d1f7",
     "semantic_hash": ""
   },
@@ -774,8 +774,8 @@
     "semantic_hash": ""
   },
   "src/components/admin/AdminDashboard.test.jsx": {
-    "mtime": 1788099169.987518,
-    "seen": 1788099297.7430356,
+    "mtime": 1788099336.2775297,
+    "seen": 1788099975.7621634,
     "ast_hash": "d4cb7d77a139081f234191d1f01220b3",
     "semantic_hash": ""
   },
@@ -792,15 +792,15 @@
     "semantic_hash": ""
   },
   "src/components/auth/UserProfileModal.jsx": {
-    "mtime": 1788099087.9300947,
-    "seen": 1788099297.7440956,
-    "ast_hash": "01b8f5695e7ecbbb8ff16b3a389d2675",
+    "mtime": 1788099920.2728138,
+    "seen": 1788099975.7626302,
+    "ast_hash": "8a54df772997f2aaff589c5b7ab19a43",
     "semantic_hash": ""
   },
   "src/components/auth/UserProfileModal.test.jsx": {
-    "mtime": 1788007460.3676465,
-    "seen": 1788011046.4044585,
-    "ast_hash": "b8c8cd4e65b826c2f3bb7af1e786c796",
+    "mtime": 1788099930.9275558,
+    "seen": 1788099975.7626321,
+    "ast_hash": "9f33fe4ada997aec721b04e9a1e2fec0",
     "semantic_hash": ""
   },
   "src/components/common/ErrorBoundary.jsx": {
@@ -846,27 +846,39 @@
     "semantic_hash": ""
   },
   "src/components/admin/AIUsageMonitoringTab.jsx": {
-    "mtime": 1788098918.125359,
-    "seen": 1788099297.7430263,
-    "ast_hash": "d1a7bf386c17b63e5b1d1aed904b6b00",
+    "mtime": 1788099336.272515,
+    "seen": 1788099975.761942,
+    "ast_hash": "2ddf079f4dfcdafdc2e4819a23b8f896",
     "semantic_hash": ""
   },
   "src/services/aiUsageService.js": {
-    "mtime": 1788098895.366003,
-    "seen": 1788099297.7557254,
-    "ast_hash": "ffa2c21c0b2df67bfad469449b05743d",
+    "mtime": 1788099336.2755275,
+    "seen": 1788099975.768385,
+    "ast_hash": "494faed67472964d7ef390e35978642a",
     "semantic_hash": ""
   },
   "src/services/aiUsageService.test.js": {
-    "mtime": 1788099095.411436,
-    "seen": 1788099297.7557318,
-    "ast_hash": "e2d0ac2ae422224c1f1b63549616c289",
+    "mtime": 1788099336.276525,
+    "seen": 1788099975.7683876,
+    "ast_hash": "1478e8ba727c72777811b85aee1b7513",
     "semantic_hash": ""
   },
   "plan-monitoring-ai-usage copy.md": {
     "mtime": 1788096152.761964,
     "seen": 1788099297.7829616,
     "ast_hash": "50c94e7fea96b7091ecf189c6fd7fbb7",
+    "semantic_hash": ""
+  },
+  "src/components/auth/LogoutConfirmModal.jsx": {
+    "mtime": 1788099825.4948823,
+    "seen": 1788099975.7626245,
+    "ast_hash": "4d93c202674e57d3d86b34649dd8e140",
+    "semantic_hash": ""
+  },
+  "src/components/auth/LogoutConfirmModal.test.jsx": {
+    "mtime": 1788099934.288163,
+    "seen": 1788099975.7626274,
+    "ast_hash": "edc6228560d3c0c152b3caf72fb953e6",
     "semantic_hash": ""
   }
 }

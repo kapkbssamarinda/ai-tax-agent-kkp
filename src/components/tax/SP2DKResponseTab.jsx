@@ -34,8 +34,7 @@ export default function SP2DKResponseTab({
   clientInfo = {},
   taxMappings = [],
   revenueRecon = {},
-  expenseRecon = {},
-  onOpenAISettings
+  expenseRecon = {}
 }) {
   // SP2DK Metadata State
   const [sp2dkMeta, setSp2dkMeta] = useState({
@@ -319,9 +318,6 @@ export default function SP2DKResponseTab({
     } catch (err) {
       console.error('Claude SP2DK Error:', err);
       setGenerationError(err.message);
-      if (err.message.includes('API Key') && onOpenAISettings) {
-        onOpenAISettings();
-      }
     } finally {
       setIsGeneratingAI(false);
     }

@@ -5,6 +5,7 @@ import {
   aiClassifyAccounts,
   analyzeTaxFindings,
   analyzeHonorariumClassification,
+  extractTextFromClaudeResponse,
   logAIUsage,
   getAIUsageLogs,
   clearAIUsageLogs,
@@ -22,6 +23,30 @@ describe('Claude Service & AI Account Classification', () => {
 
   it('default model adalah claude-sonnet-5', () => {
     expect(getSavedModel()).toBe('claude-sonnet-5');
+  });
+
+  it('extractTextFromClaudeResponse mengekstrak teks dengan benar dari berbagai format payload termasuk Claude 3.7 thinking blocks', () => {
+    // 1. Array content dengan thinking block di awal (Claude 3.7)
+    const thinkingPayload = {
+      content: [
+        { type: 'thinking', thinking: 'Memeriksa regulasi PMK 141/2015...' },
+        { type: 'text', text: '[{"findingId":"TR-001"}]' }
+      ]
+    };
+    expect(extractTextFromClaudeResponse(thinkingPayload)).toBe('[{"findingId":"TR-001"}]');
+
+    // 2. Payload teks standar
+    const standardPayload = {
+      content: [{ type: 'text', text: 'Hasil analisis' }]
+    };
+    expect(extractTextFromClaudeResponse(standardPayload)).toBe('Hasil analisis');
+
+    // 3. String langsung
+    expect(extractTextFromClaudeResponse('Teks langsung')).toBe('Teks langsung');
+
+    // 4. Payload kosong
+    expect(extractTextFromClaudeResponse(null)).toBe('');
+    expect(extractTextFromClaudeResponse({})).toBe('');
   });
 
   it('dapat menyimpan dan memuat model kustom', () => {
@@ -67,6 +92,50 @@ describe('Claude Service & AI Account Classification', () => {
     expect(result[0].aiOverridden).toBe(true);
     expect(result[0].aiConfidence).toBe(0.95);
     expect(result[0].aiReason).toContain('PPh Final 4(2)');
+  });
+
+  it('analyzeTaxFindings berhasil mengekstrak temuan ketika respons AI memuat thinking block (Claude 3.7)', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        content: [
+          { type: 'thinking', thinking: 'Melakukan analisis risiko pajak...' },
+          {
+            type: 'text',
+            text: JSON.stringify([
+              {
+                findingId: 'TR-001',
+                taxArea: 'PPh Pasal 23',
+                account: 'Biaya Konsultan',
+                potentialExposure: 2000000,
+                riskLevel: 'HIGH',
+                legalBasis: 'PMK 141/2015',
+                aiAnalysis: 'Jasa konsultan belum dipotong PPh 23'
+              }
+            ])
+          }
+        ],
+        usage: { input_tokens: 800, output_tokens: 300 }
+      })
+    });
+
+    const findings = await analyzeTaxFindings({
+      glRows: [{ tanggal: '2024-01-10', coa: '6100', namaAkun: 'Biaya Konsultan', debit: 100000000, keterangan: 'Jasa konsultan pajak' }],
+      taxMappings: [{ coa: '6100', namaAkun: 'Biaya Konsultan', category: 'PPH23' }],
+      revenueRecon: null,
+      expenseRecon: null,
+      payrollRecon: null,
+      finalTaxRecon: null,
+      clientInfo: { name: 'PT Demo', taxYear: '2024' },
+      userId: 'user-123',
+      throwOnError: true
+    });
+
+    expect(Array.isArray(findings)).toBe(true);
+    expect(findings.length).toBe(1);
+    expect(findings[0].findingId).toBe('TR-001');
+    expect(findings[0].sourceEngine).toBe('AI_CLAUDE');
+    expect(findings[0].taxArea).toBe('PPh Pasal 23');
   });
 
   it('analyzeTaxFindings fallback ke generator deterministik jika API error', async () => {
