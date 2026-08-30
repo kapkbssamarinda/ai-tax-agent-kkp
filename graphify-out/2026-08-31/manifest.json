@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "src/App.jsx": {
-    "mtime": 1788106398.8346772,
-    "seen": 1788106434.681296,
-    "ast_hash": "108a9cdb2378b99a4a61bd60018f773b",
+    "mtime": 1788105058.265635,
+    "seen": 1788105412.9593134,
+    "ast_hash": "8d42440ce674213cdc48d8b326a9fd56",
     "semantic_hash": ""
   },
   "src/App.test.jsx": {
@@ -270,8 +270,8 @@
     "semantic_hash": "f0303e47d2e0c595058202c7e204267c"
   },
   "src/services/claudeService.js": {
-    "mtime": 1788105450.2319927,
-    "seen": 1788106434.6909003,
+    "mtime": 1788105329.9148436,
+    "seen": 1788105412.9687004,
     "ast_hash": "5f040c66a4cdbe1842279983edba26ce",
     "semantic_hash": ""
   },
@@ -879,18 +879,6 @@
     "mtime": 1788100009.2584903,
     "seen": 1788101701.7004077,
     "ast_hash": "9ec0f5cf96cee1e2267a475ac8a34ab6",
-    "semantic_hash": ""
-  },
-  "src/components/common/SideNotification.jsx": {
-    "mtime": 1788106316.4333358,
-    "seen": 1788106434.6849518,
-    "ast_hash": "1ae1677c7664803faffe33091e7febfa",
-    "semantic_hash": ""
-  },
-  "src/components/common/SideNotification.test.jsx": {
-    "mtime": 1788106403.2971098,
-    "seen": 1788106434.6849544,
-    "ast_hash": "39487e183e06e917881e70a98846558c",
     "semantic_hash": ""
   }
 }

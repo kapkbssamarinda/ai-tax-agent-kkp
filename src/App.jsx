@@ -15,6 +15,7 @@ import LoginPage from './components/auth/LoginPage';
 import UserProfileModal from './components/auth/UserProfileModal';
 import LogoutConfirmModal from './components/auth/LogoutConfirmModal';
 import AdminDashboard from './components/admin/AdminDashboard';
+import SideNotification from './components/common/SideNotification';
 import { useAuth } from './contexts/AuthContext';
 import { buildTaxMappingFromGL } from './tax-engine/taxMapping';
 import { reconcileRevenueVsPPN, reconcileExpenseVsPPh23, reconcilePayrollVsPPh21, reconcileRentVsPPhFinal } from './tax-engine/deterministicCalc';
@@ -112,6 +113,7 @@ function App() {
   const [isAnalyzingTax, setIsAnalyzingTax] = useState(false);
   const [aiAnalysisSummary, setAiAnalysisSummary] = useState(null);
   const [isAIMappingInProgress, setIsAIMappingInProgress] = useState(false);
+  const [sideNotification, setSideNotification] = useState(null);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const prevUserIdRef = useRef(userId);
@@ -312,14 +314,47 @@ function App() {
         setTaxMappings(mappings);
         recalculateTaxRecons(mappings, data);
 
-        // Lalu jalankan AI classification di background (non-blocking)
+        // Lalu jalankan AI classification langsung (analisis semantik penuh)
         setIsAIMappingInProgress(true);
+        const startTimeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        setSideNotification({
+          id: Date.now(),
+          type: 'loading',
+          title: 'AI Sedang Mengklasifikasi Akun',
+          message: 'Claude sedang menganalisis substansi transaksi & memo akun buku besar secara semantik...',
+          timestamp: `${startTimeStr} WIB`,
+          duration: 0
+        });
+
         aiClassifyAccounts(mappings, data, userId)
           .then(aiMappings => {
             setTaxMappings(aiMappings);
             recalculateTaxRecons(aiMappings, data);
+            const total = aiMappings.length;
+            const overridden = aiMappings.filter(m => m.aiOverridden).length;
+            const verified = aiMappings.filter(m => m.aiProcessed && !m.aiOverridden).length;
+            const finishTimeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+            setSideNotification({
+              id: Date.now(),
+              type: 'success',
+              title: 'Tax Mapping AI Selesai',
+              message: `Berhasil menganalisis & memetakan ${total} akun buku besar.`,
+              details: `✨ ${verified} Akun Terverifikasi  •  🤖 ${overridden} Akun Direklasifikasi`,
+              timestamp: `${finishTimeStr} WIB`,
+              duration: 6500
+            });
           })
-          .catch(err => console.warn('AI mapping gagal:', err))
+          .catch(err => {
+            console.warn('AI mapping gagal:', err);
+            setSideNotification({
+              id: Date.now(),
+              type: 'error',
+              title: 'Klasifikasi AI Terkendala',
+              message: 'Gagal menghubungi AI. Sistem tetap menggunakan pemetaan heuristik standar.',
+              duration: 6500
+            });
+          })
           .finally(() => setIsAIMappingInProgress(false));
       } else if (status === 'export_success') {
         setIsExporting(false);
@@ -675,6 +710,51 @@ function App() {
     }
   };
 
+  const handleRunAIMapping = async () => {
+    if (!processedData || processedData.length === 0 || taxMappings.length === 0) return;
+    setIsAIMappingInProgress(true);
+    const startTimeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    setSideNotification({
+      id: Date.now(),
+      type: 'loading',
+      title: 'Klasifikasi Ulang AI Berjalan',
+      message: 'Claude sedang menganalisis ulang substansi akun buku besar...',
+      timestamp: `${startTimeStr} WIB`,
+      duration: 0
+    });
+
+    try {
+      const aiMappings = await aiClassifyAccounts(taxMappings, processedData, userId);
+      setTaxMappings(aiMappings);
+      recalculateTaxRecons(aiMappings, processedData);
+      const total = aiMappings.length;
+      const overridden = aiMappings.filter(m => m.aiOverridden).length;
+      const verified = aiMappings.filter(m => m.aiProcessed && !m.aiOverridden).length;
+      const finishTimeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+      setSideNotification({
+        id: Date.now(),
+        type: 'success',
+        title: 'Klasifikasi Ulang AI Selesai',
+        message: `Berhasil memperbarui klasifikasi ${total} akun buku besar.`,
+        details: `✨ ${verified} Akun Terverifikasi  •  🤖 ${overridden} Akun Direklasifikasi`,
+        timestamp: `${finishTimeStr} WIB`,
+        duration: 6500
+      });
+    } catch (err) {
+      console.warn('AI mapping gagal:', err);
+      setSideNotification({
+        id: Date.now(),
+        type: 'error',
+        title: 'Klasifikasi AI Terkendala',
+        message: `Gagal memperbarui: ${err.message || 'Koneksi ke AI bermasalah.'}`,
+        duration: 6500
+      });
+    } finally {
+      setIsAIMappingInProgress(false);
+    }
+  };
+
   const handleUpdateFindingStatus = (findingId, newStatus) => {
     setFindings(prev => prev.map(f => f.findingId === findingId ? { ...f, status: newStatus } : f));
   };
@@ -867,6 +947,7 @@ function App() {
               glRows={processedData}
               taxMappings={taxMappings}
               onUpdateTaxMapping={handleUpdateTaxMapping}
+              onRunAIMapping={handleRunAIMapping}
               revenueRecon={revenueRecon}
               onUpdateRevenueSPT={handleUpdateRevenueSPT}
               expenseRecon={expenseRecon}
@@ -924,6 +1005,12 @@ function App() {
         onConfirm={handleConfirmSignOut}
         userName={profile?.full_name}
         userEmail={profile?.email || profile?.id}
+      />
+
+      {/* Side Notification Mengambang (Proses & Hasil AI) */}
+      <SideNotification
+        notification={sideNotification}
+        onClose={() => setSideNotification(null)}
       />
 
       <footer className="app-footer">

@@ -1,16 +1,16 @@
-# Graph Report - ai-tax-agent  (2026-08-31)
+# Graph Report - ai-tax-agent  (2026-08-30)
 
 ## Corpus Check
-- 135 files · ~141,216 words
+- 133 files · ~140,140 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 699 nodes · 1099 edges · 47 communities (35 shown, 12 thin omitted)
+- 696 nodes · 1092 edges · 46 communities (34 shown, 12 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `36eaf660`
+- Built from commit: `8b9f7ba1`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -57,10 +57,9 @@
 - vercel.json
 - Langkah Implementasi
 - Langkah Implementasi
-- deterministicCalc.js
 
 ## God Nodes (most connected - your core abstractions)
-1. `react` - 24 edges
+1. `react` - 22 edges
 2. `Graphify Knowledge Graph Pipeline` - 22 edges
 3. `App()` - 21 edges
 4. `compress_file()` - 16 edges
@@ -94,11 +93,11 @@
 - **Caveman Auto-Clarity Safeguards** — _agents_skills_cavecrew_skill_auto_clarity, _agents_skills_caveman_commit_skill_auto_clarity, _agents_skills_caveman_review_skill_auto_clarity [INFERRED 0.85]
 - **Caveman Cloud Lifecycle Pipeline** — _agents_skills_caveman_setup_skill_setup, _agents_skills_caveman_discover_skill_discover, _agents_skills_caveman_evidence_review_skill_evidence_review, _agents_skills_caveman_manage_skill_manage [INFERRED 0.85]
 
-## Communities (47 total, 12 thin omitted)
+## Communities (46 total, 12 thin omitted)
 
 ### Community 0 - "App.jsx"
 Cohesion: 0.07
-Nodes (38): react, ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail() (+30 more)
+Nodes (42): react, ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail() (+34 more)
 
 ### Community 1 - "parserWorker.js"
 Cohesion: 0.11
@@ -193,8 +192,8 @@ Cohesion: 0.67
 Nodes (3): Migration OpenAI Interface, Migration Skill, Reversible Compatibility-Safe Transitions
 
 ### Community 37 - "aiUsageService.js"
-Cohesion: 0.31
-Nodes (14): AIUsageMonitoringTab(), loadData(), MONTH_NAMES, exportUsageLogsToCSV(), fetchFeatureCostBreakdown(), fetchMonthlyUsageSummary(), fetchRecentUsageLogs(), fetchUserUsageBreakdown() (+6 more)
+Cohesion: 0.14
+Nodes (26): AIUsageMonitoringTab(), loadData(), MONTH_NAMES, LoginPage(), UserProfileModal(), AuthContext, AuthProvider(), fetchProfile() (+18 more)
 
 ### Community 38 - "caveman-explore/package.json"
 Cohesion: 0.18
@@ -216,10 +215,6 @@ Nodes (15): 1. Buat proxy pakai Supabase Edge Function, 2. Sertakan identitas us
 Cohesion: 0.12
 Nodes (15): 1. Buat proxy pakai Supabase Edge Function, 2. Sertakan identitas user di setiap request, 3. Log setiap pemanggilan AI ke tabel Supabase, 4. Hitung estimasi cost per panggilan, 5. Bangun dashboard monitoring, 6. Quota & alert (opsional, untuk kontrol cost lebih ketat), Bagian 1: Ekualisasi PPh 21 + Model Routing, Bagian 2: Monitoring Penggunaan AI per User (+7 more)
 
-### Community 46 - "deterministicCalc.js"
-Cohesion: 0.23
-Nodes (17): PartnerDashboard(), calculateInterestSanction(), calculatePartnerDashboardMetrics(), calculatePPh21TERMonthly(), calculatePPh23Exposure(), getTERCategory(), getTERMonthlyRate(), reconcileCommercialVsFiscalProfit() (+9 more)
-
 ## Knowledge Gaps
 - **244 isolated node(s):** `name`, `version`, `license`, `private`, `type` (+239 more)
   These have ≤1 connection - possible missing edges or undocumented components.
@@ -228,16 +223,16 @@ Nodes (17): PartnerDashboard(), calculateInterestSanction(), calculatePartnerDas
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `App.jsx` to `aiUsageService.js`, `.oxlintrc.json`, `kkpWorkbookGenerator.js`, `claudeService.js`, `deterministicCalc.js`, `SP2DKResponseTab.jsx`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
-- **Why does `AdminDashboard()` connect `AdminDashboard` to `App.jsx`?**
+- **Why does `react` connect `App.jsx` to `aiUsageService.js`, `.oxlintrc.json`, `kkpWorkbookGenerator.js`, `claudeService.js`, `SP2DKResponseTab.jsx`?**
+  _High betweenness centrality (0.018) - this node is a cross-community bridge._
+- **Why does `AdminDashboard()` connect `AdminDashboard` to `App.jsx`, `aiUsageService.js`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
 - **Why does `plugins` connect `.oxlintrc.json` to `App.jsx`?**
   _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **What connects `name`, `version`, `license` to the rest of the system?**
   _244 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `App.jsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.06760316066725197 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06875 - nodes in this community are weakly interconnected._
 - **Should `parserWorker.js` be split into smaller, more focused modules?**
   _Cohesion score 0.11382113821138211 - nodes in this community are weakly interconnected._
 - **Should `compress.py` be split into smaller, more focused modules?**
