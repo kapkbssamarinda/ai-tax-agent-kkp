@@ -1,16 +1,16 @@
 # Graph Report - ai-tax-agent  (2026-08-30)
 
 ## Corpus Check
-- 133 files · ~136,584 words
+- 133 files · ~136,914 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 687 nodes · 1069 edges · 46 communities (34 shown, 12 thin omitted)
+- 688 nodes · 1073 edges · 46 communities (34 shown, 12 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e56fddf6`
+- Built from commit: `4f73a957`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -96,8 +96,8 @@
 ## Communities (46 total, 12 thin omitted)
 
 ### Community 0 - "App.jsx"
-Cohesion: 0.07
-Nodes (43): ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail(), LogoutConfirmModal() (+35 more)
+Cohesion: 0.08
+Nodes (40): ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail(), LogoutConfirmModal() (+32 more)
 
 ### Community 1 - "parserWorker.js"
 Cohesion: 0.11
@@ -132,12 +132,12 @@ Cohesion: 0.04
 Nodes (46): jsdom, lucide-react, oxlint, dependencies, lucide-react, pdfjs-dist, react, react-dom (+38 more)
 
 ### Community 9 - "kkpWorkbookGenerator.js"
-Cohesion: 0.14
-Nodes (21): KEYWORD_PRESETS, KeywordScannerTab(), extractTaxBadge(), TaxReconWorkbench(), TaxRiskRegister(), REGULATION_DATABASE, ALIGN, BORDERS (+13 more)
+Cohesion: 0.12
+Nodes (24): KEYWORD_PRESETS, KeywordScannerTab(), extractTaxBadge(), TaxReconWorkbench(), TaxRiskRegister(), REGULATION_DATABASE, ALIGN, BORDERS (+16 more)
 
 ### Community 10 - "claudeService.js"
 Cohesion: 0.13
-Nodes (29): AISettingsModal(), PRESET_MODELS, aiClassifyAccounts(), analyzeHonorariumClassification(), analyzeTaxFindings(), callClaudeProxy(), callClaudeTaxAnalysis(), callHaiku() (+21 more)
+Nodes (32): AISettingsModal(), PRESET_MODELS, aiClassifyAccounts(), analyzeHonorariumClassification(), analyzeTaxFindings(), callClaudeProxy(), callClaudeTaxAnalysis(), callHaiku() (+24 more)
 
 ### Community 11 - "📝 Panduan Alur Input Data Staff Tax Analyst (SOP Step-by-Step)"
 Cohesion: 0.09
@@ -156,8 +156,8 @@ Cohesion: 0.13
 Nodes (15): Caveman Discover Skill, Operator Approval Protocol, Workflow Labeling Convention, Evidence Accounting Buckets, Caveman Evidence Review Skill, Trace Inspection Protocol, Server-Authoritative Execution Gate, Experiment Lifecycle Actions (+7 more)
 
 ### Community 15 - "SP2DKResponseTab.jsx"
-Cohesion: 0.24
-Nodes (12): SP2DKResponseTab(), generateSP2DKResponseWithClaude(), buildSP2DKClaudePrompt(), calculateSP2DKDeadline(), CAUSE_CATEGORIES, downloadSP2DKWordDocument(), generateFallbackSP2DKResponse(), parseSP2DKText() (+4 more)
+Cohesion: 0.28
+Nodes (10): SP2DKResponseTab(), calculateSP2DKDeadline(), CAUSE_CATEGORIES, downloadSP2DKWordDocument(), generateFallbackSP2DKResponse(), parseSP2DKText(), SP2DK_DEMO_PRESETS, fmtRupiah() (+2 more)
 
 ### Community 16 - "Changelog — GL Cleaner"
 Cohesion: 0.09
@@ -224,7 +224,7 @@ Nodes (15): 1. Buat proxy pakai Supabase Edge Function, 2. Sertakan identitas us
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `react` connect `react` to `App.jsx`, `.oxlintrc.json`, `kkpWorkbookGenerator.js`, `claudeService.js`, `aiUsageService.js`, `SP2DKResponseTab.jsx`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
 - **Why does `AdminDashboard()` connect `react` to `App.jsx`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
 - **Why does `plugins` connect `.oxlintrc.json` to `react`?**
@@ -232,7 +232,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `name`, `version`, `license` to the rest of the system?**
   _243 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `App.jsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.07213114754098361 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07922077922077922 - nodes in this community are weakly interconnected._
 - **Should `parserWorker.js` be split into smaller, more focused modules?**
   _Cohesion score 0.11382113821138211 - nodes in this community are weakly interconnected._
 - **Should `compress.py` be split into smaller, more focused modules?**

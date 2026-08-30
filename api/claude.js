@@ -52,11 +52,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed. Gunakan POST.' });
   }
 
-  // Ambil API key dari Vercel env
-  const apiKey = process.env.CLAUDE_API_KEY;
+  // Ambil API key dari environment variables
+  const apiKey = process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY || process.env.VITE_CLAUDE_API_KEY;
   if (!apiKey) {
     return res.status(500).json({
-      error: 'Konfigurasi server: CLAUDE_API_KEY belum diatur di Vercel Environment Variables.'
+      error: 'Konfigurasi server: CLAUDE_API_KEY / ANTHROPIC_API_KEY belum diatur di Environment Variables.'
     });
   }
 

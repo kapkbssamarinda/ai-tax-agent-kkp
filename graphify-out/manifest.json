@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "src/App.jsx": {
-    "mtime": 1788101581.146796,
-    "seen": 1788101701.6966996,
-    "ast_hash": "35abd1b5a6dcd2745a521c7d10df3f87",
+    "mtime": 1788102165.5639756,
+    "seen": 1788102205.1167238,
+    "ast_hash": "700bb0054498bcf8b4ab49b93f167432",
     "semantic_hash": ""
   },
   "src/App.test.jsx": {
@@ -114,8 +114,8 @@
     "semantic_hash": ""
   },
   "src/components/Topbar.jsx": {
-    "mtime": 1788101678.4756525,
-    "seen": 1788101701.6975818,
+    "mtime": 1788101763.6879895,
+    "seen": 1788102205.1175778,
     "ast_hash": "f64215ce07e75e47c15fd5f06b50a908",
     "semantic_hash": ""
   },
@@ -156,14 +156,14 @@
     "semantic_hash": ""
   },
   "src/components/tax/SP2DKResponseTab.jsx": {
-    "mtime": 1788101524.4502244,
-    "seen": 1788101701.7018807,
+    "mtime": 1788101763.6879895,
+    "seen": 1788102205.121586,
     "ast_hash": "cbc2bec0ea6d6ba071ab58cecfa146a9",
     "semantic_hash": ""
   },
   "src/components/tax/TaxReconWorkbench.jsx": {
-    "mtime": 1788101404.7151997,
-    "seen": 1788101701.701883,
+    "mtime": 1788101763.6899903,
+    "seen": 1788102205.1215887,
     "ast_hash": "55c0fb58f443d663f70e4792d0a1146a",
     "semantic_hash": ""
   },
@@ -270,9 +270,9 @@
     "semantic_hash": "f0303e47d2e0c595058202c7e204267c"
   },
   "src/services/claudeService.js": {
-    "mtime": 1788101685.5426843,
-    "seen": 1788101701.7065952,
-    "ast_hash": "f48947c88e3b715c4fcbe804a581eda1",
+    "mtime": 1788102142.8017693,
+    "seen": 1788102205.1265607,
+    "ast_hash": "48f2f995be7fffd15fcc2dbac1cebc5d",
     "semantic_hash": ""
   },
   "src/services/regulationDB.js": {
@@ -762,9 +762,9 @@
     "semantic_hash": ""
   },
   "api/claude.js": {
-    "mtime": 1788099336.271517,
-    "seen": 1788099975.7599676,
-    "ast_hash": "70ebd33c42d52cf5fe5a25912f04d1f7",
+    "mtime": 1788102149.1108875,
+    "seen": 1788102205.116286,
+    "ast_hash": "148e47a1f4d2f8da25eaadad16d7c4a2",
     "semantic_hash": ""
   },
   "src/components/admin/AdminDashboard.jsx": {
@@ -822,8 +822,8 @@
     "semantic_hash": ""
   },
   "src/services/claudeService.test.js": {
-    "mtime": 1788101646.7613604,
-    "seen": 1788101701.7065978,
+    "mtime": 1788101763.69199,
+    "seen": 1788102205.1265633,
     "ast_hash": "ad4aba1fa292c2ff8e953221e77af5f7",
     "semantic_hash": ""
   },

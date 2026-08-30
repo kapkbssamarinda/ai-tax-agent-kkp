@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "src/App.jsx": {
-    "mtime": 1788099908.5182557,
-    "seen": 1788099975.7604136,
-    "ast_hash": "9221561e9dc91ad4292094aac9378525",
+    "mtime": 1788101581.146796,
+    "seen": 1788101701.6966996,
+    "ast_hash": "35abd1b5a6dcd2745a521c7d10df3f87",
     "semantic_hash": ""
   },
   "src/App.test.jsx": {
@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "src/components/Topbar.jsx": {
-    "mtime": 1788015528.320403,
-    "seen": 1788097529.8882515,
-    "ast_hash": "8a193b397a44c8405c3653412b555eb6",
+    "mtime": 1788101678.4756525,
+    "seen": 1788101701.6975818,
+    "ast_hash": "f64215ce07e75e47c15fd5f06b50a908",
     "semantic_hash": ""
   },
   "src/components/WarningsPanel.jsx": {
@@ -156,15 +156,15 @@
     "semantic_hash": ""
   },
   "src/components/tax/SP2DKResponseTab.jsx": {
-    "mtime": 1787709748.673547,
-    "seen": 1787715409.3911717,
-    "ast_hash": "0a8c072ea8489fa96001c9ebfe1adfa9",
+    "mtime": 1788101524.4502244,
+    "seen": 1788101701.7018807,
+    "ast_hash": "cbc2bec0ea6d6ba071ab58cecfa146a9",
     "semantic_hash": ""
   },
   "src/components/tax/TaxReconWorkbench.jsx": {
-    "mtime": 1788097572.5112162,
-    "seen": 1788099297.7472043,
-    "ast_hash": "de5f973a61b62f97c90cd596043e7847",
+    "mtime": 1788101404.7151997,
+    "seen": 1788101701.701883,
+    "ast_hash": "55c0fb58f443d663f70e4792d0a1146a",
     "semantic_hash": ""
   },
   "src/components/tax/TaxRiskRegister.jsx": {
@@ -270,9 +270,9 @@
     "semantic_hash": "f0303e47d2e0c595058202c7e204267c"
   },
   "src/services/claudeService.js": {
-    "mtime": 1788099336.2705204,
-    "seen": 1788099975.7683902,
-    "ast_hash": "5e90e4910ae649ed20176c0b77e24dc4",
+    "mtime": 1788101685.5426843,
+    "seen": 1788101701.7065952,
+    "ast_hash": "f48947c88e3b715c4fcbe804a581eda1",
     "semantic_hash": ""
   },
   "src/services/regulationDB.js": {
@@ -744,14 +744,14 @@
     "semantic_hash": "ce0db79c55c0c2db448213338ffd91a7"
   },
   "src/services/projectStateService.js": {
-    "mtime": 1788099820.338281,
-    "seen": 1788099975.7686117,
+    "mtime": 1788100009.260491,
+    "seen": 1788101701.706601,
     "ast_hash": "097ec8d0826bcd58da84fd9891f91b03",
     "semantic_hash": ""
   },
   "src/services/projectStateService.test.js": {
-    "mtime": 1788099925.6559124,
-    "seen": 1788099975.7686143,
+    "mtime": 1788100009.2744913,
+    "seen": 1788101701.706603,
     "ast_hash": "cb65213c4681e7f7712c1a5c42e01296",
     "semantic_hash": ""
   },
@@ -792,14 +792,14 @@
     "semantic_hash": ""
   },
   "src/components/auth/UserProfileModal.jsx": {
-    "mtime": 1788099920.2728138,
-    "seen": 1788099975.7626302,
+    "mtime": 1788100009.2554905,
+    "seen": 1788101701.7004125,
     "ast_hash": "8a54df772997f2aaff589c5b7ab19a43",
     "semantic_hash": ""
   },
   "src/components/auth/UserProfileModal.test.jsx": {
-    "mtime": 1788099930.9275558,
-    "seen": 1788099975.7626321,
+    "mtime": 1788100009.2584903,
+    "seen": 1788101701.7004163,
     "ast_hash": "9f33fe4ada997aec721b04e9a1e2fec0",
     "semantic_hash": ""
   },
@@ -822,9 +822,9 @@
     "semantic_hash": ""
   },
   "src/services/claudeService.test.js": {
-    "mtime": 1788097572.5122156,
-    "seen": 1788099297.7557452,
-    "ast_hash": "972857860418fe6636aae67e31999f08",
+    "mtime": 1788101646.7613604,
+    "seen": 1788101701.7065978,
+    "ast_hash": "ad4aba1fa292c2ff8e953221e77af5f7",
     "semantic_hash": ""
   },
   "vercel.json": {
@@ -870,15 +870,15 @@
     "semantic_hash": ""
   },
   "src/components/auth/LogoutConfirmModal.jsx": {
-    "mtime": 1788099825.4948823,
-    "seen": 1788099975.7626245,
-    "ast_hash": "4d93c202674e57d3d86b34649dd8e140",
+    "mtime": 1788100009.2554905,
+    "seen": 1788101701.700403,
+    "ast_hash": "41355aa3bf1b6300b4f6d8cda33fc005",
     "semantic_hash": ""
   },
   "src/components/auth/LogoutConfirmModal.test.jsx": {
-    "mtime": 1788099934.288163,
-    "seen": 1788099975.7626274,
-    "ast_hash": "edc6228560d3c0c152b3caf72fb953e6",
+    "mtime": 1788100009.2584903,
+    "seen": 1788101701.7004077,
+    "ast_hash": "9ec0f5cf96cee1e2267a475ac8a34ab6",
     "semantic_hash": ""
   }
 }

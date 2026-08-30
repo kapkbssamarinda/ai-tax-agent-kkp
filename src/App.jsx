@@ -658,7 +658,18 @@ function App() {
         aiFindingsCount: aiFindings.filter(f => f.sourceEngine === 'AI_CLAUDE').length
       });
     } catch (err) {
-      setError(`Analisis AI gagal: ${err.message}`);
+      console.warn('AI analysis error, populating deterministic findings fallback:', err);
+      const fallbackFindings = generateDeterministicFindings({
+        glRows: processedData,
+        taxMappings,
+        revenueRecon,
+        expenseRecon,
+        payrollRecon,
+        finalTaxRecon,
+        clientInfo
+      });
+      setFindings(fallbackFindings);
+      setError(`Analisis AI gagal: ${err.message}. Sistem otomatis memuat hasil analisis deterministik lokal.`);
     } finally {
       setIsAnalyzingTax(false);
     }

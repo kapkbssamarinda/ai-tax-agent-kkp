@@ -180,17 +180,31 @@ async function callClaudeProxy({ model, max_tokens = 4096, system, messages, use
     body: JSON.stringify(body)
   });
 
+  const rawJson = await response.json().catch(() => null);
+
   if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    const errMsg = errData?.error?.message 
-      || (typeof errData?.error === 'string' ? errData.error : '') 
-      || errData?.message 
-      || (typeof errData === 'string' ? errData : '') 
+    const errMsg = rawJson?.error?.message 
+      || (typeof rawJson?.error === 'string' ? rawJson.error : '') 
+      || rawJson?.message 
+      || (typeof rawJson === 'string' ? rawJson : '') 
       || `HTTP ${response.status}`;
     throw new Error(errMsg);
   }
 
-  return response.json();
+  if (!rawJson) {
+    throw new Error(`Server tidak mengembalikan respons JSON (HTTP ${response.status}).`);
+  }
+
+  // Jika payload JSON mengandung objek error (meskipun status HTTP 200)
+  if (rawJson.error || rawJson.type === 'error') {
+    const errMsg = rawJson.error?.message 
+      || (typeof rawJson.error === 'string' ? rawJson.error : '') 
+      || rawJson.message 
+      || JSON.stringify(rawJson.error || rawJson);
+    throw new Error(errMsg);
+  }
+
+  return rawJson;
 }
 
 /**
@@ -211,6 +225,18 @@ export function extractTextFromClaudeResponse(data) {
 
     if (textBlocks.length > 0) {
       return textBlocks.join('\n').trim();
+    }
+
+    // Jika tidak ada text block eksplisit tapi ada thinking block yang memuat JSON/teks
+    const thinkingBlocks = data.content
+      .filter(item => item && (item.type === 'thinking' || typeof item.thinking === 'string'))
+      .map(item => item.thinking || '');
+    
+    if (thinkingBlocks.length > 0) {
+      const combinedThinking = thinkingBlocks.join('\n').trim();
+      if (combinedThinking.includes('[') && combinedThinking.includes(']')) {
+        return combinedThinking;
+      }
     }
 
     // Fallback jika tidak ada type='text' eksplisit
