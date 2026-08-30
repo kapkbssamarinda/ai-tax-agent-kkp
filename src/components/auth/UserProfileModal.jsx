@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { getAIUsageLogs } from '../../services/claudeService';
 
 function UserProfileModal({ isOpen, onClose, onSignOut }) {
   const { profile, user, updateProfile, updatePassword, signOut, isAdmin } = useAuth();
@@ -42,22 +43,36 @@ function UserProfileModal({ isOpen, onClose, onSignOut }) {
       setSuccess('');
       setTimeout(() => closeButtonRef.current?.focus(), 50);
 
-      // Ambil pemakaian token bulan ini
+      // Ambil pemakaian token bulan ini (dari Supabase + fallback ke local logs)
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+      const quota = profile?.monthly_token_quota || 1000000;
+
+      const calculateLocalUsage = () => {
+        const localLogs = getAIUsageLogs();
+        return localLogs
+          .filter(l => (!l.user_id && !l.userId) || l.user_id === user?.id || l.userId === user?.id)
+          .reduce((acc, r) => acc + (Number(r.total_tokens) || Number(r.totalTokens) || 0), 0);
+      };
+
       if (user?.id) {
-        const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
         supabase
           .from('ai_usage_logs')
           .select('total_tokens')
           .eq('user_id', user.id)
           .gte('created_at', startOfMonth)
-          .then(({ data }) => {
-            const used = (data || []).reduce((acc, r) => acc + (r.total_tokens || 0), 0);
-            setUserUsage({
-              totalTokens: used,
-              quota: profile?.monthly_token_quota || 1000000
-            });
+          .then(({ data, error: dbErr }) => {
+            if (dbErr || !data || data.length === 0) {
+              setUserUsage({ totalTokens: calculateLocalUsage(), quota });
+            } else {
+              const used = data.reduce((acc, r) => acc + (r.total_tokens || 0), 0);
+              setUserUsage({ totalTokens: Math.max(used, calculateLocalUsage()), quota });
+            }
           })
-          .catch(() => {});
+          .catch(() => {
+            setUserUsage({ totalTokens: calculateLocalUsage(), quota });
+          });
+      } else {
+        setUserUsage({ totalTokens: calculateLocalUsage(), quota });
       }
     }
   }, [isOpen, profile, user?.id]);

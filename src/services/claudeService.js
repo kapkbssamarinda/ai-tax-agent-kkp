@@ -251,9 +251,9 @@ export const FALLBACK_MODELS = [
 const AI_USAGE_KEY = 'gl_ai_usage_logs';
 
 /**
- * Catat pemakaian AI ke sessionStorage untuk validasi cost split client-side
+ * Catat pemakaian AI ke localStorage & sessionStorage untuk validasi cost split dan offline monitoring
  */
-export function logAIUsage({ model, feature = 'general', inputTokens = 0, outputTokens = 0 }) {
+export function logAIUsage({ userId = null, userEmail = null, userName = null, model, feature = 'general', clientName = null, taxYear = null, inputTokens = 0, outputTokens = 0 }) {
   try {
     const isHaiku = String(model || '').toLowerCase().includes('haiku');
     const tier = isHaiku ? 'haiku' : 'sonnet';
@@ -262,20 +262,36 @@ export function logAIUsage({ model, feature = 'general', inputTokens = 0, output
 
     const logEntry = {
       id: `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      user_id: userId || null,
+      user_email: userEmail || null,
+      user_name: userName || null,
       timestamp: new Date().toISOString(),
-      model,
+      created_at: new Date().toISOString(),
+      model: model || 'claude-sonnet-5',
       tier,
-      feature,
+      feature: feature || 'general',
+      client_name: clientName || null,
+      tax_year: taxYear || null,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      total_tokens: inputTokens + outputTokens,
       inputTokens,
       outputTokens,
       totalTokens: inputTokens + outputTokens,
-      estimatedCostUSD: Number(estimatedCostUSD.toFixed(6))
+      estimated_cost_usd: Number(estimatedCostUSD.toFixed(6)),
+      estimatedCostUSD: Number(estimatedCostUSD.toFixed(6)),
+      status: 'SUCCESS'
     };
 
     const existingLogs = getAIUsageLogs();
     existingLogs.push(logEntry);
+    const serialized = JSON.stringify(existingLogs.slice(-200));
+
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(AI_USAGE_KEY, serialized);
+    }
     if (typeof sessionStorage !== 'undefined') {
-      sessionStorage.setItem(AI_USAGE_KEY, JSON.stringify(existingLogs.slice(-100)));
+      sessionStorage.setItem(AI_USAGE_KEY, serialized);
     }
     return logEntry;
   } catch {
@@ -285,8 +301,13 @@ export function logAIUsage({ model, feature = 'general', inputTokens = 0, output
 
 export function getAIUsageLogs() {
   try {
-    if (typeof sessionStorage === 'undefined') return [];
-    const raw = sessionStorage.getItem(AI_USAGE_KEY);
+    let raw = null;
+    if (typeof localStorage !== 'undefined') {
+      raw = localStorage.getItem(AI_USAGE_KEY);
+    }
+    if (!raw && typeof sessionStorage !== 'undefined') {
+      raw = sessionStorage.getItem(AI_USAGE_KEY);
+    }
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
@@ -295,6 +316,9 @@ export function getAIUsageLogs() {
 
 export function clearAIUsageLogs() {
   try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(AI_USAGE_KEY);
+    }
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.removeItem(AI_USAGE_KEY);
     }
@@ -315,7 +339,10 @@ async function callClaudeProxy({ model, max_tokens = 4096, system, messages, too
   if (tax_year) body.tax_year = tax_year;
 
   let effectiveUserId = userId;
+  let userEmail = null;
+  let userName = null;
   const headers = { 'content-type': 'application/json' };
+
   try {
     if (typeof supabase !== 'undefined' && supabase?.auth) {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -325,6 +352,8 @@ async function callClaudeProxy({ model, max_tokens = 4096, system, messages, too
       if (!effectiveUserId && sessionData?.session?.user?.id) {
         effectiveUserId = sessionData.session.user.id;
       }
+      userEmail = sessionData?.session?.user?.email || null;
+      userName = sessionData?.session?.user?.user_metadata?.full_name || userEmail?.split('@')[0] || null;
     }
   } catch { /* ignore */ }
 
@@ -358,6 +387,48 @@ async function callClaudeProxy({ model, max_tokens = 4096, system, messages, too
       || rawJson.message 
       || JSON.stringify(rawJson.error || rawJson);
     throw new Error(errMsg);
+  }
+
+  // Catat token usage ke persistent storage (Client side logging)
+  const inputTokens = Number(rawJson?.usage?.input_tokens) || Number(response.headers?.get?.('x-ai-input-tokens')) || 0;
+  const outputTokens = Number(rawJson?.usage?.output_tokens) || Number(response.headers?.get?.('x-ai-output-tokens')) || 0;
+
+  logAIUsage({
+    userId: effectiveUserId,
+    userEmail,
+    userName,
+    model,
+    feature,
+    clientName: client_name,
+    taxYear: tax_year,
+    inputTokens,
+    outputTokens
+  });
+
+  // Sinkronkan juga langsung ke Supabase dari client jika client Supabase aktif
+  if (effectiveUserId && typeof supabase !== 'undefined' && supabase?.from) {
+    try {
+      const isHaiku = String(model || '').toLowerCase().includes('haiku');
+      const tier = isHaiku ? 'haiku' : 'sonnet';
+      const rate = MODEL_PRICING_RATES[tier] || MODEL_PRICING_RATES.sonnet;
+      const costUSD = (inputTokens / 1_000_000) * rate.input + (outputTokens / 1_000_000) * rate.output;
+
+      supabase.from('ai_usage_logs').insert({
+        user_id: effectiveUserId,
+        user_email: userEmail,
+        user_name: userName,
+        feature: feature || 'general',
+        model,
+        tier,
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        total_tokens: inputTokens + outputTokens,
+        estimated_cost_usd: Number(costUSD.toFixed(6)),
+        client_name: client_name || null,
+        tax_year: tax_year || null,
+        status: 'SUCCESS'
+      }).then(() => {}).catch(() => {});
+    } catch { /* ignore */ }
   }
 
   return rawJson;
