@@ -9,6 +9,155 @@ import { formatLegalCitation } from './regulationDB.js';
 import { estimateFindingRisk } from '../tax-engine/riskScoring.js';
 import { buildSP2DKClaudePrompt } from './sp2dkService.js';
 import { supabase } from '../lib/supabase.js';
+import { jsonrepair } from 'jsonrepair';
+
+export const TAX_FINDINGS_TOOL = {
+  name: 'submit_tax_findings',
+  description: 'Submit the structured tax finding register based on general ledger audit and tax reconciliations.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      findings: {
+        type: 'array',
+        description: 'List of tax audit finding objects matching standard KKP Tax Risk Register format.',
+        items: {
+          type: 'object',
+          properties: {
+            findingId: { type: 'string', description: 'Unique finding ID (e.g. TR-001, TR-002)' },
+            taxArea: { type: 'string', description: 'Area of taxation (e.g. PPh Pasal 23, PPN, PPh Final 4(2), PPh 21, PPh 22, PPh Badan, Fiscal Correction, Transfer Pricing)' },
+            account: { type: 'string', description: 'General ledger account name and COA' },
+            period: { type: 'string', description: 'Audit tax period' },
+            condition: { type: 'string', description: 'Factual condition observed from the data' },
+            criteria: { type: 'string', description: 'Applicable tax laws/standards that should apply' },
+            cause: { type: 'string', description: 'Root cause of discrepancy or error' },
+            effect: { type: 'string', description: 'Tax impact and potential financial exposure' },
+            substanceCategory: { type: 'string', description: 'Actual economic substance category of transaction' },
+            exceptionCategory: { type: 'string', description: 'Category of audit exception (a through l)' },
+            isMisclassified: { type: 'boolean', description: 'True if booked in wrong account category (salah kamar)' },
+            glValue: { type: 'number', description: 'Transaction value in general ledger' },
+            identifiedValue: { type: 'number', description: 'Value reported or identified with tax documents' },
+            unmatchedValue: { type: 'number', description: 'Unmatched or unreconciled amount' },
+            potentialExposure: { type: 'number', description: 'Estimated potential tax liability including sanctions' },
+            probability: { type: 'number', description: 'Risk probability score (1-5)' },
+            impact: { type: 'number', description: 'Risk impact score (1-5)' },
+            riskScore: { type: 'number', description: 'Calculated risk score (1-25)' },
+            riskLevel: { type: 'string', enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'], description: 'Overall risk level category' },
+            legalBasis: { type: 'string', description: 'Specific Indonesian tax regulation/article citation or LEGAL BASIS REQUIRES HUMAN VERIFICATION' },
+            aiAnalysis: { type: 'string', description: 'Detailed semantic tax analysis reasoning' },
+            evidenceRequired: { type: 'string', description: 'Documentation required from client' },
+            evidenceMissing: { type: 'string', description: 'Currently missing supporting documents' },
+            recommendation: { type: 'string', description: 'Actionable recommendations for tax auditor' },
+            managementResponse: { type: 'string', description: 'Must be empty string for human review workflow' },
+            reviewerDecision: { type: 'string', description: 'Must be empty string for human review workflow' },
+            status: { type: 'string', enum: ['CONFIRMED', 'PROVISIONAL', 'REQUIRES DOCUMENT', 'REQUIRES LEGAL VERIFICATION', 'REQUIRES PARTNER JUDGMENT'], description: 'Audit status' }
+          },
+          required: [
+            'findingId', 'taxArea', 'account', 'condition', 'criteria', 'cause', 'effect',
+            'potentialExposure', 'riskLevel', 'legalBasis', 'aiAnalysis'
+          ]
+        }
+      }
+    },
+    required: ['findings']
+  }
+};
+
+export const ACCOUNT_CLASSIFICATION_TOOL = {
+  name: 'submit_account_classifications',
+  description: 'Submit the tax classification for each GL account based on economic substance.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      classifications: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            coa: { type: 'string' },
+            namaAkun: { type: 'string' },
+            aiCategory: {
+              type: 'string',
+              enum: ['REVENUE', 'PPH23', 'PPH21', 'PPH42', 'PPH22', 'PPN_IN', 'PPN_OUT', 'FISCAL_CORRECTION', 'RELATED_PARTY', 'NON_TAX']
+            },
+            aiConfidence: { type: 'number' },
+            aiReason: { type: 'string' }
+          },
+          required: ['coa', 'namaAkun', 'aiCategory', 'aiConfidence', 'aiReason']
+        }
+      }
+    },
+    required: ['classifications']
+  }
+};
+
+export const HONORARIUM_DISAMBIGUATION_TOOL = {
+  name: 'submit_honorarium_disambiguations',
+  description: 'Submit disambiguation results for ambiguous accounts between PPh 21 (Individual) and PPh 23 (Corporate).',
+  input_schema: {
+    type: 'object',
+    properties: {
+      disambiguations: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            coa: { type: 'string' },
+            namaAkun: { type: 'string' },
+            classification: { type: 'string', enum: ['PPH21', 'PPH23'] },
+            confidence: { type: 'number' },
+            reason: { type: 'string' },
+            recommendedTaxTreatment: { type: 'string' },
+            legalBasis: { type: 'string' }
+          },
+          required: ['coa', 'namaAkun', 'classification', 'confidence', 'reason', 'recommendedTaxTreatment', 'legalBasis']
+        }
+      }
+    },
+    required: ['disambiguations']
+  }
+};
+
+export const SP2DK_RESPONSE_TOOL = {
+  name: 'submit_sp2dk_response',
+  description: 'Submit formal response letter and itemized reconciliation for SP2DK tax inquiry.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      nomorSuratTanggapan: { type: 'string' },
+      tanggalTanggapan: { type: 'string' },
+      pembuka: { type: 'string' },
+      poinTanggapan: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            no: { type: 'number' },
+            posPajak: { type: 'string' },
+            judul: { type: 'string' },
+            rincianAngka: {
+              type: 'object',
+              properties: {
+                nilaiDJP: { type: 'number' },
+                nilaiWajibPajak: { type: 'number' },
+                selisih: { type: 'number' }
+              }
+            },
+            dalilHukum: { type: 'string' },
+            uraianPenjelasan: { type: 'string' },
+            buktiLampiran: { type: 'string' }
+          }
+        }
+      },
+      kesimpulanDanPermohonan: { type: 'string' },
+      daftarLampiranDokumen: {
+        type: 'array',
+        items: { type: 'string' }
+      },
+      naskahLengkapSurat: { type: 'string' }
+    },
+    required: ['nomorSuratTanggapan', 'naskahLengkapSurat', 'daftarLampiranDokumen']
+  }
+};
 
 const MASTER_SYSTEM_PROMPT = `
 Anda adalah AI Tax Agent Indonesia yang berfungsi membantu Tax Staff, Tax Manager, Konsultan Pajak, dan Partner melakukan tax diagnostic, tax compliance review, tax reconciliation, serta tax risk assessment.
@@ -157,9 +306,11 @@ export function clearAIUsageLogs() {
  * Semua panggilan Claude HARUS melalui fungsi ini.
  * @param {string} userId - ID user dari Supabase auth (untuk rate limiting di server)
  */
-async function callClaudeProxy({ model, max_tokens = 4096, system, messages, userId = null, feature = 'general', client_name = null, tax_year = null }) {
+async function callClaudeProxy({ model, max_tokens = 4096, system, messages, tools, tool_choice, userId = null, feature = 'general', client_name = null, tax_year = null }) {
   const body = { model, max_tokens, messages, feature };
   if (system) body.system = system;
+  if (tools) body.tools = tools;
+  if (tool_choice) body.tool_choice = tool_choice;
   if (userId) body.user_id = userId;
   if (client_name) body.client_name = client_name;
   if (tax_year) body.tax_year = tax_year;
@@ -205,6 +356,18 @@ async function callClaudeProxy({ model, max_tokens = 4096, system, messages, use
   }
 
   return rawJson;
+}
+
+/**
+ * Ekstraksi input dari blok tool_use payload respons Claude.
+ * @param {object} data - Payload respons dari API Claude
+ * @param {string} [toolName] - Nama tool spesifik yang dicari
+ * @returns {object|null} Payload input tool atau null jika tidak ada
+ */
+export function extractToolInputFromClaudeResponse(data, toolName) {
+  if (!data || !Array.isArray(data.content)) return null;
+  const block = data.content.find(b => b && b.type === 'tool_use' && (!toolName || b.name === toolName));
+  return block && block.input ? block.input : null;
 }
 
 /**
@@ -261,7 +424,7 @@ export function extractTextFromClaudeResponse(data) {
 /**
  * Wrapper pemanggilan model tier Haiku (Volume tinggi, klasifikasi & scan awal)
  */
-export async function callHaiku({ system, messages, maxTokens = 2048, userId = null, feature = 'haiku-task', clientName = null, taxYear = null }) {
+export async function callHaiku({ system, messages, tools, tool_choice, maxTokens = 2048, userId = null, feature = 'haiku-task', clientName = null, taxYear = null }) {
   const candidateModels = [...HAIKU_MODELS, ...FALLBACK_MODELS.filter(m => !HAIKU_MODELS.includes(m))];
   let lastError = null;
 
@@ -272,6 +435,8 @@ export async function callHaiku({ system, messages, maxTokens = 2048, userId = n
         max_tokens: maxTokens,
         system,
         messages,
+        tools,
+        tool_choice,
         userId,
         feature,
         client_name: clientName,
@@ -292,7 +457,7 @@ export async function callHaiku({ system, messages, maxTokens = 2048, userId = n
 /**
  * Wrapper pemanggilan model tier Sonnet (Reasoning mendalam, exception assessment, disambiguasi, naskah hukum)
  */
-export async function callSonnet({ system, messages, maxTokens = 4096, userId = null, feature = 'sonnet-task', clientName = null, taxYear = null }) {
+export async function callSonnet({ system, messages, tools, tool_choice, maxTokens = 4096, userId = null, feature = 'sonnet-task', clientName = null, taxYear = null }) {
   const saved = getSavedModel();
   const baseList = SONNET_MODELS.includes(saved)
     ? [saved, ...SONNET_MODELS.filter(m => m !== saved)]
@@ -307,6 +472,8 @@ export async function callSonnet({ system, messages, maxTokens = 4096, userId = 
         max_tokens: maxTokens,
         system,
         messages,
+        tools,
+        tool_choice,
         userId,
         feature,
         client_name: clientName,
@@ -470,9 +637,22 @@ function extractAndParseClaudeJson(text) {
       if (Array.isArray(obj.findings)) return obj.findings;
       if (Array.isArray(obj.data)) return obj.data;
       return [obj];
-    } catch { /* lanjut */ }
+    } catch { /* lanjut ke jsonrepair */ }
   }
 
+  // 6. Gunakan jsonrepair sebagai lapisan pemulihan terakhir sebelum melempar error
+  try {
+    const repairedText = jsonrepair(raw);
+    const parsedRepaired = JSON.parse(repairedText);
+    if (Array.isArray(parsedRepaired)) return parsedRepaired;
+    if (Array.isArray(parsedRepaired.findings)) return parsedRepaired.findings;
+    if (Array.isArray(parsedRepaired.data)) return parsedRepaired.data;
+    if (Array.isArray(parsedRepaired.classifications)) return parsedRepaired.classifications;
+    if (Array.isArray(parsedRepaired.disambiguations)) return parsedRepaired.disambiguations;
+    if (parsedRepaired && typeof parsedRepaired === 'object') return [parsedRepaired];
+  } catch { /* abaikan jika jsonrepair juga gagal */ }
+
+  console.warn(`[extractAndParseClaudeJson] Gagal mengurai JSON (panjang teks: ${text.length}). Cuplikan:`, raw.slice(0, 200));
   throw new Error(`Tidak dapat mengurai respons sebagai array JSON: ${raw.slice(0, 120)}...`);
 }
 
@@ -527,8 +707,8 @@ export async function analyzeTaxFindings({ glRows, taxMappings, revenueRecon, ex
 /**
  * Panggilan ke Claude Messages API via serverless proxy
  */
-async function callClaudeTaxAnalysis({ model, glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo, userId = null }) {
-  // Ambil sample transaksi representatif:
+async function callClaudeTaxAnalysis({ model, glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo, userId = null, maxTokens = 8192 }) {
+  // Ambil sample transaksi representatif (dibatasi 15 sampel untuk menjaga efisiensi token & mencegah context truncation):
   // 1. Transaksi material (> 10jt)
   // 2. Transaksi dari akun penampung umum (Biaya Lain-lain, Uang Muka, Rupa-rupa)
   // 3. Transaksi dengan kata kunci jasa/sewa/konsultan/jamuan/gaji
@@ -538,7 +718,7 @@ async function callClaudeTaxAnalysis({ model, glRows, taxMappings, revenueRecon,
   const addedKeys = new Set();
 
   glRows.forEach((r, idx) => {
-    if (r.keterangan === 'Saldo Awal' || selectedSamples.length >= 25) return;
+    if (r.keterangan === 'Saldo Awal' || selectedSamples.length >= 15) return;
     const memo = `${r.keterangan || ''} ${r.communication || ''}`.toLowerCase();
     const accName = String(r.namaAkun || '').toLowerCase();
     const amount = Math.max(r.debit || 0, r.kredit || r.credit || 0);
@@ -589,41 +769,6 @@ Tugas Khusus Anda:
 3. Buat daftar Tax Finding Register terstruktur sesuai format standar KKP (Finding ID: TR-001, TR-002, dst.).
 4. Nilai legalBasis wajib merujuk pasal/peraturan resmi Indonesia, atau jika tidak yakin isi persis "LEGAL BASIS REQUIRES HUMAN VERIFICATION".
 5. Field managementResponse dan reviewerDecision wajib bernilai string kosong "".
-
-PENTING: Output Anda HANYA berupa array JSON murni tanpa kata pembuka, tanpa kata penutup, dan tanpa tag markdown. Mulai langsung dengan '[' dan akhiri dengan ']'.
-
-Format objek temuan:
-[
-  {
-    "findingId": "TR-001",
-    "taxArea": "PPh Pasal 23" | "PPN" | "PPh Final 4(2)" | "PPh 21" | "PPh 22" | "PPh Badan" | "Fiscal Correction" | "Transfer Pricing",
-    "account": "Nama Akun di GL",
-    "period": "Masa Pajak Jan 2026 / Tahun Pajak 2025",
-    "condition": "Kondisi faktual yang ditemukan di data",
-    "criteria": "Ketentuan/standar perpajakan yang seharusnya berlaku",
-    "cause": "Penyebab terjadinya selisih/anomali",
-    "effect": "Dampak/akibat dari temuan (termasuk potensi exposure)",
-    "substanceCategory": "Kategori Objek Pajak Sebenarnya",
-    "exceptionCategory": "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l",
-    "isMisclassified": boolean,
-    "glValue": number,
-    "identifiedValue": number,
-    "unmatchedValue": number,
-    "potentialExposure": number,
-    "probability": 1-5,
-    "impact": 1-5,
-    "riskScore": 1-25,
-    "riskLevel": "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
-    "legalBasis": "Sitasi pasal resmi ATAU 'LEGAL BASIS REQUIRES HUMAN VERIFICATION'",
-    "aiAnalysis": "Penjelasan rinci mengapa transaksi ini berisiko",
-    "evidenceRequired": "Dokumen bukti yang harus diminta ke klien",
-    "evidenceMissing": "Dokumen bukti yang saat ini belum ada",
-    "recommendation": "Rekomendasi tindakan taktis auditor",
-    "managementResponse": "",
-    "reviewerDecision": "",
-    "status": "CONFIRMED" | "PROVISIONAL" | "REQUIRES DOCUMENT" | "REQUIRES LEGAL VERIFICATION" | "REQUIRES PARTNER JUDGMENT"
-  }
-]
 `;
 
   let resultData, usedModel;
@@ -631,7 +776,9 @@ Format objek temuan:
     const res = await callSonnet({
       system: MASTER_SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userPrompt }],
-      maxTokens: 4096,
+      tools: [TAX_FINDINGS_TOOL],
+      tool_choice: { type: 'tool', name: 'submit_tax_findings' },
+      maxTokens,
       userId,
       feature: 'tax-findings',
       clientName: clientInfo?.name || null,
@@ -643,12 +790,29 @@ Format objek temuan:
     throw new Error(`Koneksi AI gagal: ${apiErr.message}`);
   }
 
-  const text = extractTextFromClaudeResponse(resultData);
-  let parsedArray;
-  try {
-    parsedArray = extractAndParseClaudeJson(text);
-  } catch (parseErr) {
-    throw new Error(`Gagal mem-parse JSON hasil analisis AI: ${parseErr.message}`);
+  // Periksa apakah respons terpotong karena batas token
+  if (resultData?.stop_reason === 'max_tokens') {
+    throw new Error('Respons AI terpotong karena limit token, silakan naikkan max_tokens atau kurangi jumlah sample transaksi.');
+  }
+
+  // 1. Ambil data terstruktur dari Anthropic Tool Use (submit_tax_findings)
+  let parsedArray = null;
+  const toolInput = extractToolInputFromClaudeResponse(resultData, 'submit_tax_findings');
+  if (toolInput && Array.isArray(toolInput.findings)) {
+    parsedArray = toolInput.findings;
+  } else if (toolInput && Array.isArray(toolInput)) {
+    parsedArray = toolInput;
+  }
+
+  // 2. Fallback: Ekstraksi teks jika Tool Use tidak tersedia
+  if (!parsedArray) {
+    const text = extractTextFromClaudeResponse(resultData);
+    try {
+      parsedArray = extractAndParseClaudeJson(text);
+    } catch (parseErr) {
+      console.warn(`[callClaudeTaxAnalysis] Parsing teks fallback gagal. stop_reason: ${resultData?.stop_reason}, text length: ${text?.length || 0}.`, parseErr.message);
+      throw new Error(`Gagal mem-parse JSON hasil analisis AI: ${parseErr.message}`);
+    }
   }
 
   if (Array.isArray(parsedArray) && parsedArray.length > 0) {
@@ -1014,22 +1178,31 @@ Aturan:
 
 Daftar Akun:
 ${JSON.stringify(accountSummaries, null, 2)}
-
-Output HANYA berupa array JSON murni, mulai dengan '[':
-[{"coa":"...","namaAkun":"...","aiCategory":"ID_KATEGORI","aiConfidence":0.0-1.0,"aiReason":"Penjelasan singkat"}]
 `;
 
   try {
     const { data: resultData } = await callHaiku({
       system: 'Anda adalah AI Tax Agent Indonesia. Klasifikasikan akun buku besar ke pos pajak yang benar berdasarkan substansi transaksi.',
       messages: [{ role: 'user', content: classificationPrompt }],
-      maxTokens: 2048,
+      tools: [ACCOUNT_CLASSIFICATION_TOOL],
+      tool_choice: { type: 'tool', name: 'submit_account_classifications' },
+      maxTokens: 4096,
       userId,
       feature: 'tax-mapping'
     });
 
-    const text = extractTextFromClaudeResponse(resultData);
-    const parsed = extractAndParseClaudeJson(text);
+    let parsed = null;
+    const toolInput = extractToolInputFromClaudeResponse(resultData, 'submit_account_classifications');
+    if (toolInput && Array.isArray(toolInput.classifications)) {
+      parsed = toolInput.classifications;
+    } else if (toolInput && Array.isArray(toolInput)) {
+      parsed = toolInput;
+    }
+
+    if (!parsed) {
+      const text = extractTextFromClaudeResponse(resultData);
+      parsed = extractAndParseClaudeJson(text);
+    }
 
     if (Array.isArray(parsed) && parsed.length > 0) {
       const aiMap = new Map();
@@ -1122,32 +1295,36 @@ Pedoman Regulasi:
 
 Daftar Akun:
 ${JSON.stringify(accountSummaries, null, 2)}
-
-Output HANYA berupa JSON array murni, mulai dengan '[' dan akhiri dengan ']':
-[
-  {
-    "coa": "string",
-    "namaAkun": "string",
-    "classification": "PPH21" | "PPH23",
-    "confidence": 0.0 - 1.0,
-    "reason": "Penjelasan hukum dan substansi singkat mengapa masuk PPh 21 atau PPh 23",
-    "recommendedTaxTreatment": "Tarif & mekanisme pemotongan yang disarankan (misal: TER PPh 21 Bukan Pegawai atau PPh 23 2%)",
-    "legalBasis": "Kutipan pasal regulasi (UU PPh / PMK 168/2023 / PMK 141/2015)"
-  }
-]
 `;
 
   try {
     const { data: resultData } = await callSonnet({
       system: MASTER_SYSTEM_PROMPT,
       messages: [{ role: 'user', content: prompt }],
-      maxTokens: 3000,
+      tools: [HONORARIUM_DISAMBIGUATION_TOOL],
+      tool_choice: { type: 'tool', name: 'submit_honorarium_disambiguations' },
+      maxTokens: 4096,
       userId,
       feature: 'honorarium-disambiguation'
     });
 
-    const text = extractTextFromClaudeResponse(resultData);
-    const parsed = extractAndParseClaudeJson(text);
+    if (resultData?.stop_reason === 'max_tokens') {
+      console.warn('[analyzeHonorariumClassification] Respons terpotong karena max_tokens limit.');
+    }
+
+    let parsed = null;
+    const toolInput = extractToolInputFromClaudeResponse(resultData, 'submit_honorarium_disambiguations');
+    if (toolInput && Array.isArray(toolInput.disambiguations)) {
+      parsed = toolInput.disambiguations;
+    } else if (toolInput && Array.isArray(toolInput)) {
+      parsed = toolInput;
+    }
+
+    if (!parsed) {
+      const text = extractTextFromClaudeResponse(resultData);
+      parsed = extractAndParseClaudeJson(text);
+    }
+
     if (Array.isArray(parsed)) {
       return parsed;
     }
@@ -1183,17 +1360,33 @@ export async function generateSP2DKResponseWithClaude({
     const { data: resultData, model: usedModel } = await callSonnet({
       system: MASTER_SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userPrompt }],
-      maxTokens: 4096,
+      tools: [SP2DK_RESPONSE_TOOL],
+      tool_choice: { type: 'tool', name: 'submit_sp2dk_response' },
+      maxTokens: 8192,
       userId,
       feature: 'sp2dk-response',
       clientName: clientInfo?.name || null,
       taxYear: clientInfo?.taxYear || null
     });
 
-    const text = extractTextFromClaudeResponse(resultData);
     const modelLabel = usedModel.includes('sonnet') ? 'AI Claude Sonnet' : 'AI Claude Haiku';
 
-    // Parse respons JSON terstruktur
+    // 1. Ambil dari Anthropic Tool Use jika tersedia
+    const toolInput = extractToolInputFromClaudeResponse(resultData, 'submit_sp2dk_response');
+    if (toolInput && (toolInput.naskahLengkapSurat || toolInput.pembuka)) {
+      return {
+        sourceEngine: 'AI_CLAUDE',
+        engineLabel: modelLabel,
+        nomorSuratTanggapan: toolInput.nomorSuratTanggapan || `${clientInfo.npwp ? clientInfo.npwp.replace(/\D/g, '').slice(0, 4) : '001'}/EXT/TAX/${new Date().getFullYear()}`,
+        tanggalTanggapan: toolInput.tanggalTanggapan || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+        fullLetter: toolInput.naskahLengkapSurat || '',
+        poinTanggapan: toolInput.poinTanggapan || [],
+        docList: toolInput.daftarLampiranDokumen || []
+      };
+    }
+
+    // 2. Fallback: Ekstraksi teks jika Tool Use tidak tersedia
+    const text = extractTextFromClaudeResponse(resultData);
     let parsed = null;
     try {
       const clean = text.replace(/```json/gi, '').replace(/```/g, '').trim();
@@ -1201,8 +1394,12 @@ export async function generateSP2DKResponseWithClaude({
       if (jsonMatch) {
         parsed = JSON.parse(jsonMatch[0]);
       }
-    } catch (e) {
-      console.warn('SP2DK response JSON parsing fallback:', e);
+    } catch {
+      try {
+        parsed = JSON.parse(jsonrepair(text));
+      } catch (e) {
+        console.warn('SP2DK response JSON parsing fallback:', e);
+      }
     }
 
     if (parsed && (parsed.naskahLengkapSurat || parsed.pembuka)) {

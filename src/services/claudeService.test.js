@@ -6,12 +6,17 @@ import {
   analyzeTaxFindings,
   analyzeHonorariumClassification,
   extractTextFromClaudeResponse,
+  extractToolInputFromClaudeResponse,
   logAIUsage,
   getAIUsageLogs,
   clearAIUsageLogs,
   HAIKU_MODELS,
   SONNET_MODELS,
-  MODEL_PRICING_RATES
+  MODEL_PRICING_RATES,
+  TAX_FINDINGS_TOOL,
+  ACCOUNT_CLASSIFICATION_TOOL,
+  HONORARIUM_DISAMBIGUATION_TOOL,
+  SP2DK_RESPONSE_TOOL
 } from './claudeService';
 
 describe('Claude Service & AI Account Classification', () => {
@@ -19,6 +24,30 @@ describe('Claude Service & AI Account Classification', () => {
     localStorage.clear();
     sessionStorage.clear();
     vi.restoreAllMocks();
+  });
+
+  it('memvalidasi ekspor Anthropic tool schemas', () => {
+    expect(TAX_FINDINGS_TOOL.name).toBe('submit_tax_findings');
+    expect(ACCOUNT_CLASSIFICATION_TOOL.name).toBe('submit_account_classifications');
+    expect(HONORARIUM_DISAMBIGUATION_TOOL.name).toBe('submit_honorarium_disambiguations');
+    expect(SP2DK_RESPONSE_TOOL.name).toBe('submit_sp2dk_response');
+  });
+
+  it('extractToolInputFromClaudeResponse mengekstrak input dari blok tool_use dengan benar', () => {
+    const payload = {
+      content: [
+        { type: 'text', text: 'Menganalisis data...' },
+        {
+          type: 'tool_use',
+          name: 'submit_tax_findings',
+          input: {
+            findings: [{ findingId: 'TR-001', taxArea: 'PPh 23' }]
+          }
+        }
+      ]
+    };
+    const input = extractToolInputFromClaudeResponse(payload, 'submit_tax_findings');
+    expect(input).toEqual({ findings: [{ findingId: 'TR-001', taxArea: 'PPh 23' }] });
   });
 
   it('default model adalah claude-sonnet-5', () => {
@@ -136,6 +165,122 @@ describe('Claude Service & AI Account Classification', () => {
     expect(findings[0].findingId).toBe('TR-001');
     expect(findings[0].sourceEngine).toBe('AI_CLAUDE');
     expect(findings[0].taxArea).toBe('PPh Pasal 23');
+  });
+
+  it('analyzeTaxFindings berhasil mengekstrak temuan melalui Anthropic Tool Use (submit_tax_findings)', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        stop_reason: 'tool_use',
+        content: [
+          {
+            type: 'tool_use',
+            name: 'submit_tax_findings',
+            input: {
+              findings: [
+                {
+                  findingId: 'TR-101',
+                  taxArea: 'PPh Pasal 23',
+                  account: 'Biaya Jasa Manajemen',
+                  potentialExposure: 5000000,
+                  riskLevel: 'HIGH',
+                  legalBasis: 'PMK 141/2015',
+                  aiAnalysis: 'Jasa manajemen belum dipotong PPh 23'
+                }
+              ]
+            }
+          }
+        ],
+        usage: { input_tokens: 1200, output_tokens: 450 }
+      })
+    });
+
+    const findings = await analyzeTaxFindings({
+      glRows: [{ tanggal: '2024-02-15', coa: '6200', namaAkun: 'Biaya Jasa Manajemen', debit: 250000000, keterangan: 'Fee konsultan manajemen' }],
+      taxMappings: [{ coa: '6200', namaAkun: 'Biaya Jasa Manajemen', category: 'PPH23' }],
+      revenueRecon: null,
+      expenseRecon: null,
+      payrollRecon: null,
+      finalTaxRecon: null,
+      clientInfo: { name: 'PT Sejahtera', taxYear: '2024' },
+      userId: 'user-456',
+      throwOnError: true
+    });
+
+    expect(Array.isArray(findings)).toBe(true);
+    expect(findings.length).toBe(1);
+    expect(findings[0].findingId).toBe('TR-101');
+    expect(findings[0].taxArea).toBe('PPh Pasal 23');
+    expect(findings[0].sourceEngine).toBe('AI_CLAUDE');
+  });
+
+  it('analyzeTaxFindings melempar error eksplisit jika stop_reason === max_tokens', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        stop_reason: 'max_tokens',
+        content: [
+          { type: 'text', text: '[{"findingId":"TR-001"' }
+        ],
+        usage: { input_tokens: 4000, output_tokens: 8192 }
+      })
+    });
+
+    await expect(analyzeTaxFindings({
+      glRows: [{ tanggal: '2024-01-10', coa: '6100', namaAkun: 'Biaya Konsultan', debit: 100000000, keterangan: 'Jasa konsultan pajak' }],
+      taxMappings: [{ coa: '6100', namaAkun: 'Biaya Konsultan', category: 'PPH23' }],
+      revenueRecon: null,
+      expenseRecon: null,
+      payrollRecon: null,
+      finalTaxRecon: null,
+      clientInfo: { name: 'PT Demo', taxYear: '2024' },
+      userId: 'user-123',
+      throwOnError: true
+    })).rejects.toThrow(/Respons AI terpotong karena limit token/);
+  });
+
+  it('analyzeTaxFindings berhasil menyelamatkan JSON dengan unescaped quotes menggunakan jsonrepair', async () => {
+    // Malformed JSON dengan unescaped quotes di dalam string Bahasa Indonesia
+    const malformedJsonString = `[
+      {
+        "findingId": "TR-002",
+        "taxArea": "PPh Pasal 23",
+        "account": "Biaya Maintenance",
+        "condition": "Pembayaran untuk "service crane" belum dipotong pajak",
+        "criteria": "PMK 141/2015",
+        "potentialExposure": 1500000,
+        "riskLevel": "MEDIUM",
+        "legalBasis": "PMK 141/2015",
+        "aiAnalysis": "Analisis dengan istilah "repair & maintenance""
+      }
+    ]`;
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        stop_reason: 'end_turn',
+        content: [
+          { type: 'text', text: malformedJsonString }
+        ],
+        usage: { input_tokens: 1000, output_tokens: 400 }
+      })
+    });
+
+    const findings = await analyzeTaxFindings({
+      glRows: [{ tanggal: '2024-03-20', coa: '6300', namaAkun: 'Biaya Maintenance', debit: 50000000, keterangan: 'Service alat crane' }],
+      taxMappings: [{ coa: '6300', namaAkun: 'Biaya Maintenance', category: 'PPH23' }],
+      revenueRecon: null,
+      expenseRecon: null,
+      payrollRecon: null,
+      finalTaxRecon: null,
+      clientInfo: { name: 'PT Maju', taxYear: '2024' },
+      userId: 'user-789',
+      throwOnError: true
+    });
+
+    expect(Array.isArray(findings)).toBe(true);
+    expect(findings.length).toBe(1);
+    expect(findings[0].findingId).toBe('TR-002');
   });
 
   it('analyzeTaxFindings fallback ke generator deterministik jika API error', async () => {

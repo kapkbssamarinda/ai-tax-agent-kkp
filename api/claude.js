@@ -70,7 +70,7 @@ export default async function handler(req, res) {
   }
 
   // Ambil data request body
-  const { model, max_tokens, system, messages, user_id, feature, client_name, tax_year } = req.body;
+  const { model, max_tokens, system, messages, user_id, feature, client_name, tax_year, tools, tool_choice } = req.body;
 
   let effectiveUserId = user_id || null;
   let effectiveEmail = null;
@@ -183,6 +183,14 @@ export default async function handler(req, res) {
 
     if (system && typeof system === 'string' && system.trim().length > 0) {
       anthropicBody.system = system;
+    }
+
+    if (Array.isArray(tools) && tools.length > 0) {
+      anthropicBody.tools = tools;
+    }
+
+    if (tool_choice) {
+      anthropicBody.tool_choice = tool_choice;
     }
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
