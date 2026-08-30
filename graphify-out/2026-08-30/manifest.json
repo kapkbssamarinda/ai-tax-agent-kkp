@@ -78,14 +78,14 @@
     "semantic_hash": "2d750bd852cf8fe072f64a62ab29084b"
   },
   "package.json": {
-    "mtime": 1788003501.3557827,
-    "seen": 1788011046.4044318,
-    "ast_hash": "a5fe3d1aa4325bdb32c2e3e09238cc1c",
+    "mtime": 1788102713.9268923,
+    "seen": 1788102905.7466671,
+    "ast_hash": "651721961ed816f561483bc140b39738",
     "semantic_hash": ""
   },
   "src/App.jsx": {
-    "mtime": 1788102165.5639756,
-    "seen": 1788102205.1167238,
+    "mtime": 1788102238.662943,
+    "seen": 1788102905.7466722,
     "ast_hash": "700bb0054498bcf8b4ab49b93f167432",
     "semantic_hash": ""
   },
@@ -270,9 +270,9 @@
     "semantic_hash": "f0303e47d2e0c595058202c7e204267c"
   },
   "src/services/claudeService.js": {
-    "mtime": 1788102142.8017693,
-    "seen": 1788102205.1265607,
-    "ast_hash": "48f2f995be7fffd15fcc2dbac1cebc5d",
+    "mtime": 1788102851.0488942,
+    "seen": 1788102905.7610748,
+    "ast_hash": "a2af312624e181e4b2a47919b7e6ccec",
     "semantic_hash": ""
   },
   "src/services/regulationDB.js": {
@@ -762,9 +762,9 @@
     "semantic_hash": ""
   },
   "api/claude.js": {
-    "mtime": 1788102149.1108875,
-    "seen": 1788102205.116286,
-    "ast_hash": "148e47a1f4d2f8da25eaadad16d7c4a2",
+    "mtime": 1788102732.9439712,
+    "seen": 1788102905.7462468,
+    "ast_hash": "05b0890765e0c9d2407f69e2060b1af2",
     "semantic_hash": ""
   },
   "src/components/admin/AdminDashboard.jsx": {
@@ -822,9 +822,9 @@
     "semantic_hash": ""
   },
   "src/services/claudeService.test.js": {
-    "mtime": 1788101763.69199,
-    "seen": 1788102205.1265633,
-    "ast_hash": "ad4aba1fa292c2ff8e953221e77af5f7",
+    "mtime": 1788102867.241685,
+    "seen": 1788102905.76108,
+    "ast_hash": "72f350003503870a8b9b2489cc0c9f21",
     "semantic_hash": ""
   },
   "vercel.json": {

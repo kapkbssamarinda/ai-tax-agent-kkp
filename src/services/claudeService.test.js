@@ -209,7 +209,7 @@ describe('Claude Service & AI Account Classification', () => {
 
     expect(Array.isArray(findings)).toBe(true);
     expect(findings.length).toBe(1);
-    expect(findings[0].findingId).toBe('TR-101');
+    expect(findings[0].findingId).toBe('TR-001');
     expect(findings[0].taxArea).toBe('PPh Pasal 23');
     expect(findings[0].sourceEngine).toBe('AI_CLAUDE');
   });
@@ -243,7 +243,7 @@ describe('Claude Service & AI Account Classification', () => {
     // Malformed JSON dengan unescaped quotes di dalam string Bahasa Indonesia
     const malformedJsonString = `[
       {
-        "findingId": "TR-002",
+        "findingId": "TR-999",
         "taxArea": "PPh Pasal 23",
         "account": "Biaya Maintenance",
         "condition": "Pembayaran untuk "service crane" belum dipotong pajak",
@@ -280,7 +280,7 @@ describe('Claude Service & AI Account Classification', () => {
 
     expect(Array.isArray(findings)).toBe(true);
     expect(findings.length).toBe(1);
-    expect(findings[0].findingId).toBe('TR-002');
+    expect(findings[0].findingId).toBe('TR-001');
   });
 
   it('analyzeTaxFindings fallback ke generator deterministik jika API error', async () => {
@@ -382,6 +382,65 @@ describe('Claude Service & AI Account Classification', () => {
     expect(results[0].classification).toBe('PPH21');
     expect(results[0].confidence).toBe(0.95);
     expect(results[0].legalBasis).toContain('PMK 168/2023');
+  });
+
+  it('analyzeTaxFindings menggabungkan temuan dari beberapa batch dan me-renumber findingId secara berurutan', async () => {
+    // Mock fetch yang mengembalikan temuan berbeda tergantung request prompt
+    global.fetch = vi.fn().mockImplementation(async (_url, options) => {
+      const body = JSON.parse(options.body);
+      const promptText = body.messages?.[0]?.content || '';
+      
+      let findings = [];
+      if (promptText.includes('PPN')) {
+        findings = [{ findingId: 'RAW-PPN-1', taxArea: 'PPN', account: 'Penjualan' }];
+      } else if (promptText.includes('PPh Pasal 23')) {
+        findings = [{ findingId: 'RAW-23-1', taxArea: 'PPh Pasal 23', account: 'Biaya Jasa' }];
+      } else if (promptText.includes('PPh Pasal 21')) {
+        findings = [{ findingId: 'RAW-21-1', taxArea: 'PPh Pasal 21', account: 'Beban Gaji' }];
+      }
+
+      return {
+        ok: true,
+        json: async () => ({
+          stop_reason: 'tool_use',
+          content: [
+            {
+              type: 'tool_use',
+              name: 'submit_tax_findings',
+              input: { findings }
+            }
+          ],
+          usage: { input_tokens: 800, output_tokens: 250 }
+        })
+      };
+    });
+
+    const multiBatchFindings = await analyzeTaxFindings({
+      glRows: [
+        { tanggal: '2024-01-05', coa: '4100', namaAkun: 'Penjualan Barang', kredit: 100000000, keterangan: 'Faktur penjualan' },
+        { tanggal: '2024-01-10', coa: '6100', namaAkun: 'Biaya Konsultan Jasa', debit: 25000000, keterangan: 'Jasa legal audit' },
+        { tanggal: '2024-01-25', coa: '6200', namaAkun: 'Beban Gaji Karyawan', debit: 60000000, keterangan: 'Gaji dan bonus staff' }
+      ],
+      taxMappings: [
+        { coa: '4100', namaAkun: 'Penjualan Barang', category: 'REVENUE' },
+        { coa: '6100', namaAkun: 'Biaya Konsultan Jasa', category: 'PPH23' },
+        { coa: '6200', namaAkun: 'Beban Gaji Karyawan', category: 'PPH21' }
+      ],
+      revenueRecon: { glRevenueTotal: 100000000, sptDPPTotal: 80000000, difference: 20000000 },
+      expenseRecon: { glExpenseTotal: 25000000, bupotDPPTotal: 0, unmatchedDPP: 25000000 },
+      payrollRecon: { glPayrollTotal: 60000000, sptBrutoTotal: 50000000, unmatchedBase: 10000000 },
+      finalTaxRecon: null,
+      clientInfo: { name: 'PT Multi Batch', taxYear: '2024' },
+      userId: 'user-multi',
+      throwOnError: true
+    });
+
+    expect(multiBatchFindings.length).toBe(3);
+    // Verifikasi renumbering TR-001, TR-002, TR-003 berurutan lintas batch
+    expect(multiBatchFindings[0].findingId).toBe('TR-001');
+    expect(multiBatchFindings[1].findingId).toBe('TR-002');
+    expect(multiBatchFindings[2].findingId).toBe('TR-003');
+    expect(multiBatchFindings.map(f => f.taxArea)).toEqual(['PPN', 'PPh Pasal 23', 'PPh Pasal 21']);
   });
 });
 

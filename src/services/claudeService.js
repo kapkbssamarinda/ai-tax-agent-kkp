@@ -693,7 +693,10 @@ export async function analyzeTaxFindings({ glRows, taxMappings, revenueRecon, ex
   const model = getSavedModel();
 
   try {
-    return await callClaudeTaxAnalysis({ model, glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo, userId });
+    const aiResults = await callClaudeTaxAnalysis({ model, glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo, userId });
+    if (Array.isArray(aiResults) && aiResults.length > 0) {
+      return aiResults;
+    }
   } catch (err) {
     console.warn('Claude API call failed, falling back to deterministic:', err);
     if (throwOnError) {
@@ -705,73 +708,44 @@ export async function analyzeTaxFindings({ glRows, taxMappings, revenueRecon, ex
 }
 
 /**
- * Panggilan ke Claude Messages API via serverless proxy
+ * Eksekusi satu batch spesifik analisis pajak terfokus (PPN, PPh 23, PPh 21, atau Final/Fiskal).
  */
-async function callClaudeTaxAnalysis({ model, glRows, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo, userId = null, maxTokens = 8192 }) {
-  // Ambil sample transaksi representatif (dibatasi 15 sampel untuk menjaga efisiensi token & mencegah context truncation):
-  // 1. Transaksi material (> 10jt)
-  // 2. Transaksi dari akun penampung umum (Biaya Lain-lain, Uang Muka, Rupa-rupa)
-  // 3. Transaksi dengan kata kunci jasa/sewa/konsultan/jamuan/gaji
-  const suspectKeywords = ['jasa', 'service', 'maint', 'konsul', 'notaris', 'sewa', 'crane', 'outsourc', 'jamuan', 'entertain', 'amdal', 'legal', 'fee', 'honor', 'renovasi', 'gaji', 'bonus', 'thr', 'insentif'];
-  
-  const selectedSamples = [];
-  const addedKeys = new Set();
-
-  glRows.forEach((r, idx) => {
-    if (r.keterangan === 'Saldo Awal' || selectedSamples.length >= 15) return;
-    const memo = `${r.keterangan || ''} ${r.communication || ''}`.toLowerCase();
-    const accName = String(r.namaAkun || '').toLowerCase();
-    const amount = Math.max(r.debit || 0, r.kredit || r.credit || 0);
-
-    const isHighValue = amount >= 10000000;
-    const isCatchAllAccount = ['lain', 'umum', 'rupa', 'uang muka', 'kasbon', 'panjar'].some(k => accName.includes(k));
-    const hasSuspectKeyword = suspectKeywords.some(k => memo.includes(k));
-
-    if (isHighValue || isCatchAllAccount || hasSuspectKeyword) {
-      const key = `${r.tanggal}_${r.coa}_${r.noBukti || r.idTransaksi}_${amount}_${idx}`;
-      if (!addedKeys.has(key)) {
-        addedKeys.add(key);
-        selectedSamples.push({
-          tanggal: r.tanggal,
-          coa: r.coa,
-          namaAkun: r.namaAkun,
-          noBukti: r.noBukti || r.idTransaksi || '-',
-          keterangan: r.keterangan || r.communication || '-',
-          debit: r.debit || 0,
-          kredit: r.kredit || r.credit || 0
-        });
-      }
-    }
-  });
-
-  const materialityThreshold = Number(clientInfo?.materialityThreshold) || 10000000;
+async function executeTaxAuditBatch({
+  batchKey,
+  batchLabel,
+  taxScopeDescription,
+  reconciliationSummaryText,
+  sampleRows = [],
+  materialityThreshold = 10000000,
+  clientInfo = {},
+  userId = null,
+  maxTokens = 8192
+}) {
+  if (!sampleRows || sampleRows.length === 0) {
+    console.log(`[Batch ${batchKey} - ${batchLabel}] Tidak ada sample transaksi relevan, melewati panggilan AI.`);
+    return { findings: [], usedModel: DEFAULT_MODEL };
+  }
 
   const userPrompt = `
 Klien: ${clientInfo?.name || 'PT Klien Demo'} (Tahun Pajak: ${clientInfo?.taxYear || '2024'})
 Parameter Materialitas Audit: Rp ${new Intl.NumberFormat('id-ID').format(materialityThreshold)}
+Fokus Area Audit: ${batchLabel}
+Ruang Lingkup: ${taxScopeDescription}
 
-Ringkasan Ekualisasi Deterministik:
-- Total Omzet GL: Rp ${new Intl.NumberFormat('id-ID').format(revenueRecon?.glRevenueTotal || 0)}
-- Selisih Revenue GL vs PPN: Rp ${new Intl.NumberFormat('id-ID').format(revenueRecon?.difference || 0)}
-- Total Beban Jasa GL: Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon?.glExpenseTotal || 0)}
-- Unmatched Beban Jasa vs PPh 23: Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon?.unmatchedDPP || 0)}
-- Total Beban Gaji/Payroll GL: Rp ${new Intl.NumberFormat('id-ID').format(payrollRecon?.glPayrollTotal || 0)}
-- Unmatched Beban Gaji vs PPh 21: Rp ${new Intl.NumberFormat('id-ID').format(payrollRecon?.unmatchedBase || 0)}
-- Total Beban Sewa & Konstruksi GL: Rp ${new Intl.NumberFormat('id-ID').format(finalTaxRecon?.glFinalTaxTotal || 0)}
-- Unmatched Sewa/Konstruksi vs PPh Final 4(2): Rp ${new Intl.NumberFormat('id-ID').format(finalTaxRecon?.unmatchedBase || 0)}
+Ringkasan Rekonsiliasi Terkait:
+${reconciliationSummaryText}
 
-Sample Transaksi Buku Besar (GL) Terseleksi untuk Audit Semantik & Exception Detection:
-${JSON.stringify(selectedSamples, null, 2)}
+Sample Transaksi GL Terkait (${sampleRows.length} Transaksi Terseleksi):
+${JSON.stringify(sampleRows, null, 2)}
 
-Tugas Khusus Anda:
-1. Lakukan Exception Detection & Semantic Scan mencakup 11 kategori exception (a s.d. l).
-2. Tentukan Period, Condition, Criteria, Cause, dan Effect untuk setiap temuan (meliputi PPN, PPh 23, PPh 21, PPh Final 4(2), Koreksi Fiskal, dll.).
-3. Buat daftar Tax Finding Register terstruktur sesuai format standar KKP (Finding ID: TR-001, TR-002, dst.).
-4. Nilai legalBasis wajib merujuk pasal/peraturan resmi Indonesia, atau jika tidak yakin isi persis "LEGAL BASIS REQUIRES HUMAN VERIFICATION".
+Tugas Batch Anda:
+1. Lakukan Exception Detection & Semantic Scan HANYA untuk area: ${batchLabel}.
+2. Tentukan Period, Condition, Criteria, Cause, dan Effect untuk setiap temuan yang teridentifikasi.
+3. Buat daftar Tax Finding Register terstruktur menggunakan tool submit_tax_findings.
+4. Nilai legalBasis wajib merujuk pasal/peraturan resmi Indonesia, atau isi "LEGAL BASIS REQUIRES HUMAN VERIFICATION".
 5. Field managementResponse dan reviewerDecision wajib bernilai string kosong "".
 `;
 
-  let resultData, usedModel;
   try {
     const res = await callSonnet({
       system: MASTER_SYSTEM_PROMPT,
@@ -780,76 +754,239 @@ Tugas Khusus Anda:
       tool_choice: { type: 'tool', name: 'submit_tax_findings' },
       maxTokens,
       userId,
-      feature: 'tax-findings',
+      feature: `tax-findings-${batchKey.toLowerCase()}`,
       clientName: clientInfo?.name || null,
       taxYear: clientInfo?.taxYear || null
     });
-    resultData = res.data;
-    usedModel = res.model;
-  } catch (apiErr) {
-    throw new Error(`Koneksi AI gagal: ${apiErr.message}`);
+
+    const resultData = res.data;
+    const usedModel = res.model;
+
+    const inTokens = Number(resultData.usage?.input_tokens) || 0;
+    const outTokens = Number(resultData.usage?.output_tokens) || 0;
+    console.log(`[Batch ${batchKey} - ${batchLabel}] Tokens: Input=${inTokens}, Output=${outTokens}, Stop Reason=${resultData?.stop_reason || 'unknown'}`);
+
+    if (resultData?.stop_reason === 'max_tokens') {
+      throw new Error(`Respons AI terpotong karena limit token pada ${batchLabel}, silakan naikkan max_tokens atau kurangi sample.`);
+    }
+
+    // 1. Ambil dari Anthropic Tool Use
+    let parsedArray = null;
+    const toolInput = extractToolInputFromClaudeResponse(resultData, 'submit_tax_findings');
+    if (toolInput && Array.isArray(toolInput.findings)) {
+      parsedArray = toolInput.findings;
+    } else if (toolInput && Array.isArray(toolInput)) {
+      parsedArray = toolInput;
+    }
+
+    // 2. Fallback: Ekstraksi teks jika Tool Use tidak tersedia
+    if (!parsedArray) {
+      const text = extractTextFromClaudeResponse(resultData);
+      try {
+        parsedArray = extractAndParseClaudeJson(text);
+      } catch (parseErr) {
+        console.warn(`[Batch ${batchKey}] Parsing teks fallback gagal (stop_reason: ${resultData?.stop_reason}, text length: ${text?.length || 0}):`, parseErr.message);
+        throw parseErr;
+      }
+    }
+
+    return {
+      findings: Array.isArray(parsedArray) ? parsedArray : [],
+      usedModel
+    };
+  } catch (err) {
+    console.warn(`[Batch ${batchKey} - ${batchLabel}] Eksekusi batch gagal:`, err.message);
+    throw err;
+  }
+}
+
+/**
+ * Panggilan ke Claude Messages API via serverless proxy dengan pembagian batch per domain pajak.
+ * Memecah analisis menjadi 4 batch independen (PPN, PPh 23, PPh 21, PPh Final/Fiskal)
+ * untuk meminimalkan volume token per panggilan dan mencegah truncation.
+ */
+async function callClaudeTaxAnalysis({ model: _model, glRows = [], taxMappings = [], revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, clientInfo, userId = null, maxTokens = 8192 }) {
+  const materialityThreshold = Number(clientInfo?.materialityThreshold) || 10000000;
+
+  // Helper untuk memfilter sample relevan per kategori (maks 6-8 transaksi per batch)
+  const filterSamples = (predicate, limit = 8) => {
+    const samples = [];
+    const added = new Set();
+    for (let i = 0; i < glRows.length; i++) {
+      if (samples.length >= limit) break;
+      const r = glRows[i];
+      if (r.keterangan === 'Saldo Awal') continue;
+      if (predicate(r)) {
+        const key = `${r.tanggal}_${r.coa}_${r.noBukti || r.idTransaksi}_${r.debit || r.kredit}_${i}`;
+        if (!added.has(key)) {
+          added.add(key);
+          samples.push({
+            tanggal: r.tanggal,
+            coa: r.coa,
+            namaAkun: r.namaAkun,
+            noBukti: r.noBukti || r.idTransaksi || '-',
+            keterangan: r.keterangan || r.communication || '-',
+            debit: r.debit || 0,
+            kredit: r.kredit || r.credit || 0
+          });
+        }
+      }
+    }
+    return samples;
+  };
+
+  const accountCatMap = new Map();
+  taxMappings.forEach(m => accountCatMap.set(m.namaAkun, m.category));
+
+  // Batch 1: PPN
+  const ppnKeywords = ['penjualan', 'omzet', 'revenue', 'sales', 'faktur', 'retur', 'ppn', 'ekspor', 'piutang usaha'];
+  const ppnReconSummary = `- Total Omzet GL: Rp ${new Intl.NumberFormat('id-ID').format(revenueRecon?.glRevenueTotal || 0)}\n- Total DPP SPT Masa PPN: Rp ${new Intl.NumberFormat('id-ID').format(revenueRecon?.sptDPPTotal || 0)}\n- Selisih Omzet GL vs PPN: Rp ${new Intl.NumberFormat('id-ID').format(revenueRecon?.difference || 0)}\n- Potensi Exposure PPN: Rp ${new Intl.NumberFormat('id-ID').format(revenueRecon?.potentialPPNExposure || 0)}`;
+  const ppnRows = filterSamples(r => {
+    const cat = accountCatMap.get(r.namaAkun);
+    const memo = `${r.keterangan || ''} ${r.namaAkun || ''}`.toLowerCase();
+    const amount = Math.max(r.debit || 0, r.kredit || r.credit || 0);
+    return cat === 'REVENUE' || cat === 'PPN_IN' || cat === 'PPN_OUT' || (ppnKeywords.some(k => memo.includes(k)) && amount >= 5000000);
+  }, 6);
+
+  // Batch 2: PPh 23
+  const pph23Keywords = ['jasa', 'service', 'maint', 'konsul', 'notaris', 'sewa', 'crane', 'outsourc', 'legal', 'fee', 'renovasi', 'bengkel', 'handling', 'forwarding', 'teknik', 'manajemen'];
+  const pph23ReconSummary = `- Total Beban Jasa GL: Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon?.glExpenseTotal || 0)}\n- DPP Bukti Potong PPh 23: Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon?.bupotDPPTotal || 0)}\n- Unmatched Beban Jasa: Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon?.unmatchedDPP || 0)}\n- Potensi Exposure PPh 23: Rp ${new Intl.NumberFormat('id-ID').format(expenseRecon?.totalExposure || 0)}`;
+  const pph23Rows = filterSamples(r => {
+    const cat = accountCatMap.get(r.namaAkun);
+    const memo = `${r.keterangan || ''} ${r.namaAkun || ''}`.toLowerCase();
+    const amount = r.debit || 0;
+    return cat === 'PPH23' || (pph23Keywords.some(k => memo.includes(k)) && amount >= 2000000);
+  }, 8);
+
+  // Batch 3: PPh 21
+  const pph21Keywords = ['gaji', 'salary', 'upah', 'bonus', 'thr', 'insentif', 'honor', 'komisi', 'dokter', 'tenaga ahli', 'narasumber', 'pesangon', 'natura', 'tunjangan'];
+  const pph21ReconSummary = `- Total Beban Gaji/Payroll GL: Rp ${new Intl.NumberFormat('id-ID').format(payrollRecon?.glPayrollTotal || 0)}\n- Penghasilan Bruto SPT PPh 21: Rp ${new Intl.NumberFormat('id-ID').format(payrollRecon?.sptBrutoTotal || 0)}\n- Unmatched Beban Gaji vs PPh 21: Rp ${new Intl.NumberFormat('id-ID').format(payrollRecon?.unmatchedBase || 0)}\n- Potensi Exposure PPh 21: Rp ${new Intl.NumberFormat('id-ID').format(payrollRecon?.totalExposure || 0)}`;
+  const pph21Rows = filterSamples(r => {
+    const cat = accountCatMap.get(r.namaAkun);
+    const memo = `${r.keterangan || ''} ${r.namaAkun || ''}`.toLowerCase();
+    const amount = r.debit || 0;
+    return cat === 'PPH21' || (pph21Keywords.some(k => memo.includes(k)) && amount >= 3000000);
+  }, 8);
+
+  // Batch 4: PPh Final 4(2), Koreksi Fiskal, Related Party
+  const finalKeywords = ['sewa gedung', 'sewa ruko', 'sewa tanah', 'konstruksi', 'jamuan', 'entertain', 'sumbangan', 'denda', 'sanksi', 'natura', 'afiliasi', 'dividen', 'bunga'];
+  const finalReconSummary = `- Total Beban Sewa & Konstruksi GL: Rp ${new Intl.NumberFormat('id-ID').format(finalTaxRecon?.glFinalTaxTotal || 0)}\n- DPP Bukti Potong PPh Final 4(2): Rp ${new Intl.NumberFormat('id-ID').format(finalTaxRecon?.bupotDPPTotal || 0)}\n- Unmatched Sewa/Konstruksi: Rp ${new Intl.NumberFormat('id-ID').format(finalTaxRecon?.unmatchedBase || 0)}\n- Potensi Exposure PPh Final 4(2): Rp ${new Intl.NumberFormat('id-ID').format(finalTaxRecon?.totalExposure || 0)}`;
+  const finalRows = filterSamples(r => {
+    const cat = accountCatMap.get(r.namaAkun);
+    const memo = `${r.keterangan || ''} ${r.namaAkun || ''}`.toLowerCase();
+    const amount = r.debit || 0;
+    return cat === 'PPH42' || cat === 'FISCAL_CORRECTION' || cat === 'RELATED_PARTY' || (finalKeywords.some(k => memo.includes(k)) && amount >= 2000000);
+  }, 8);
+
+  const batchConfigs = [
+    {
+      batchKey: 'PPN',
+      batchLabel: 'PPN & Rekonsiliasi Omzet',
+      taxScopeDescription: 'Objek PPN Keluaran, Ekualisasi Omzet GL vs SPT PPN 1111, PPN Masukan',
+      reconciliationSummaryText: ppnReconSummary,
+      sampleRows: ppnRows
+    },
+    {
+      batchKey: 'PPH23',
+      batchLabel: 'PPh Pasal 23 (Beban Jasa & Sewa Alat)',
+      taxScopeDescription: 'Pemotongan PPh 23 atas Jasa Manajemen/Teknik/Konsultan, Sewa Harta selain Tanah/Bangunan, dan Salah Kamar GL',
+      reconciliationSummaryText: pph23ReconSummary,
+      sampleRows: pph23Rows
+    },
+    {
+      batchKey: 'PPH21',
+      batchLabel: 'PPh Pasal 21 (Payroll & Imbalan Orang Pribadi)',
+      taxScopeDescription: 'Beban Gaji, Upah, Bonus, THR, Honorarium Tenaga Ahli, Imbalan Bukan Pegawai, Fasilitas Natura (PMK 168/2023 & PP 58/2023)',
+      reconciliationSummaryText: pph21ReconSummary,
+      sampleRows: pph21Rows
+    },
+    {
+      batchKey: 'FINAL_FISCAL',
+      batchLabel: 'PPh Final 4(2), Koreksi Fiskal (NDE) & Pihak Berelasi',
+      taxScopeDescription: 'Sewa Tanah/Bangunan, Jasa Konstruksi (PPh Final 4(2)), Biaya Non-Deductible tanpa daftar nominatif (PMK 02/2010), dan Hubungan Istimewa (PMK 172/2023)',
+      reconciliationSummaryText: finalReconSummary,
+      sampleRows: finalRows
+    }
+  ];
+
+  const activeBatches = batchConfigs.filter(cfg => cfg.sampleRows && cfg.sampleRows.length > 0);
+
+  if (activeBatches.length === 0) {
+    console.log('[callClaudeTaxAnalysis] Tidak ada transaksi yang memerlukan analisis AI.');
+    return [];
   }
 
-  // Periksa apakah respons terpotong karena batas token
-  if (resultData?.stop_reason === 'max_tokens') {
-    throw new Error('Respons AI terpotong karena limit token, silakan naikkan max_tokens atau kurangi jumlah sample transaksi.');
-  }
+  console.log(`[callClaudeTaxAnalysis] Menjalankan ${activeBatches.length} batch aktif secara paralel (${activeBatches.map(b => b.batchKey).join(', ')})...`);
 
-  // 1. Ambil data terstruktur dari Anthropic Tool Use (submit_tax_findings)
-  let parsedArray = null;
-  const toolInput = extractToolInputFromClaudeResponse(resultData, 'submit_tax_findings');
-  if (toolInput && Array.isArray(toolInput.findings)) {
-    parsedArray = toolInput.findings;
-  } else if (toolInput && Array.isArray(toolInput)) {
-    parsedArray = toolInput;
-  }
+  const batchResults = await Promise.allSettled(
+    activeBatches.map(cfg => executeTaxAuditBatch({
+      ...cfg,
+      materialityThreshold,
+      clientInfo,
+      userId,
+      maxTokens
+    }))
+  );
 
-  // 2. Fallback: Ekstraksi teks jika Tool Use tidak tersedia
-  if (!parsedArray) {
-    const text = extractTextFromClaudeResponse(resultData);
-    try {
-      parsedArray = extractAndParseClaudeJson(text);
-    } catch (parseErr) {
-      console.warn(`[callClaudeTaxAnalysis] Parsing teks fallback gagal. stop_reason: ${resultData?.stop_reason}, text length: ${text?.length || 0}.`, parseErr.message);
-      throw new Error(`Gagal mem-parse JSON hasil analisis AI: ${parseErr.message}`);
+  const allRawFindings = [];
+  let primaryUsedModel = 'claude-sonnet-5';
+  let firstRejectedError = null;
+
+  for (let i = 0; i < batchResults.length; i++) {
+    const res = batchResults[i];
+    const cfg = activeBatches[i];
+    if (res.status === 'fulfilled') {
+      if (res.value.usedModel) primaryUsedModel = res.value.usedModel;
+      if (Array.isArray(res.value.findings)) {
+        allRawFindings.push(...res.value.findings);
+      }
+    } else {
+      console.warn(`[callClaudeTaxAnalysis] Batch ${cfg.batchKey} gagal:`, res.reason?.message || res.reason);
+      if (!firstRejectedError) firstRejectedError = res.reason;
+      if (res.reason?.message && res.reason.message.includes('Respons AI terpotong karena limit token')) {
+        throw res.reason;
+      }
     }
   }
 
-  if (Array.isArray(parsedArray) && parsedArray.length > 0) {
-    const modelLabel = usedModel.includes('sonnet') ? 'AI Claude Sonnet' : 'AI Claude Haiku';
-    return parsedArray.map((f, idx) => ({
-      findingId: f.findingId || `TR-${String(idx + 1).padStart(3, '0')}`,
-      taxArea: f.taxArea || 'Pajak Terkait',
-      account: f.account || 'Akun Buku Besar',
-      period: f.period || (clientInfo?.taxYear ? `Tahun Pajak ${clientInfo.taxYear}` : 'Tahun Berjalan'),
-      condition: f.condition || f.aiAnalysis || 'Kondisi faktual teridentifikasi di Buku Besar.',
-      criteria: f.criteria || f.legalBasis || 'Ketentuan perundang-undangan perpajakan yang berlaku.',
-      cause: f.cause || (f.isMisclassified ? 'Salah kamar pembukuan akun' : 'Perbedaan pengakuan transaksi / kelalaian pemotongan'),
-      effect: f.effect || (f.potentialExposure ? `Potensi eksposur perpajakan sebesar Rp ${new Intl.NumberFormat('id-ID').format(f.potentialExposure)}` : 'Potensi sanksi kepatuhan formal'),
-      substanceCategory: f.substanceCategory || 'Substansi Objek Pajak',
-      exceptionCategory: f.exceptionCategory || (f.isMisclassified ? 'l' : 'a'),
-      isMisclassified: !!f.isMisclassified,
-      glValue: Number(f.glValue) || 0,
-      identifiedValue: Number(f.identifiedValue) || 0,
-      unmatchedValue: Number(f.unmatchedValue) || 0,
-      potentialExposure: Number(f.potentialExposure) || 0,
-      probability: Number(f.probability) || 3,
-      impact: Number(f.impact) || 3,
-      riskScore: Number(f.riskScore) || ((Number(f.probability) || 3) * (Number(f.impact) || 3)),
-      riskLevel: f.riskLevel || 'MEDIUM',
-      legalBasis: f.legalBasis || 'LEGAL BASIS REQUIRES HUMAN VERIFICATION',
-      aiAnalysis: f.aiAnalysis || 'Hasil analisis semantik AI Claude.',
-      evidenceRequired: f.evidenceRequired || 'Dokumen pendukung transaksi.',
-      evidenceMissing: f.evidenceMissing || '',
-      recommendation: f.recommendation || 'Verifikasi dokumen dan konfirmasi klien.',
-      managementResponse: '',
-      reviewerDecision: '',
-      status: f.status || 'PROVISIONAL',
-      sourceEngine: 'AI_CLAUDE',
-      engineLabel: modelLabel
-    }));
+  if (allRawFindings.length === 0 && firstRejectedError) {
+    throw firstRejectedError;
   }
-  throw new Error('Hasil analisis AI tidak menghasilkan array temuan yang valid.');
+
+  // Gabungkan dan renumber TR-001, TR-002, dst. secara berurutan
+  const modelLabel = primaryUsedModel.includes('sonnet') ? 'AI Claude Sonnet' : 'AI Claude Haiku';
+
+  return allRawFindings.map((f, idx) => ({
+    findingId: `TR-${String(idx + 1).padStart(3, '0')}`,
+    taxArea: f.taxArea || 'Pajak Terkait',
+    account: f.account || 'Akun Buku Besar',
+    period: f.period || (clientInfo?.taxYear ? `Tahun Pajak ${clientInfo.taxYear}` : 'Tahun Berjalan'),
+    condition: f.condition || f.aiAnalysis || 'Kondisi faktual teridentifikasi di Buku Besar.',
+    criteria: f.criteria || f.legalBasis || 'Ketentuan perundang-undangan perpajakan yang berlaku.',
+    cause: f.cause || (f.isMisclassified ? 'Salah kamar pembukuan akun' : 'Perbedaan pengakuan transaksi / kelalaian pemotongan'),
+    effect: f.effect || (f.potentialExposure ? `Potensi eksposur perpajakan sebesar Rp ${new Intl.NumberFormat('id-ID').format(f.potentialExposure)}` : 'Potensi sanksi kepatuhan formal'),
+    substanceCategory: f.substanceCategory || 'Substansi Objek Pajak',
+    exceptionCategory: f.exceptionCategory || (f.isMisclassified ? 'l' : 'a'),
+    isMisclassified: !!f.isMisclassified,
+    glValue: Number(f.glValue) || 0,
+    identifiedValue: Number(f.identifiedValue) || 0,
+    unmatchedValue: Number(f.unmatchedValue) || 0,
+    potentialExposure: Number(f.potentialExposure) || 0,
+    probability: Number(f.probability) || 3,
+    impact: Number(f.impact) || 3,
+    riskScore: Number(f.riskScore) || ((Number(f.probability) || 3) * (Number(f.impact) || 3)),
+    riskLevel: f.riskLevel || 'MEDIUM',
+    legalBasis: f.legalBasis || 'LEGAL BASIS REQUIRES HUMAN VERIFICATION',
+    aiAnalysis: f.aiAnalysis || 'Hasil analisis semantik AI Claude.',
+    evidenceRequired: f.evidenceRequired || 'Dokumen pendukung transaksi.',
+    evidenceMissing: f.evidenceMissing || '',
+    recommendation: f.recommendation || 'Verifikasi dokumen dan konfirmasi klien.',
+    managementResponse: '',
+    reviewerDecision: '',
+    status: f.status || 'PROVISIONAL',
+    sourceEngine: 'AI_CLAUDE',
+    engineLabel: modelLabel
+  }));
 }
 
 /**

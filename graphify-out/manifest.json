@@ -270,9 +270,9 @@
     "semantic_hash": "f0303e47d2e0c595058202c7e204267c"
   },
   "src/services/claudeService.js": {
-    "mtime": 1788102851.0488942,
-    "seen": 1788102905.7610748,
-    "ast_hash": "a2af312624e181e4b2a47919b7e6ccec",
+    "mtime": 1788103304.4901576,
+    "seen": 1788103374.4080026,
+    "ast_hash": "de3de8b3f40159568c21dc7f42a40cba",
     "semantic_hash": ""
   },
   "src/services/regulationDB.js": {
@@ -762,8 +762,8 @@
     "semantic_hash": ""
   },
   "api/claude.js": {
-    "mtime": 1788102732.9439712,
-    "seen": 1788102905.7462468,
+    "mtime": 1788102929.184814,
+    "seen": 1788103374.3916733,
     "ast_hash": "05b0890765e0c9d2407f69e2060b1af2",
     "semantic_hash": ""
   },
@@ -822,9 +822,9 @@
     "semantic_hash": ""
   },
   "src/services/claudeService.test.js": {
-    "mtime": 1788102867.241685,
-    "seen": 1788102905.76108,
-    "ast_hash": "72f350003503870a8b9b2489cc0c9f21",
+    "mtime": 1788103343.2383626,
+    "seen": 1788103374.4080057,
+    "ast_hash": "ec85463556e3f3f2bc6ab627a39fe3a1",
     "semantic_hash": ""
   },
   "vercel.json": {

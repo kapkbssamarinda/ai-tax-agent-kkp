@@ -584,6 +584,30 @@
       "source_location": "L262"
     },
     {
+      "id": "src_tax_engine_taxmapping_autoclassifyaccount",
+      "label": "autoClassifyAccount()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "autoclassifyaccount()",
+      "source_file": "src/tax-engine/taxMapping.js",
+      "source_location": "L31"
+    },
+    {
+      "id": "src_tax_engine_taxmapping_buildtaxmappingfromgl",
+      "label": "buildTaxMappingFromGL()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "buildtaxmappingfromgl()",
+      "source_file": "src/tax-engine/taxMapping.js",
+      "source_location": "L100"
+    },
+    {
       "id": "src_parsers_accurateexcelparser_parseaccurateexcelrows",
       "label": "parseAccurateExcelRows()",
       "_callable": true,
@@ -893,7 +917,7 @@
       "file_type": "code",
       "norm_label": "aiclassifyaccounts()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1136"
+      "source_location": "L1273"
     },
     {
       "id": "src_services_claudeservice_analyzehonorariumclassification",
@@ -905,7 +929,7 @@
       "file_type": "code",
       "norm_label": "analyzehonorariumclassification()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1250"
+      "source_location": "L1387"
     },
     {
       "id": "src_services_claudeservice_analyzetaxfindings",
@@ -941,7 +965,7 @@
       "file_type": "code",
       "norm_label": "callclaudetaxanalysis()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L710"
+      "source_location": "L808"
     },
     {
       "id": "src_services_claudeservice_callhaiku",
@@ -978,6 +1002,18 @@
       "norm_label": "clearaiusagelogs()",
       "source_file": "src/services/claudeService.js",
       "source_location": "L296"
+    },
+    {
+      "id": "src_services_claudeservice_executetaxauditbatch",
+      "label": "executeTaxAuditBatch()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "claudeService.js",
+      "file_type": "code",
+      "norm_label": "executetaxauditbatch()",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L713"
     },
     {
       "id": "src_services_claudeservice_extractandparseclaudejson",
@@ -1037,7 +1073,7 @@
       "file_type": "code",
       "norm_label": "generatedeterministicfindings()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L858"
+      "source_location": "L995"
     },
     {
       "id": "src_services_claudeservice_generatesp2dkresponsewithclaude",
@@ -1049,7 +1085,7 @@
       "file_type": "code",
       "norm_label": "generatesp2dkresponsewithclaude()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1341"
+      "source_location": "L1478"
     },
     {
       "id": "src_services_claudeservice_getaiusagelogs",
@@ -1556,28 +1592,112 @@
       "source_location": "L10"
     },
     {
-      "id": "src_components_admin_aiusagemonitoringtab_aiusagemonitoringtab",
-      "label": "AIUsageMonitoringTab()",
+      "id": "src_components_admin_admindashboard_admindashboard",
+      "label": "AdminDashboard()",
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
-      "norm_label": "aiusagemonitoringtab()",
-      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
-      "source_location": "L38"
+      "norm_label": "admindashboard()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L25"
     },
     {
-      "id": "src_components_admin_aiusagemonitoringtab_aiusagemonitoringtab_loaddata",
-      "label": "loadData()",
+      "id": "src_components_admin_admindashboard_admindashboard_closeeditmodal",
+      "label": "closeEditModal()",
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
-      "norm_label": "loaddata()",
-      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
-      "source_location": "L62"
+      "norm_label": "closeeditmodal()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L165"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_fetchusers",
+      "label": "fetchUsers()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "AuthContext.jsx",
+      "file_type": "code",
+      "norm_label": "fetchusers()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L57"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_getauthheader",
+      "label": "getAuthHeader()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "AuthContext.jsx",
+      "file_type": "code",
+      "norm_label": "getauthheader()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L99"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_handleadduser",
+      "label": "handleAddUser()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "AuthContext.jsx",
+      "file_type": "code",
+      "norm_label": "handleadduser()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L108"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_handledeleteuser",
+      "label": "handleDeleteUser()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "AuthContext.jsx",
+      "file_type": "code",
+      "norm_label": "handledeleteuser()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L232"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_handletoggleactive",
+      "label": "handleToggleActive()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "AuthContext.jsx",
+      "file_type": "code",
+      "norm_label": "handletoggleactive()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L215"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_handleupdateuser",
+      "label": "handleUpdateUser()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "AuthContext.jsx",
+      "file_type": "code",
+      "norm_label": "handleupdateuser()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L171"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_openeditmodal",
+      "label": "openEditModal()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "AuthContext.jsx",
+      "file_type": "code",
+      "norm_label": "openeditmodal()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L154"
     },
     {
       "id": "src_components_auth_loginpage_loginpage",
@@ -1585,7 +1705,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "loginpage()",
       "source_file": "src/components/auth/LoginPage.jsx",
@@ -1597,7 +1717,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "userprofilemodal()",
       "source_file": "src/components/auth/UserProfileModal.jsx",
@@ -1609,7 +1729,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "authprovider()",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -1621,7 +1741,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "fetchprofile()",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -1633,7 +1753,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "initsession()",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -1645,7 +1765,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "signin()",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -1657,7 +1777,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "signout()",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -1669,7 +1789,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "updatepassword()",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -1681,7 +1801,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "updateprofile()",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -1693,119 +1813,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "useauth()",
       "source_file": "src/contexts/AuthContext.jsx",
       "source_location": "L207"
-    },
-    {
-      "id": "src_services_aiusageservice_exportusagelogstocsv",
-      "label": "exportUsageLogsToCSV()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "exportusagelogstocsv()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L364"
-    },
-    {
-      "id": "src_services_aiusageservice_fetchfeaturecostbreakdown",
-      "label": "fetchFeatureCostBreakdown()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "fetchfeaturecostbreakdown()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L242"
-    },
-    {
-      "id": "src_services_aiusageservice_fetchmonthlyusagesummary",
-      "label": "fetchMonthlyUsageSummary()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "fetchmonthlyusagesummary()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L48"
-    },
-    {
-      "id": "src_services_aiusageservice_fetchrecentusagelogs",
-      "label": "fetchRecentUsageLogs()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "fetchrecentusagelogs()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L303"
-    },
-    {
-      "id": "src_services_aiusageservice_fetchuserusagebreakdown",
-      "label": "fetchUserUsageBreakdown()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "fetchuserusagebreakdown()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L138"
-    },
-    {
-      "id": "src_services_aiusageservice_formatidr",
-      "label": "formatIDR()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "formatidr()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L34"
-    },
-    {
-      "id": "src_services_aiusageservice_formatusd",
-      "label": "formatUSD()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "formatusd()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L21"
-    },
-    {
-      "id": "src_services_aiusageservice_getfallbacksummary",
-      "label": "getFallbackSummary()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "getfallbacksummary()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L400"
-    },
-    {
-      "id": "src_services_aiusageservice_updateuserquota",
-      "label": "updateUserQuota()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "updateuserquota()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L340"
     },
     {
       "id": "agents_skills_caveman_compress_scripts_benchmark_benchmark_pair",
@@ -2132,112 +2144,136 @@
       "source_location": "L12"
     },
     {
-      "id": "src_components_admin_admindashboard_admindashboard",
-      "label": "AdminDashboard()",
+      "id": "src_components_admin_aiusagemonitoringtab_aiusagemonitoringtab",
+      "label": "AIUsageMonitoringTab()",
       "_callable": true,
       "_origin": "ast",
       "community": 46,
-      "community_name": "AdminDashboard",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
-      "norm_label": "admindashboard()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L25"
+      "norm_label": "aiusagemonitoringtab()",
+      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
+      "source_location": "L38"
     },
     {
-      "id": "src_components_admin_admindashboard_admindashboard_closeeditmodal",
-      "label": "closeEditModal()",
+      "id": "src_components_admin_aiusagemonitoringtab_aiusagemonitoringtab_loaddata",
+      "label": "loadData()",
       "_callable": true,
       "_origin": "ast",
       "community": 46,
-      "community_name": "AdminDashboard",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
-      "norm_label": "closeeditmodal()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L165"
+      "norm_label": "loaddata()",
+      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
+      "source_location": "L62"
     },
     {
-      "id": "src_components_admin_admindashboard_admindashboard_fetchusers",
-      "label": "fetchUsers()",
+      "id": "src_services_aiusageservice_exportusagelogstocsv",
+      "label": "exportUsageLogsToCSV()",
       "_callable": true,
       "_origin": "ast",
       "community": 46,
-      "community_name": "AdminDashboard",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
-      "norm_label": "fetchusers()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L57"
+      "norm_label": "exportusagelogstocsv()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L364"
     },
     {
-      "id": "src_components_admin_admindashboard_admindashboard_getauthheader",
-      "label": "getAuthHeader()",
+      "id": "src_services_aiusageservice_fetchfeaturecostbreakdown",
+      "label": "fetchFeatureCostBreakdown()",
       "_callable": true,
       "_origin": "ast",
       "community": 46,
-      "community_name": "AdminDashboard",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
-      "norm_label": "getauthheader()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L99"
+      "norm_label": "fetchfeaturecostbreakdown()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L242"
     },
     {
-      "id": "src_components_admin_admindashboard_admindashboard_handleadduser",
-      "label": "handleAddUser()",
+      "id": "src_services_aiusageservice_fetchmonthlyusagesummary",
+      "label": "fetchMonthlyUsageSummary()",
       "_callable": true,
       "_origin": "ast",
       "community": 46,
-      "community_name": "AdminDashboard",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
-      "norm_label": "handleadduser()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L108"
+      "norm_label": "fetchmonthlyusagesummary()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L48"
     },
     {
-      "id": "src_components_admin_admindashboard_admindashboard_handledeleteuser",
-      "label": "handleDeleteUser()",
+      "id": "src_services_aiusageservice_fetchrecentusagelogs",
+      "label": "fetchRecentUsageLogs()",
       "_callable": true,
       "_origin": "ast",
       "community": 46,
-      "community_name": "AdminDashboard",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
-      "norm_label": "handledeleteuser()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L232"
+      "norm_label": "fetchrecentusagelogs()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L303"
     },
     {
-      "id": "src_components_admin_admindashboard_admindashboard_handletoggleactive",
-      "label": "handleToggleActive()",
+      "id": "src_services_aiusageservice_fetchuserusagebreakdown",
+      "label": "fetchUserUsageBreakdown()",
       "_callable": true,
       "_origin": "ast",
       "community": 46,
-      "community_name": "AdminDashboard",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
-      "norm_label": "handletoggleactive()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L215"
+      "norm_label": "fetchuserusagebreakdown()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L138"
     },
     {
-      "id": "src_components_admin_admindashboard_admindashboard_handleupdateuser",
-      "label": "handleUpdateUser()",
+      "id": "src_services_aiusageservice_formatidr",
+      "label": "formatIDR()",
       "_callable": true,
       "_origin": "ast",
       "community": 46,
-      "community_name": "AdminDashboard",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
-      "norm_label": "handleupdateuser()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L171"
+      "norm_label": "formatidr()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L34"
     },
     {
-      "id": "src_components_admin_admindashboard_admindashboard_openeditmodal",
-      "label": "openEditModal()",
+      "id": "src_services_aiusageservice_formatusd",
+      "label": "formatUSD()",
       "_callable": true,
       "_origin": "ast",
       "community": 46,
-      "community_name": "AdminDashboard",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
-      "norm_label": "openeditmodal()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L154"
+      "norm_label": "formatusd()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L21"
+    },
+    {
+      "id": "src_services_aiusageservice_getfallbacksummary",
+      "label": "getFallbackSummary()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "getfallbacksummary()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L400"
+    },
+    {
+      "id": "src_services_aiusageservice_updateuserquota",
+      "label": "updateUserQuota()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "updateuserquota()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L340"
     },
     {
       "id": "src_components_tax_keywordscannertab_keywordscannertab",
@@ -2406,30 +2442,6 @@
       "norm_label": "writetitlerow()",
       "source_file": "src/tax-engine/kkpWorkbookGenerator.js",
       "source_location": "L143"
-    },
-    {
-      "id": "src_tax_engine_taxmapping_autoclassifyaccount",
-      "label": "autoClassifyAccount()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "kkpWorkbookGenerator.js",
-      "file_type": "code",
-      "norm_label": "autoclassifyaccount()",
-      "source_file": "src/tax-engine/taxMapping.js",
-      "source_location": "L31"
-    },
-    {
-      "id": "src_tax_engine_taxmapping_buildtaxmappingfromgl",
-      "label": "buildTaxMappingFromGL()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "kkpWorkbookGenerator.js",
-      "file_type": "code",
-      "norm_label": "buildtaxmappingfromgl()",
-      "source_file": "src/tax-engine/taxMapping.js",
-      "source_location": "L100"
     },
     {
       "id": "index_html_root",
@@ -2779,6 +2791,39 @@
       "file_type": "code",
       "norm_label": "deterministiccalc.test.js",
       "source_file": "src/tax-engine/deterministicCalc.test.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_tax_engine_taxmapping",
+      "label": "taxMapping.js",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "taxmapping.js",
+      "source_file": "src/tax-engine/taxMapping.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_tax_engine_taxmapping_tax_categories",
+      "label": "TAX_CATEGORIES",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "tax_categories",
+      "source_file": "src/tax-engine/taxMapping.js",
+      "source_location": "L15"
+    },
+    {
+      "id": "src_tax_engine_taxmapping_test",
+      "label": "taxMapping.test.js",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "taxmapping.test.js",
+      "source_file": "src/tax-engine/taxMapping.test.js",
       "source_location": "L1"
     },
     {
@@ -4695,7 +4740,7 @@
       "label": "AdminDashboard.jsx",
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "admindashboard.jsx",
       "source_file": "src/components/admin/AdminDashboard.jsx",
@@ -4706,40 +4751,18 @@
       "label": "AdminDashboard.test.jsx",
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "admindashboard.test.jsx",
       "source_file": "src/components/admin/AdminDashboard.test.jsx",
       "source_location": "L1"
     },
     {
-      "id": "src_components_admin_aiusagemonitoringtab",
-      "label": "AIUsageMonitoringTab.jsx",
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "aiusagemonitoringtab.jsx",
-      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_components_admin_aiusagemonitoringtab_month_names",
-      "label": "MONTH_NAMES",
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "month_names",
-      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
-      "source_location": "L33"
-    },
-    {
       "id": "src_components_auth_loginpage",
       "label": "LoginPage.jsx",
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "loginpage.jsx",
       "source_file": "src/components/auth/LoginPage.jsx",
@@ -4750,7 +4773,7 @@
       "label": "LoginPage.test.jsx",
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "loginpage.test.jsx",
       "source_file": "src/components/auth/LoginPage.test.jsx",
@@ -4761,7 +4784,7 @@
       "label": "UserProfileModal.jsx",
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "userprofilemodal.jsx",
       "source_file": "src/components/auth/UserProfileModal.jsx",
@@ -4772,7 +4795,7 @@
       "label": "UserProfileModal.test.jsx",
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "userprofilemodal.test.jsx",
       "source_file": "src/components/auth/UserProfileModal.test.jsx",
@@ -4783,7 +4806,7 @@
       "label": "AuthContext.jsx",
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "authcontext.jsx",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -4794,7 +4817,7 @@
       "label": "AuthContext",
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "authcontext",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -4805,7 +4828,7 @@
       "label": "supabase.js",
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "supabase.js",
       "source_file": "src/lib/supabase.js",
@@ -4816,55 +4839,11 @@
       "label": "supabase",
       "_origin": "ast",
       "community": 37,
-      "community_name": "aiUsageService.js",
+      "community_name": "AuthContext.jsx",
       "file_type": "code",
       "norm_label": "supabase",
       "source_file": "src/lib/supabase.js",
       "source_location": "L12"
-    },
-    {
-      "id": "src_services_aiusageservice",
-      "label": "aiUsageService.js",
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "aiusageservice.js",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_services_aiusageservice_model_rates",
-      "label": "MODEL_RATES",
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "model_rates",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L13"
-    },
-    {
-      "id": "src_services_aiusageservice_test",
-      "label": "aiUsageService.test.js",
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "aiusageservice.test.js",
-      "source_file": "src/services/aiUsageService.test.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_services_aiusageservice_usd_to_idr_rate",
-      "label": "USD_TO_IDR_RATE",
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "usd_to_idr_rate",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L10"
     },
     {
       "id": "agents_skills_caveman_explore_package",
@@ -5634,6 +5613,72 @@
       "norm_label": "urutan prioritas",
       "source_file": "plan-monitoring-ai-usage.md",
       "source_location": "L129"
+    },
+    {
+      "id": "src_components_admin_aiusagemonitoringtab",
+      "label": "AIUsageMonitoringTab.jsx",
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "aiusagemonitoringtab.jsx",
+      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_admin_aiusagemonitoringtab_month_names",
+      "label": "MONTH_NAMES",
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "month_names",
+      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
+      "source_location": "L33"
+    },
+    {
+      "id": "src_services_aiusageservice",
+      "label": "aiUsageService.js",
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "aiusageservice.js",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_services_aiusageservice_model_rates",
+      "label": "MODEL_RATES",
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "model_rates",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L13"
+    },
+    {
+      "id": "src_services_aiusageservice_test",
+      "label": "aiUsageService.test.js",
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "aiusageservice.test.js",
+      "source_file": "src/services/aiUsageService.test.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_services_aiusageservice_usd_to_idr_rate",
+      "label": "USD_TO_IDR_RATE",
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "usd_to_idr_rate",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L10"
     },
     {
       "id": "ai_tax_and_partner_dashboard_guide",
@@ -6837,39 +6882,6 @@
       "file_type": "code",
       "norm_label": "kkpworkbookgenerator.test.js",
       "source_file": "src/tax-engine/kkpWorkbookGenerator.test.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_tax_engine_taxmapping",
-      "label": "taxMapping.js",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "kkpWorkbookGenerator.js",
-      "file_type": "code",
-      "norm_label": "taxmapping.js",
-      "source_file": "src/tax-engine/taxMapping.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_tax_engine_taxmapping_tax_categories",
-      "label": "TAX_CATEGORIES",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "kkpWorkbookGenerator.js",
-      "file_type": "code",
-      "norm_label": "tax_categories",
-      "source_file": "src/tax-engine/taxMapping.js",
-      "source_location": "L15"
-    },
-    {
-      "id": "src_tax_engine_taxmapping_test",
-      "label": "taxMapping.test.js",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "kkpWorkbookGenerator.js",
-      "file_type": "code",
-      "norm_label": "taxmapping.test.js",
-      "source_file": "src/tax-engine/taxMapping.test.js",
       "source_location": "L1"
     },
     {
@@ -10183,7 +10195,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1184",
+      "source_location": "L1321",
       "weight": 1.0
     },
     {
@@ -10195,7 +10207,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1195",
+      "source_location": "L1332",
       "weight": 1.0
     },
     {
@@ -10207,7 +10219,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1203",
+      "source_location": "L1340",
       "weight": 1.0
     },
     {
@@ -10219,7 +10231,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1204",
+      "source_location": "L1341",
       "weight": 1.0
     },
     {
@@ -10231,7 +10243,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1301",
+      "source_location": "L1438",
       "weight": 1.0
     },
     {
@@ -10243,7 +10255,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1316",
+      "source_location": "L1453",
       "weight": 1.0
     },
     {
@@ -10255,7 +10267,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1324",
+      "source_location": "L1461",
       "weight": 1.0
     },
     {
@@ -10267,7 +10279,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1325",
+      "source_location": "L1462",
       "weight": 1.0
     },
     {
@@ -10303,55 +10315,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L704",
+      "source_location": "L707",
       "weight": 1.0
     },
     {
       "source": "src_services_claudeservice_callclaudetaxanalysis",
-      "target": "src_services_claudeservice_callsonnet",
+      "target": "src_services_claudeservice_executetaxauditbatch",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L776",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_callclaudetaxanalysis",
-      "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L800",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_callclaudetaxanalysis",
-      "target": "src_services_claudeservice_extracttextfromclauderesponse",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L809",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_callclaudetaxanalysis",
-      "target": "src_services_claudeservice_extractandparseclaudejson",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L811",
+      "source_location": "L922",
       "weight": 1.0
     },
     {
@@ -10415,6 +10391,54 @@
       "weight": 1.0
     },
     {
+      "source": "src_services_claudeservice_executetaxauditbatch",
+      "target": "src_services_claudeservice_callsonnet",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L750",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_executetaxauditbatch",
+      "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L775",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_executetaxauditbatch",
+      "target": "src_services_claudeservice_extracttextfromclauderesponse",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L784",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_executetaxauditbatch",
+      "target": "src_services_claudeservice_extractandparseclaudejson",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L786",
+      "weight": 1.0
+    },
+    {
       "source": "src_services_claudeservice_extractandparseclaudejson",
       "target": "src_services_claudeservice_extractobjectsfromincompletejson",
       "relation": "calls",
@@ -10435,7 +10459,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L867",
+      "source_location": "L1004",
       "weight": 1.0
     },
     {
@@ -10447,7 +10471,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L895",
+      "source_location": "L1032",
       "weight": 1.0
     },
     {
@@ -10459,7 +10483,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1350",
+      "source_location": "L1487",
       "weight": 1.0
     },
     {
@@ -10471,7 +10495,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1360",
+      "source_location": "L1497",
       "weight": 1.0
     },
     {
@@ -10483,7 +10507,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1375",
+      "source_location": "L1512",
       "weight": 1.0
     },
     {
@@ -10495,7 +10519,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1389",
+      "source_location": "L1526",
       "weight": 1.0
     },
     {
@@ -18402,17 +18426,6 @@
     },
     {
       "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_aiclassifyaccounts",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1136",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice",
       "target": "src_services_claudeservice_sp2dk_response_tool",
       "relation": "contains",
       "_origin": "ast",
@@ -18424,24 +18437,24 @@
     },
     {
       "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_aiclassifyaccounts",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1273",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
       "target": "src_services_claudeservice_analyzehonorariumclassification",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1250",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_generatesp2dkresponsewithclaude",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1341",
+      "source_location": "L1387",
       "weight": 1.0
     },
     {
@@ -18453,6 +18466,17 @@
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
       "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_generatesp2dkresponsewithclaude",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1478",
       "weight": 1.0
     },
     {
@@ -18666,24 +18690,24 @@
     },
     {
       "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_executetaxauditbatch",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L713",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
       "target": "src_services_claudeservice_callclaudetaxanalysis",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L710",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_generatedeterministicfindings",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L858",
+      "source_location": "L808",
       "weight": 1.0
     },
     {
@@ -18695,6 +18719,17 @@
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
       "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_generatedeterministicfindings",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L995",
       "weight": 1.0
     },
     {
@@ -21148,5 +21183,5 @@
       "source_file": ".agents/skills/caveman-evidence-review/SKILL.md"
     }
   ],
-  "built_at_commit": "0971b8a3453e16320df447064c9e2c6baf2d791a"
+  "built_at_commit": "182fbaed65bde4eccd855f1dd2d1940009a73115"
 }

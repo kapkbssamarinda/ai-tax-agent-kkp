@@ -89,6 +89,19 @@
   },
   "nodes": [
     {
+      "id": "src_components_common_errorboundary_errorboundary",
+      "label": "ErrorBoundary",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "errorboundary",
+      "source_file": "src/components/common/ErrorBoundary.jsx",
+      "source_location": "L4"
+    },
+    {
       "id": "generate_sop_pdf_numberedcanvas",
       "label": "NumberedCanvas",
       "_callable": true,
@@ -100,19 +113,6 @@
       "norm_label": "numberedcanvas",
       "source_file": "generate_sop_pdf.py",
       "source_location": "L12"
-    },
-    {
-      "id": "src_components_common_errorboundary_errorboundary",
-      "label": "ErrorBoundary",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "errorboundary",
-      "source_file": "src/components/common/ErrorBoundary.jsx",
-      "source_location": "L4"
     },
     {
       "id": "agents_skills_caveman_compress_scripts_validate_validationresult",
@@ -174,6 +174,66 @@
       "norm_label": "logoutconfirmmodal()",
       "source_file": "src/components/auth/LogoutConfirmModal.jsx",
       "source_location": "L4"
+    },
+    {
+      "id": "src_components_common_errorboundary_errorboundary_componentdidcatch",
+      "label": ".componentDidCatch()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": ".componentdidcatch()",
+      "source_file": "src/components/common/ErrorBoundary.jsx",
+      "source_location": "L14"
+    },
+    {
+      "id": "src_components_common_errorboundary_errorboundary_constructor",
+      "label": ".constructor()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": ".constructor()",
+      "source_file": "src/components/common/ErrorBoundary.jsx",
+      "source_location": "L5"
+    },
+    {
+      "id": "src_components_common_errorboundary_errorboundary_getderivedstatefromerror",
+      "label": ".getDerivedStateFromError()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": ".getderivedstatefromerror()",
+      "source_file": "src/components/common/ErrorBoundary.jsx",
+      "source_location": "L10"
+    },
+    {
+      "id": "src_components_common_errorboundary_errorboundary_handlereset",
+      "label": ".handleReset()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": ".handlereset()",
+      "source_file": "src/components/common/ErrorBoundary.jsx",
+      "source_location": "L18"
+    },
+    {
+      "id": "src_components_common_errorboundary_errorboundary_render",
+      "label": ".render()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": ".render()",
+      "source_file": "src/components/common/ErrorBoundary.jsx",
+      "source_location": "L25"
     },
     {
       "id": "src_components_datatable_datatable",
@@ -833,7 +893,7 @@
       "file_type": "code",
       "norm_label": "aiclassifyaccounts()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L972"
+      "source_location": "L1136"
     },
     {
       "id": "src_services_claudeservice_analyzehonorariumclassification",
@@ -845,7 +905,7 @@
       "file_type": "code",
       "norm_label": "analyzehonorariumclassification()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1077"
+      "source_location": "L1250"
     },
     {
       "id": "src_services_claudeservice_analyzetaxfindings",
@@ -857,7 +917,7 @@
       "file_type": "code",
       "norm_label": "analyzetaxfindings()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L512"
+      "source_location": "L692"
     },
     {
       "id": "src_services_claudeservice_callclaudeproxy",
@@ -869,7 +929,7 @@
       "file_type": "code",
       "norm_label": "callclaudeproxy()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L160"
+      "source_location": "L309"
     },
     {
       "id": "src_services_claudeservice_callclaudetaxanalysis",
@@ -881,7 +941,7 @@
       "file_type": "code",
       "norm_label": "callclaudetaxanalysis()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L530"
+      "source_location": "L710"
     },
     {
       "id": "src_services_claudeservice_callhaiku",
@@ -893,7 +953,7 @@
       "file_type": "code",
       "norm_label": "callhaiku()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L264"
+      "source_location": "L427"
     },
     {
       "id": "src_services_claudeservice_callsonnet",
@@ -905,7 +965,7 @@
       "file_type": "code",
       "norm_label": "callsonnet()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L295"
+      "source_location": "L460"
     },
     {
       "id": "src_services_claudeservice_clearaiusagelogs",
@@ -917,7 +977,7 @@
       "file_type": "code",
       "norm_label": "clearaiusagelogs()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L147"
+      "source_location": "L296"
     },
     {
       "id": "src_services_claudeservice_extractandparseclaudejson",
@@ -929,7 +989,7 @@
       "file_type": "code",
       "norm_label": "extractandparseclaudejson()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L398"
+      "source_location": "L565"
     },
     {
       "id": "src_services_claudeservice_extractobjectsfromincompletejson",
@@ -941,7 +1001,7 @@
       "file_type": "code",
       "norm_label": "extractobjectsfromincompletejson()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L331"
+      "source_location": "L498"
     },
     {
       "id": "src_services_claudeservice_extracttextfromclauderesponse",
@@ -953,7 +1013,19 @@
       "file_type": "code",
       "norm_label": "extracttextfromclauderesponse()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L214"
+      "source_location": "L377"
+    },
+    {
+      "id": "src_services_claudeservice_extracttoolinputfromclauderesponse",
+      "label": "extractToolInputFromClaudeResponse()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "claudeService.js",
+      "file_type": "code",
+      "norm_label": "extracttoolinputfromclauderesponse()",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L367"
     },
     {
       "id": "src_services_claudeservice_generatedeterministicfindings",
@@ -965,7 +1037,7 @@
       "file_type": "code",
       "norm_label": "generatedeterministicfindings()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L694"
+      "source_location": "L858"
     },
     {
       "id": "src_services_claudeservice_generatesp2dkresponsewithclaude",
@@ -977,7 +1049,7 @@
       "file_type": "code",
       "norm_label": "generatesp2dkresponsewithclaude()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1164"
+      "source_location": "L1341"
     },
     {
       "id": "src_services_claudeservice_getaiusagelogs",
@@ -989,7 +1061,7 @@
       "file_type": "code",
       "norm_label": "getaiusagelogs()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L137"
+      "source_location": "L286"
     },
     {
       "id": "src_services_claudeservice_getsavedmodel",
@@ -1001,7 +1073,7 @@
       "file_type": "code",
       "norm_label": "getsavedmodel()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L54"
+      "source_location": "L203"
     },
     {
       "id": "src_services_claudeservice_logaiusage",
@@ -1013,7 +1085,7 @@
       "file_type": "code",
       "norm_label": "logaiusage()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L107"
+      "source_location": "L256"
     },
     {
       "id": "src_services_claudeservice_savemodel",
@@ -1025,7 +1097,7 @@
       "file_type": "code",
       "norm_label": "savemodel()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L64"
+      "source_location": "L213"
     },
     {
       "id": "src_services_claudeservice_testclaudeconnection",
@@ -1037,7 +1109,7 @@
       "file_type": "code",
       "norm_label": "testclaudeconnection()",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L483"
+      "source_location": "L663"
     },
     {
       "id": "src_services_regulationdb_formatlegalcitation",
@@ -1086,138 +1158,6 @@
       "norm_label": "estimatefindingrisk()",
       "source_file": "src/tax-engine/riskScoring.js",
       "source_location": "L34"
-    },
-    {
-      "id": "src_components_admin_aiusagemonitoringtab_aiusagemonitoringtab",
-      "label": "AIUsageMonitoringTab()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "aiusagemonitoringtab()",
-      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
-      "source_location": "L38"
-    },
-    {
-      "id": "src_components_admin_aiusagemonitoringtab_aiusagemonitoringtab_loaddata",
-      "label": "loadData()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "loaddata()",
-      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
-      "source_location": "L62"
-    },
-    {
-      "id": "src_services_aiusageservice_exportusagelogstocsv",
-      "label": "exportUsageLogsToCSV()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "exportusagelogstocsv()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L364"
-    },
-    {
-      "id": "src_services_aiusageservice_fetchfeaturecostbreakdown",
-      "label": "fetchFeatureCostBreakdown()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "fetchfeaturecostbreakdown()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L242"
-    },
-    {
-      "id": "src_services_aiusageservice_fetchmonthlyusagesummary",
-      "label": "fetchMonthlyUsageSummary()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "fetchmonthlyusagesummary()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L48"
-    },
-    {
-      "id": "src_services_aiusageservice_fetchrecentusagelogs",
-      "label": "fetchRecentUsageLogs()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "fetchrecentusagelogs()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L303"
-    },
-    {
-      "id": "src_services_aiusageservice_fetchuserusagebreakdown",
-      "label": "fetchUserUsageBreakdown()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "fetchuserusagebreakdown()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L138"
-    },
-    {
-      "id": "src_services_aiusageservice_formatidr",
-      "label": "formatIDR()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "formatidr()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L34"
-    },
-    {
-      "id": "src_services_aiusageservice_formatusd",
-      "label": "formatUSD()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "formatusd()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L21"
-    },
-    {
-      "id": "src_services_aiusageservice_getfallbacksummary",
-      "label": "getFallbackSummary()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "getfallbacksummary()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L400"
-    },
-    {
-      "id": "src_services_aiusageservice_updateuserquota",
-      "label": "updateUserQuota()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "updateuserquota()",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L340"
     },
     {
       "id": "src_components_tax_sp2dkresponsetab_sp2dkresponsetab",
@@ -1616,112 +1556,28 @@
       "source_location": "L10"
     },
     {
-      "id": "src_components_admin_admindashboard_admindashboard",
-      "label": "AdminDashboard()",
+      "id": "src_components_admin_aiusagemonitoringtab_aiusagemonitoringtab",
+      "label": "AIUsageMonitoringTab()",
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
-      "norm_label": "admindashboard()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L25"
+      "norm_label": "aiusagemonitoringtab()",
+      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
+      "source_location": "L38"
     },
     {
-      "id": "src_components_admin_admindashboard_admindashboard_closeeditmodal",
-      "label": "closeEditModal()",
+      "id": "src_components_admin_aiusagemonitoringtab_aiusagemonitoringtab_loaddata",
+      "label": "loadData()",
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
-      "norm_label": "closeeditmodal()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L165"
-    },
-    {
-      "id": "src_components_admin_admindashboard_admindashboard_fetchusers",
-      "label": "fetchUsers()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "fetchusers()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L57"
-    },
-    {
-      "id": "src_components_admin_admindashboard_admindashboard_getauthheader",
-      "label": "getAuthHeader()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "getauthheader()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L99"
-    },
-    {
-      "id": "src_components_admin_admindashboard_admindashboard_handleadduser",
-      "label": "handleAddUser()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "handleadduser()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L108"
-    },
-    {
-      "id": "src_components_admin_admindashboard_admindashboard_handledeleteuser",
-      "label": "handleDeleteUser()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "handledeleteuser()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L232"
-    },
-    {
-      "id": "src_components_admin_admindashboard_admindashboard_handletoggleactive",
-      "label": "handleToggleActive()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "handletoggleactive()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L215"
-    },
-    {
-      "id": "src_components_admin_admindashboard_admindashboard_handleupdateuser",
-      "label": "handleUpdateUser()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "handleupdateuser()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L171"
-    },
-    {
-      "id": "src_components_admin_admindashboard_admindashboard_openeditmodal",
-      "label": "openEditModal()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "openeditmodal()",
-      "source_file": "src/components/admin/AdminDashboard.jsx",
-      "source_location": "L154"
+      "norm_label": "loaddata()",
+      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
+      "source_location": "L62"
     },
     {
       "id": "src_components_auth_loginpage_loginpage",
@@ -1729,7 +1585,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "loginpage()",
       "source_file": "src/components/auth/LoginPage.jsx",
@@ -1741,71 +1597,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "userprofilemodal()",
       "source_file": "src/components/auth/UserProfileModal.jsx",
       "source_location": "L21"
-    },
-    {
-      "id": "src_components_common_errorboundary_errorboundary_componentdidcatch",
-      "label": ".componentDidCatch()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": ".componentdidcatch()",
-      "source_file": "src/components/common/ErrorBoundary.jsx",
-      "source_location": "L14"
-    },
-    {
-      "id": "src_components_common_errorboundary_errorboundary_constructor",
-      "label": ".constructor()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": ".constructor()",
-      "source_file": "src/components/common/ErrorBoundary.jsx",
-      "source_location": "L5"
-    },
-    {
-      "id": "src_components_common_errorboundary_errorboundary_getderivedstatefromerror",
-      "label": ".getDerivedStateFromError()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": ".getderivedstatefromerror()",
-      "source_file": "src/components/common/ErrorBoundary.jsx",
-      "source_location": "L10"
-    },
-    {
-      "id": "src_components_common_errorboundary_errorboundary_handlereset",
-      "label": ".handleReset()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": ".handlereset()",
-      "source_file": "src/components/common/ErrorBoundary.jsx",
-      "source_location": "L18"
-    },
-    {
-      "id": "src_components_common_errorboundary_errorboundary_render",
-      "label": ".render()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": ".render()",
-      "source_file": "src/components/common/ErrorBoundary.jsx",
-      "source_location": "L25"
     },
     {
       "id": "src_contexts_authcontext_authprovider",
@@ -1813,7 +1609,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "authprovider()",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -1825,7 +1621,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "fetchprofile()",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -1837,7 +1633,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "initsession()",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -1849,7 +1645,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "signin()",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -1861,7 +1657,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "signout()",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -1873,7 +1669,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "updatepassword()",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -1885,7 +1681,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "updateprofile()",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -1897,11 +1693,119 @@
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "useauth()",
       "source_file": "src/contexts/AuthContext.jsx",
       "source_location": "L207"
+    },
+    {
+      "id": "src_services_aiusageservice_exportusagelogstocsv",
+      "label": "exportUsageLogsToCSV()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "exportusagelogstocsv()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L364"
+    },
+    {
+      "id": "src_services_aiusageservice_fetchfeaturecostbreakdown",
+      "label": "fetchFeatureCostBreakdown()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "fetchfeaturecostbreakdown()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L242"
+    },
+    {
+      "id": "src_services_aiusageservice_fetchmonthlyusagesummary",
+      "label": "fetchMonthlyUsageSummary()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "fetchmonthlyusagesummary()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L48"
+    },
+    {
+      "id": "src_services_aiusageservice_fetchrecentusagelogs",
+      "label": "fetchRecentUsageLogs()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "fetchrecentusagelogs()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L303"
+    },
+    {
+      "id": "src_services_aiusageservice_fetchuserusagebreakdown",
+      "label": "fetchUserUsageBreakdown()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "fetchuserusagebreakdown()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L138"
+    },
+    {
+      "id": "src_services_aiusageservice_formatidr",
+      "label": "formatIDR()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "formatidr()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L34"
+    },
+    {
+      "id": "src_services_aiusageservice_formatusd",
+      "label": "formatUSD()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "formatusd()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L21"
+    },
+    {
+      "id": "src_services_aiusageservice_getfallbacksummary",
+      "label": "getFallbackSummary()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "getfallbacksummary()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L400"
+    },
+    {
+      "id": "src_services_aiusageservice_updateuserquota",
+      "label": "updateUserQuota()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "updateuserquota()",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L340"
     },
     {
       "id": "agents_skills_caveman_compress_scripts_benchmark_benchmark_pair",
@@ -2226,6 +2130,114 @@
       "norm_label": "handler()",
       "source_file": "api/admin/users.js",
       "source_location": "L12"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard",
+      "label": "AdminDashboard()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "AdminDashboard",
+      "file_type": "code",
+      "norm_label": "admindashboard()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L25"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_closeeditmodal",
+      "label": "closeEditModal()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "AdminDashboard",
+      "file_type": "code",
+      "norm_label": "closeeditmodal()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L165"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_fetchusers",
+      "label": "fetchUsers()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "AdminDashboard",
+      "file_type": "code",
+      "norm_label": "fetchusers()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L57"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_getauthheader",
+      "label": "getAuthHeader()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "AdminDashboard",
+      "file_type": "code",
+      "norm_label": "getauthheader()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L99"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_handleadduser",
+      "label": "handleAddUser()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "AdminDashboard",
+      "file_type": "code",
+      "norm_label": "handleadduser()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L108"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_handledeleteuser",
+      "label": "handleDeleteUser()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "AdminDashboard",
+      "file_type": "code",
+      "norm_label": "handledeleteuser()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L232"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_handletoggleactive",
+      "label": "handleToggleActive()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "AdminDashboard",
+      "file_type": "code",
+      "norm_label": "handletoggleactive()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L215"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_handleupdateuser",
+      "label": "handleUpdateUser()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "AdminDashboard",
+      "file_type": "code",
+      "norm_label": "handleupdateuser()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L171"
+    },
+    {
+      "id": "src_components_admin_admindashboard_admindashboard_openeditmodal",
+      "label": "openEditModal()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "AdminDashboard",
+      "file_type": "code",
+      "norm_label": "openeditmodal()",
+      "source_file": "src/components/admin/AdminDashboard.jsx",
+      "source_location": "L154"
     },
     {
       "id": "src_components_tax_keywordscannertab_keywordscannertab",
@@ -2583,6 +2595,17 @@
       "source_location": "L1"
     },
     {
+      "id": "src_components_common_errorboundary",
+      "label": "ErrorBoundary.jsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "errorboundary.jsx",
+      "source_file": "src/components/common/ErrorBoundary.jsx",
+      "source_location": "L1"
+    },
+    {
       "id": "src_components_datatable",
       "label": "DataTable.jsx",
       "_origin": "ast",
@@ -2657,6 +2680,17 @@
       "file_type": "code",
       "norm_label": "warningspanel.test.jsx",
       "source_file": "src/components/WarningsPanel.test.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_main",
+      "label": "main.jsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "main.jsx",
+      "source_file": "src/main.jsx",
       "source_location": "L1"
     },
     {
@@ -2746,6 +2780,17 @@
       "norm_label": "deterministiccalc.test.js",
       "source_file": "src/tax-engine/deterministicCalc.test.js",
       "source_location": "L1"
+    },
+    {
+      "id": "ref_react",
+      "label": "react",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "App.jsx",
+      "file_type": "concept",
+      "norm_label": "react",
+      "source_file": ".oxlintrc.json",
+      "source_location": "L3"
     },
     {
       "id": "src_parsers_accurateexcelparser",
@@ -2979,6 +3024,17 @@
       "source_location": "L1"
     },
     {
+      "id": "src_services_claudeservice_account_classification_tool",
+      "label": "ACCOUNT_CLASSIFICATION_TOOL",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "claudeService.js",
+      "file_type": "code",
+      "norm_label": "account_classification_tool",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L65"
+    },
+    {
       "id": "src_services_claudeservice_fallback_models",
       "label": "FALLBACK_MODELS",
       "_origin": "ast",
@@ -2987,7 +3043,7 @@
       "file_type": "code",
       "norm_label": "fallback_models",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L91"
+      "source_location": "L240"
     },
     {
       "id": "src_services_claudeservice_haiku_models",
@@ -2998,7 +3054,18 @@
       "file_type": "code",
       "norm_label": "haiku_models",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L72"
+      "source_location": "L221"
+    },
+    {
+      "id": "src_services_claudeservice_honorarium_disambiguation_tool",
+      "label": "HONORARIUM_DISAMBIGUATION_TOOL",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "claudeService.js",
+      "file_type": "code",
+      "norm_label": "honorarium_disambiguation_tool",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L93"
     },
     {
       "id": "src_services_claudeservice_model_pricing_rates",
@@ -3009,7 +3076,7 @@
       "file_type": "code",
       "norm_label": "model_pricing_rates",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L86"
+      "source_location": "L235"
     },
     {
       "id": "src_services_claudeservice_sonnet_models",
@@ -3020,7 +3087,29 @@
       "file_type": "code",
       "norm_label": "sonnet_models",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L78"
+      "source_location": "L227"
+    },
+    {
+      "id": "src_services_claudeservice_sp2dk_response_tool",
+      "label": "SP2DK_RESPONSE_TOOL",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "claudeService.js",
+      "file_type": "code",
+      "norm_label": "sp2dk_response_tool",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L120"
+    },
+    {
+      "id": "src_services_claudeservice_tax_findings_tool",
+      "label": "TAX_FINDINGS_TOOL",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "claudeService.js",
+      "file_type": "code",
+      "norm_label": "tax_findings_tool",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L14"
     },
     {
       "id": "src_services_claudeservice_test",
@@ -3508,70 +3597,213 @@
       "source_location": "L8"
     },
     {
-      "id": "src_components_admin_aiusagemonitoringtab",
-      "label": "AIUsageMonitoringTab.jsx",
+      "id": "package_dependencies",
+      "label": "dependencies",
       "_origin": "ast",
       "community": 13,
-      "community_name": "aiUsageService.js",
+      "community_name": "dependencies",
       "file_type": "code",
-      "norm_label": "aiusagemonitoringtab.jsx",
-      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_components_admin_aiusagemonitoringtab_month_names",
-      "label": "MONTH_NAMES",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "month_names",
-      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
-      "source_location": "L33"
-    },
-    {
-      "id": "src_services_aiusageservice",
-      "label": "aiUsageService.js",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "aiusageservice.js",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_services_aiusageservice_model_rates",
-      "label": "MODEL_RATES",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "aiUsageService.js",
-      "file_type": "code",
-      "norm_label": "model_rates",
-      "source_file": "src/services/aiUsageService.js",
+      "norm_label": "dependencies",
+      "source_file": "package.json",
       "source_location": "L13"
     },
     {
-      "id": "src_services_aiusageservice_test",
-      "label": "aiUsageService.test.js",
+      "id": "package_dependencies_jsonrepair",
+      "label": "jsonrepair",
       "_origin": "ast",
       "community": 13,
-      "community_name": "aiUsageService.js",
+      "community_name": "dependencies",
       "file_type": "code",
-      "norm_label": "aiusageservice.test.js",
-      "source_file": "src/services/aiUsageService.test.js",
-      "source_location": "L1"
+      "norm_label": "jsonrepair",
+      "source_file": "package.json",
+      "source_location": "L17"
     },
     {
-      "id": "src_services_aiusageservice_usd_to_idr_rate",
-      "label": "USD_TO_IDR_RATE",
+      "id": "package_dependencies_lucide_react",
+      "label": "lucide-react",
       "_origin": "ast",
       "community": 13,
-      "community_name": "aiUsageService.js",
+      "community_name": "dependencies",
       "file_type": "code",
-      "norm_label": "usd_to_idr_rate",
-      "source_file": "src/services/aiUsageService.js",
-      "source_location": "L10"
+      "norm_label": "lucide-react",
+      "source_file": "package.json",
+      "source_location": "L18"
+    },
+    {
+      "id": "package_dependencies_pdfjs_dist",
+      "label": "pdfjs-dist",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "code",
+      "norm_label": "pdfjs-dist",
+      "source_file": "package.json",
+      "source_location": "L19"
+    },
+    {
+      "id": "package_dependencies_react",
+      "label": "react",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "code",
+      "norm_label": "react",
+      "source_file": "package.json",
+      "source_location": "L20"
+    },
+    {
+      "id": "package_dependencies_react_dom",
+      "label": "react-dom",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "code",
+      "norm_label": "react-dom",
+      "source_file": "package.json",
+      "source_location": "L21"
+    },
+    {
+      "id": "package_dependencies_supabase_supabase_js",
+      "label": "@supabase/supabase-js",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "code",
+      "norm_label": "@supabase/supabase-js",
+      "source_file": "package.json",
+      "source_location": "L14"
+    },
+    {
+      "id": "package_dependencies_tanstack_react_virtual",
+      "label": "@tanstack/react-virtual",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "code",
+      "norm_label": "@tanstack/react-virtual",
+      "source_file": "package.json",
+      "source_location": "L15"
+    },
+    {
+      "id": "package_dependencies_xlsx_js_style",
+      "label": "xlsx-js-style",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "code",
+      "norm_label": "xlsx-js-style",
+      "source_file": "package.json",
+      "source_location": "L22"
+    },
+    {
+      "id": "package_dependencies_xmldom_xmldom",
+      "label": "@xmldom/xmldom",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "code",
+      "norm_label": "@xmldom/xmldom",
+      "source_file": "package.json",
+      "source_location": "L16"
+    },
+    {
+      "id": "jsonrepair",
+      "label": "jsonrepair",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "concept",
+      "norm_label": "jsonrepair",
+      "source_file": "package.json",
+      "source_location": "L17"
+    },
+    {
+      "id": "lucide_react",
+      "label": "lucide-react",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "concept",
+      "norm_label": "lucide-react",
+      "source_file": "package.json",
+      "source_location": "L18"
+    },
+    {
+      "id": "package_json_pdfjs_dist",
+      "label": "pdfjs-dist",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "concept",
+      "norm_label": "pdfjs-dist",
+      "source_file": "package.json",
+      "source_location": "L19"
+    },
+    {
+      "id": "react",
+      "label": "react",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "concept",
+      "norm_label": "react",
+      "source_file": "package.json",
+      "source_location": "L20"
+    },
+    {
+      "id": "react_dom",
+      "label": "react-dom",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "concept",
+      "norm_label": "react-dom",
+      "source_file": "package.json",
+      "source_location": "L21"
+    },
+    {
+      "id": "supabase_supabase_js",
+      "label": "@supabase/supabase-js",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "concept",
+      "norm_label": "@supabase/supabase-js",
+      "source_file": "package.json",
+      "source_location": "L14"
+    },
+    {
+      "id": "tanstack_react_virtual",
+      "label": "@tanstack/react-virtual",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "concept",
+      "norm_label": "@tanstack/react-virtual",
+      "source_file": "package.json",
+      "source_location": "L15"
+    },
+    {
+      "id": "xlsx_js_style",
+      "label": "xlsx-js-style",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "concept",
+      "norm_label": "xlsx-js-style",
+      "source_file": "package.json",
+      "source_location": "L22"
+    },
+    {
+      "id": "xmldom_xmldom",
+      "label": "@xmldom/xmldom",
+      "_origin": "ast",
+      "community": 13,
+      "community_name": "dependencies",
+      "file_type": "concept",
+      "norm_label": "@xmldom/xmldom",
+      "source_file": "package.json",
+      "source_location": "L16"
     },
     {
       "id": "pdf_worker_min_mjs_url",
@@ -4463,7 +4695,7 @@
       "label": "AdminDashboard.jsx",
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "admindashboard.jsx",
       "source_file": "src/components/admin/AdminDashboard.jsx",
@@ -4474,18 +4706,40 @@
       "label": "AdminDashboard.test.jsx",
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "admindashboard.test.jsx",
       "source_file": "src/components/admin/AdminDashboard.test.jsx",
       "source_location": "L1"
     },
     {
+      "id": "src_components_admin_aiusagemonitoringtab",
+      "label": "AIUsageMonitoringTab.jsx",
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "aiusagemonitoringtab.jsx",
+      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_admin_aiusagemonitoringtab_month_names",
+      "label": "MONTH_NAMES",
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "month_names",
+      "source_file": "src/components/admin/AIUsageMonitoringTab.jsx",
+      "source_location": "L33"
+    },
+    {
       "id": "src_components_auth_loginpage",
       "label": "LoginPage.jsx",
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "loginpage.jsx",
       "source_file": "src/components/auth/LoginPage.jsx",
@@ -4496,7 +4750,7 @@
       "label": "LoginPage.test.jsx",
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "loginpage.test.jsx",
       "source_file": "src/components/auth/LoginPage.test.jsx",
@@ -4507,7 +4761,7 @@
       "label": "UserProfileModal.jsx",
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "userprofilemodal.jsx",
       "source_file": "src/components/auth/UserProfileModal.jsx",
@@ -4518,21 +4772,10 @@
       "label": "UserProfileModal.test.jsx",
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "userprofilemodal.test.jsx",
       "source_file": "src/components/auth/UserProfileModal.test.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_components_common_errorboundary",
-      "label": "ErrorBoundary.jsx",
-      "_origin": "ast",
-      "community": 37,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "errorboundary.jsx",
-      "source_file": "src/components/common/ErrorBoundary.jsx",
       "source_location": "L1"
     },
     {
@@ -4540,7 +4783,7 @@
       "label": "AuthContext.jsx",
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "authcontext.jsx",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -4551,7 +4794,7 @@
       "label": "AuthContext",
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "authcontext",
       "source_file": "src/contexts/AuthContext.jsx",
@@ -4562,7 +4805,7 @@
       "label": "supabase.js",
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "supabase.js",
       "source_file": "src/lib/supabase.js",
@@ -4573,33 +4816,55 @@
       "label": "supabase",
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
       "norm_label": "supabase",
       "source_file": "src/lib/supabase.js",
       "source_location": "L12"
     },
     {
-      "id": "src_main",
-      "label": "main.jsx",
+      "id": "src_services_aiusageservice",
+      "label": "aiUsageService.js",
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
+      "community_name": "aiUsageService.js",
       "file_type": "code",
-      "norm_label": "main.jsx",
-      "source_file": "src/main.jsx",
+      "norm_label": "aiusageservice.js",
+      "source_file": "src/services/aiUsageService.js",
       "source_location": "L1"
     },
     {
-      "id": "ref_react",
-      "label": "react",
+      "id": "src_services_aiusageservice_model_rates",
+      "label": "MODEL_RATES",
       "_origin": "ast",
       "community": 37,
-      "community_name": "react",
-      "file_type": "concept",
-      "norm_label": "react",
-      "source_file": ".oxlintrc.json",
-      "source_location": "L3"
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "model_rates",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L13"
+    },
+    {
+      "id": "src_services_aiusageservice_test",
+      "label": "aiUsageService.test.js",
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "aiusageservice.test.js",
+      "source_file": "src/services/aiUsageService.test.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_services_aiusageservice_usd_to_idr_rate",
+      "label": "USD_TO_IDR_RATE",
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "aiUsageService.js",
+      "file_type": "code",
+      "norm_label": "usd_to_idr_rate",
+      "source_file": "src/services/aiUsageService.js",
+      "source_location": "L10"
     },
     {
       "id": "agents_skills_caveman_explore_package",
@@ -6102,105 +6367,6 @@
       "source_location": "L1"
     },
     {
-      "id": "package_dependencies",
-      "label": "dependencies",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "code",
-      "norm_label": "dependencies",
-      "source_file": "package.json",
-      "source_location": "L13"
-    },
-    {
-      "id": "package_dependencies_lucide_react",
-      "label": "lucide-react",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "code",
-      "norm_label": "lucide-react",
-      "source_file": "package.json",
-      "source_location": "L17"
-    },
-    {
-      "id": "package_dependencies_pdfjs_dist",
-      "label": "pdfjs-dist",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "code",
-      "norm_label": "pdfjs-dist",
-      "source_file": "package.json",
-      "source_location": "L18"
-    },
-    {
-      "id": "package_dependencies_react",
-      "label": "react",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "code",
-      "norm_label": "react",
-      "source_file": "package.json",
-      "source_location": "L19"
-    },
-    {
-      "id": "package_dependencies_react_dom",
-      "label": "react-dom",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "code",
-      "norm_label": "react-dom",
-      "source_file": "package.json",
-      "source_location": "L20"
-    },
-    {
-      "id": "package_dependencies_supabase_supabase_js",
-      "label": "@supabase/supabase-js",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "code",
-      "norm_label": "@supabase/supabase-js",
-      "source_file": "package.json",
-      "source_location": "L14"
-    },
-    {
-      "id": "package_dependencies_tanstack_react_virtual",
-      "label": "@tanstack/react-virtual",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "code",
-      "norm_label": "@tanstack/react-virtual",
-      "source_file": "package.json",
-      "source_location": "L15"
-    },
-    {
-      "id": "package_dependencies_xlsx_js_style",
-      "label": "xlsx-js-style",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "code",
-      "norm_label": "xlsx-js-style",
-      "source_file": "package.json",
-      "source_location": "L21"
-    },
-    {
-      "id": "package_dependencies_xmldom_xmldom",
-      "label": "@xmldom/xmldom",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "code",
-      "norm_label": "@xmldom/xmldom",
-      "source_file": "package.json",
-      "source_location": "L16"
-    },
-    {
       "id": "package_devdependencies",
       "label": "devDependencies",
       "_origin": "ast",
@@ -6209,7 +6375,7 @@
       "file_type": "code",
       "norm_label": "devdependencies",
       "source_file": "package.json",
-      "source_location": "L23"
+      "source_location": "L24"
     },
     {
       "id": "package_devdependencies_jsdom",
@@ -6220,7 +6386,7 @@
       "file_type": "code",
       "norm_label": "jsdom",
       "source_file": "package.json",
-      "source_location": "L29"
+      "source_location": "L30"
     },
     {
       "id": "package_devdependencies_oxlint",
@@ -6231,7 +6397,7 @@
       "file_type": "code",
       "norm_label": "oxlint",
       "source_file": "package.json",
-      "source_location": "L30"
+      "source_location": "L31"
     },
     {
       "id": "package_devdependencies_testing_library_jest_dom",
@@ -6242,7 +6408,7 @@
       "file_type": "code",
       "norm_label": "@testing-library/jest-dom",
       "source_file": "package.json",
-      "source_location": "L24"
+      "source_location": "L25"
     },
     {
       "id": "package_devdependencies_testing_library_react",
@@ -6253,7 +6419,7 @@
       "file_type": "code",
       "norm_label": "@testing-library/react",
       "source_file": "package.json",
-      "source_location": "L25"
+      "source_location": "L26"
     },
     {
       "id": "package_devdependencies_types_react",
@@ -6264,7 +6430,7 @@
       "file_type": "code",
       "norm_label": "@types/react",
       "source_file": "package.json",
-      "source_location": "L26"
+      "source_location": "L27"
     },
     {
       "id": "package_devdependencies_types_react_dom",
@@ -6275,7 +6441,7 @@
       "file_type": "code",
       "norm_label": "@types/react-dom",
       "source_file": "package.json",
-      "source_location": "L27"
+      "source_location": "L28"
     },
     {
       "id": "package_devdependencies_vite",
@@ -6286,7 +6452,7 @@
       "file_type": "code",
       "norm_label": "vite",
       "source_file": "package.json",
-      "source_location": "L31"
+      "source_location": "L32"
     },
     {
       "id": "package_devdependencies_vitejs_plugin_react",
@@ -6297,7 +6463,7 @@
       "file_type": "code",
       "norm_label": "@vitejs/plugin-react",
       "source_file": "package.json",
-      "source_location": "L28"
+      "source_location": "L29"
     },
     {
       "id": "package_devdependencies_vitest",
@@ -6308,7 +6474,7 @@
       "file_type": "code",
       "norm_label": "vitest",
       "source_file": "package.json",
-      "source_location": "L32"
+      "source_location": "L33"
     },
     {
       "id": "package_name",
@@ -6429,18 +6595,7 @@
       "file_type": "concept",
       "norm_label": "jsdom",
       "source_file": "package.json",
-      "source_location": "L29"
-    },
-    {
-      "id": "lucide_react",
-      "label": "lucide-react",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "concept",
-      "norm_label": "lucide-react",
-      "source_file": "package.json",
-      "source_location": "L17"
+      "source_location": "L30"
     },
     {
       "id": "oxlint",
@@ -6451,62 +6606,7 @@
       "file_type": "concept",
       "norm_label": "oxlint",
       "source_file": "package.json",
-      "source_location": "L30"
-    },
-    {
-      "id": "package_json_pdfjs_dist",
-      "label": "pdfjs-dist",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "concept",
-      "norm_label": "pdfjs-dist",
-      "source_file": "package.json",
-      "source_location": "L18"
-    },
-    {
-      "id": "react",
-      "label": "react",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "concept",
-      "norm_label": "react",
-      "source_file": "package.json",
-      "source_location": "L19"
-    },
-    {
-      "id": "react_dom",
-      "label": "react-dom",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "concept",
-      "norm_label": "react-dom",
-      "source_file": "package.json",
-      "source_location": "L20"
-    },
-    {
-      "id": "supabase_supabase_js",
-      "label": "@supabase/supabase-js",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "concept",
-      "norm_label": "@supabase/supabase-js",
-      "source_file": "package.json",
-      "source_location": "L14"
-    },
-    {
-      "id": "tanstack_react_virtual",
-      "label": "@tanstack/react-virtual",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "concept",
-      "norm_label": "@tanstack/react-virtual",
-      "source_file": "package.json",
-      "source_location": "L15"
+      "source_location": "L31"
     },
     {
       "id": "testing_library_jest_dom",
@@ -6517,7 +6617,7 @@
       "file_type": "concept",
       "norm_label": "@testing-library/jest-dom",
       "source_file": "package.json",
-      "source_location": "L24"
+      "source_location": "L25"
     },
     {
       "id": "testing_library_react",
@@ -6528,7 +6628,7 @@
       "file_type": "concept",
       "norm_label": "@testing-library/react",
       "source_file": "package.json",
-      "source_location": "L25"
+      "source_location": "L26"
     },
     {
       "id": "types_react",
@@ -6539,7 +6639,7 @@
       "file_type": "concept",
       "norm_label": "@types/react",
       "source_file": "package.json",
-      "source_location": "L26"
+      "source_location": "L27"
     },
     {
       "id": "types_react_dom",
@@ -6550,7 +6650,7 @@
       "file_type": "concept",
       "norm_label": "@types/react-dom",
       "source_file": "package.json",
-      "source_location": "L27"
+      "source_location": "L28"
     },
     {
       "id": "vite",
@@ -6561,7 +6661,7 @@
       "file_type": "concept",
       "norm_label": "vite",
       "source_file": "package.json",
-      "source_location": "L31"
+      "source_location": "L32"
     },
     {
       "id": "vitejs_plugin_react",
@@ -6572,7 +6672,7 @@
       "file_type": "concept",
       "norm_label": "@vitejs/plugin-react",
       "source_file": "package.json",
-      "source_location": "L28"
+      "source_location": "L29"
     },
     {
       "id": "vitest",
@@ -6583,29 +6683,7 @@
       "file_type": "concept",
       "norm_label": "vitest",
       "source_file": "package.json",
-      "source_location": "L32"
-    },
-    {
-      "id": "xlsx_js_style",
-      "label": "xlsx-js-style",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "concept",
-      "norm_label": "xlsx-js-style",
-      "source_file": "package.json",
-      "source_location": "L21"
-    },
-    {
-      "id": "xmldom_xmldom",
-      "label": "@xmldom/xmldom",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "devDependencies",
-      "file_type": "concept",
-      "norm_label": "@xmldom/xmldom",
-      "source_file": "package.json",
-      "source_location": "L16"
+      "source_location": "L33"
     },
     {
       "id": "src_app_test",
@@ -9073,7 +9151,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "api/claude.js",
-      "source_location": "L203",
+      "source_location": "L211",
       "weight": 1.0
     },
     {
@@ -10105,7 +10183,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1023",
+      "source_location": "L1184",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_aiclassifyaccounts",
+      "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1195",
       "weight": 1.0
     },
     {
@@ -10117,7 +10207,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1031",
+      "source_location": "L1203",
       "weight": 1.0
     },
     {
@@ -10129,7 +10219,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1032",
+      "source_location": "L1204",
       "weight": 1.0
     },
     {
@@ -10141,7 +10231,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1141",
+      "source_location": "L1301",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_analyzehonorariumclassification",
+      "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1316",
       "weight": 1.0
     },
     {
@@ -10153,7 +10255,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1149",
+      "source_location": "L1324",
       "weight": 1.0
     },
     {
@@ -10165,7 +10267,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1150",
+      "source_location": "L1325",
       "weight": 1.0
     },
     {
@@ -10177,7 +10279,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L513",
+      "source_location": "L693",
       "weight": 1.0
     },
     {
@@ -10189,7 +10291,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L516",
+      "source_location": "L696",
       "weight": 1.0
     },
     {
@@ -10201,7 +10303,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L524",
+      "source_location": "L704",
       "weight": 1.0
     },
     {
@@ -10213,7 +10315,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L631",
+      "source_location": "L776",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_callclaudetaxanalysis",
+      "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L800",
       "weight": 1.0
     },
     {
@@ -10225,7 +10339,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L646",
+      "source_location": "L809",
       "weight": 1.0
     },
     {
@@ -10237,7 +10351,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L649",
+      "source_location": "L811",
       "weight": 1.0
     },
     {
@@ -10249,7 +10363,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L270",
+      "source_location": "L433",
       "weight": 1.0
     },
     {
@@ -10261,7 +10375,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L282",
+      "source_location": "L447",
       "weight": 1.0
     },
     {
@@ -10273,7 +10387,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L296",
+      "source_location": "L461",
       "weight": 1.0
     },
     {
@@ -10285,7 +10399,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L305",
+      "source_location": "L470",
       "weight": 1.0
     },
     {
@@ -10297,7 +10411,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L317",
+      "source_location": "L484",
       "weight": 1.0
     },
     {
@@ -10309,7 +10423,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L453",
+      "source_location": "L620",
       "weight": 1.0
     },
     {
@@ -10321,7 +10435,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L703",
+      "source_location": "L867",
       "weight": 1.0
     },
     {
@@ -10333,7 +10447,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L731",
+      "source_location": "L895",
       "weight": 1.0
     },
     {
@@ -10345,7 +10459,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1173",
+      "source_location": "L1350",
       "weight": 1.0
     },
     {
@@ -10357,7 +10471,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1183",
+      "source_location": "L1360",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_generatesp2dkresponsewithclaude",
+      "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1375",
       "weight": 1.0
     },
     {
@@ -10369,7 +10495,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1193",
+      "source_location": "L1389",
       "weight": 1.0
     },
     {
@@ -10381,7 +10507,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L126",
+      "source_location": "L275",
       "weight": 1.0
     },
     {
@@ -10393,7 +10519,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L489",
+      "source_location": "L669",
       "weight": 1.0
     },
     {
@@ -10405,7 +10531,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L495",
+      "source_location": "L675",
       "weight": 1.0
     },
     {
@@ -10417,7 +10543,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L497",
+      "source_location": "L677",
       "weight": 1.0
     },
     {
@@ -11009,6 +11135,18 @@
       "weight": 1.0
     },
     {
+      "source": "package_dependencies_jsonrepair",
+      "target": "jsonrepair",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "package.json",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
       "source": "package_dependencies_lucide_react",
       "target": "lucide_react",
       "relation": "imports",
@@ -11017,7 +11155,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0
     },
     {
@@ -11029,7 +11167,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L18",
+      "source_location": "L19",
       "weight": 1.0
     },
     {
@@ -11041,7 +11179,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L19",
+      "source_location": "L20",
       "weight": 1.0
     },
     {
@@ -11053,7 +11191,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -11089,7 +11227,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L21",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -11113,7 +11251,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -11125,7 +11263,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -11137,7 +11275,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -11149,7 +11287,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0
     },
     {
@@ -11161,7 +11299,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L26",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -11173,7 +11311,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -11185,7 +11323,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -11197,7 +11335,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L28",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -11209,7 +11347,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "package.json",
-      "source_location": "L32",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -12570,6 +12708,18 @@
     },
     {
       "source": "src_services_claudeservice_test",
+      "target": "src_services_claudeservice_account_classification_tool",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/services/claudeService.test.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_test",
       "target": "src_services_claudeservice_aiclassifyaccounts",
       "relation": "imports",
       "_origin": "ast",
@@ -12630,6 +12780,18 @@
     },
     {
       "source": "src_services_claudeservice_test",
+      "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/services/claudeService.test.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_test",
       "target": "src_services_claudeservice_getaiusagelogs",
       "relation": "imports",
       "_origin": "ast",
@@ -12655,6 +12817,18 @@
     {
       "source": "src_services_claudeservice_test",
       "target": "src_services_claudeservice_haiku_models",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/services/claudeService.test.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_test",
+      "target": "src_services_claudeservice_honorarium_disambiguation_tool",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -12703,6 +12877,30 @@
     {
       "source": "src_services_claudeservice_test",
       "target": "src_services_claudeservice_sonnet_models",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/services/claudeService.test.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_test",
+      "target": "src_services_claudeservice_sp2dk_response_tool",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/services/claudeService.test.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice_test",
+      "target": "src_services_claudeservice_tax_findings_tool",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16219,7 +16417,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L23",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -16301,7 +16499,7 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_lucide_react",
+      "target": "package_dependencies_jsonrepair",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16312,7 +16510,7 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_pdfjs_dist",
+      "target": "package_dependencies_lucide_react",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16323,7 +16521,7 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_react",
+      "target": "package_dependencies_pdfjs_dist",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16334,7 +16532,7 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_react_dom",
+      "target": "package_dependencies_react",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -16345,13 +16543,24 @@
     },
     {
       "source": "package_dependencies",
-      "target": "package_dependencies_xlsx_js_style",
+      "target": "package_dependencies_react_dom",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
       "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "package_dependencies",
+      "target": "package_dependencies_xlsx_js_style",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "package.json",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -16362,7 +16571,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -16373,7 +16582,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0
     },
     {
@@ -16384,7 +16593,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L26",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -16395,7 +16604,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -16406,7 +16615,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L28",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -16417,7 +16626,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -16428,7 +16637,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -16439,7 +16648,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -16450,7 +16659,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "package.json",
-      "source_location": "L32",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -18193,13 +18402,24 @@
     },
     {
       "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_logaiusage",
+      "target": "src_services_claudeservice_aiclassifyaccounts",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L107",
+      "source_location": "L1136",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_sp2dk_response_tool",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L120",
       "weight": 1.0
     },
     {
@@ -18210,7 +18430,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1077",
+      "source_location": "L1250",
       "weight": 1.0
     },
     {
@@ -18221,128 +18441,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1164",
+      "source_location": "L1341",
       "weight": 1.0
     },
     {
       "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_getaiusagelogs",
+      "target": "src_services_claudeservice_tax_findings_tool",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L137",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_clearaiusagelogs",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L147",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_callclaudeproxy",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L160",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_extracttextfromclauderesponse",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L214",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_callhaiku",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L264",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_callsonnet",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L295",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_extractobjectsfromincompletejson",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L331",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_extractandparseclaudejson",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L398",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_testclaudeconnection",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L483",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_analyzetaxfindings",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L512",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_callclaudetaxanalysis",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L530",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
@@ -18353,7 +18463,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L54",
+      "source_location": "L203",
       "weight": 1.0
     },
     {
@@ -18364,18 +18474,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L64",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_generatedeterministicfindings",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L694",
+      "source_location": "L213",
       "weight": 1.0
     },
     {
@@ -18386,7 +18485,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L72",
+      "source_location": "L221",
       "weight": 1.0
     },
     {
@@ -18397,7 +18496,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L78",
+      "source_location": "L227",
       "weight": 1.0
     },
     {
@@ -18408,7 +18507,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L86",
+      "source_location": "L235",
       "weight": 1.0
     },
     {
@@ -18419,18 +18518,183 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L91",
+      "source_location": "L240",
       "weight": 1.0
     },
     {
       "source": "src_services_claudeservice",
-      "target": "src_services_claudeservice_aiclassifyaccounts",
+      "target": "src_services_claudeservice_logaiusage",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L972",
+      "source_location": "L256",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_getaiusagelogs",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L286",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_clearaiusagelogs",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L296",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_callclaudeproxy",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L309",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L367",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_extracttextfromclauderesponse",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L377",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_callhaiku",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L427",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_callsonnet",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L460",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_extractobjectsfromincompletejson",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L498",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_extractandparseclaudejson",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L565",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_account_classification_tool",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_testclaudeconnection",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L663",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_analyzetaxfindings",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L692",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_callclaudetaxanalysis",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L710",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_generatedeterministicfindings",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L858",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_claudeservice_honorarium_disambiguation_tool",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L93",
       "weight": 1.0
     },
     {
@@ -20884,5 +21148,5 @@
       "source_file": ".agents/skills/caveman-evidence-review/SKILL.md"
     }
   ],
-  "built_at_commit": "3cb1d266664cbc806ba350b7751f80919cd3176b"
+  "built_at_commit": "0971b8a3453e16320df447064c9e2c6baf2d791a"
 }
