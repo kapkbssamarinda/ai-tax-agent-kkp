@@ -301,11 +301,10 @@ export const DEFAULT_SYNTHETIC_ACCOUNTS = {
  * @param {object} params
  * @param {Array} params.validRows - Array hasil parsePastedTransactions
  * @param {Array} params.classifications - Array hasil klasifikasi AI (atau fallback)
- * @param {'debit'|'kredit'} [params.mode='debit'] - Mode nominal debit vs kredit
+ * @param {'auto'|'debit'|'kredit'} [params.mode='auto'] - Mode penentuan debit vs kredit (auto: ditentukan AI)
  * @returns {{ glRows: Array, taxMappings: Array }}
  */
-export function transformPastedDataToGL({ validRows = [], classifications = [], mode = 'debit' }) {
-  const isDebit = mode === 'debit';
+export function transformPastedDataToGL({ validRows = [], classifications = [], mode = 'auto' }) {
   const glRows = [];
   const accountMap = new Map();
 
@@ -315,6 +314,22 @@ export function transformPastedDataToGL({ validRows = [], classifications = [], 
     const suggestedAccountName = cls.suggestedAccountName || DEFAULT_SYNTHETIC_ACCOUNTS[category] || `Akun ${category} (AI-Classified)`;
     const confidence = cls.confidence != null ? Number(cls.confidence) : 0.95;
     const reason = cls.reason || 'Klasifikasi otomatis substansi transaksi via AI Claude Haiku 4.5';
+
+    // Tentukan apakah transaksi masuk ke pos Debit atau Kredit
+    let isDebit = true;
+    if (mode === 'debit') {
+      isDebit = true;
+    } else if (mode === 'kredit') {
+      isDebit = false;
+    } else {
+      // mode === 'auto' (Ditentukan secara cerdas oleh AI per baris transaksi)
+      if (cls.entryType) {
+        isDebit = String(cls.entryType).toLowerCase() !== 'kredit';
+      } else {
+        const isKreditCat = category === 'REVENUE' || category === 'PPN_OUT' || /penjualan|pendapatan|omzet|sales|revenue|penerimaan/i.test(row.keterangan);
+        isDebit = !isKreditCat;
+      }
+    }
 
     const debit = isDebit ? row.nominal : 0;
     const kredit = !isDebit ? row.nominal : 0;

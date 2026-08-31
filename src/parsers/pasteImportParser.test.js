@@ -186,6 +186,63 @@ invalid_date\tBiaya Sewa\t5.000.000
       expect(taxMappings[1].totalDebit).toBe(20000000);
     });
 
+    it('correctly handles auto debit/credit mode per transaction', () => {
+      const validRows = [
+        { rowNumber: 1, tanggal: '02 Jan 2024', keterangan: 'Penjualan Barang Jadi', nominal: 100000000 },
+        { rowNumber: 2, tanggal: '05 Jan 2024', keterangan: 'Biaya Konsultan Pajak', nominal: 15000000 },
+        { rowNumber: 3, tanggal: '10 Jan 2024', keterangan: 'Pendapatan Bunga Jasa Giro', nominal: 2500000 }
+      ];
+
+      const classifications = [
+        {
+          category: 'REVENUE',
+          entryType: 'kredit',
+          suggestedAccountName: 'Pendapatan Penjualan (AI-Classified)',
+          confidence: 0.99
+        },
+        {
+          category: 'PPH23',
+          entryType: 'debit',
+          suggestedAccountName: 'Beban Jasa Konsultan (AI-Classified)',
+          confidence: 0.95
+        },
+        {
+          category: 'PPH42',
+          entryType: 'kredit',
+          suggestedAccountName: 'Pendapatan Bunga Giro (AI-Classified)',
+          confidence: 0.92
+        }
+      ];
+
+      const { glRows, taxMappings } = transformPastedDataToGL({
+        validRows,
+        classifications,
+        mode: 'auto'
+      });
+
+      expect(glRows).toHaveLength(3);
+      
+      // Row 1: Penjualan -> Kredit
+      expect(glRows[0].debit).toBe(0);
+      expect(glRows[0].kredit).toBe(100000000);
+      expect(glRows[0].balance).toBe(-100000000);
+
+      // Row 2: Biaya Konsultan -> Debit
+      expect(glRows[1].debit).toBe(15000000);
+      expect(glRows[1].kredit).toBe(0);
+      expect(glRows[1].balance).toBe(15000000);
+
+      // Row 3: Pendapatan Bunga Giro -> Kredit
+      expect(glRows[2].debit).toBe(0);
+      expect(glRows[2].kredit).toBe(2500000);
+      expect(glRows[2].balance).toBe(-2500000);
+
+      expect(taxMappings).toHaveLength(3);
+      expect(taxMappings[0].totalCredit).toBe(100000000);
+      expect(taxMappings[1].totalDebit).toBe(15000000);
+      expect(taxMappings[2].totalCredit).toBe(2500000);
+    });
+
     it('correctly handles kredit mode', () => {
       const validRows = [
         { rowNumber: 1, tanggal: '01 Jan 2024', keterangan: 'Penjualan Barang Jadi', nominal: 100000000 }

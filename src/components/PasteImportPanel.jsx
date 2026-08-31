@@ -13,17 +13,18 @@ import {
 import { parsePastedTransactions, transformPastedDataToGL } from '../parsers/pasteImportParser.js';
 import { classifyPastedTransactions } from '../services/claudeService.js';
 
-const SAMPLE_PASTE_DATA = `02/01/2024\tBiaya Jasa Konsultan Hukum & Notaris\t15.000.000
-05/01/2024\tSewa Gedung Kantor Operasional Q1\t45.000.000
+const SAMPLE_PASTE_DATA = `02/01/2024\tPenjualan Produk Barang Jadi Batch 1\t150.000.000
+05/01/2024\tBiaya Jasa Konsultan Hukum & Notaris\t15.000.000
 10/01/2024\tGaji Pokok & Tunjangan Staff Jan 2024\t85.000.000
-15/01/2024\tJamuan Makan Malam Klien Tanpa Daftar Nominatif\t3.500.000
-20/01/2024\tJasa Maintenance Server & Cloud Hosting\t12.000.000
+12/01/2024\tPendapatan Jasa Service & Maintenance Mesin\t35.000.000
+15/01/2024\tSewa Gedung Kantor Operasional Q1\t45.000.000
+20/01/2024\tJamuan Makan Malam Klien Tanpa Daftar Nominatif\t3.500.000
 25/01/2024\tHonorarium Tenaga Ahli Dokter Perusahaan\t8.000.000
 28/01/2024\tBeban ATK dan Perlengkapan Kantor\t2.250.000`;
 
 function PasteImportPanel({ onImportSuccess, userId = null, clientInfo = {}, onSwitchToFileUpload }) {
   const [pasteText, setPasteText] = useState('');
-  const [mode, setMode] = useState('debit'); // 'debit' | 'kredit'
+  const [mode, setMode] = useState('auto'); // 'auto' | 'debit' | 'kredit'
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressMessage, setProgressMessage] = useState('');
   const [error, setError] = useState(null);
@@ -61,7 +62,7 @@ function PasteImportPanel({ onImportSuccess, userId = null, clientInfo = {}, onS
 
     try {
       // Step 1: Jalankan klasifikasi semantik per-baris via Claude Haiku 4.5
-      setProgressMessage(`Menganalisis & mengklasifikasi ${validRows.length} baris dengan Claude Haiku 4.5...`);
+      setProgressMessage(`Menganalisis pos pajak & debit/kredit ${validRows.length} baris dengan Claude Haiku 4.5...`);
       
       const classifications = await classifyPastedTransactions({
         rows: validRows,
@@ -105,7 +106,7 @@ function PasteImportPanel({ onImportSuccess, userId = null, clientInfo = {}, onS
           <div className="paste-header-title-group">
             <div className="paste-badge-pill">
               <Sparkles size={14} className="text-accent" />
-              <span>3 Kolom &bull; Auto-Detect AI Haiku 4.5</span>
+              <span>3 Kolom &bull; Auto Debit/Kredit &bull; AI Haiku 4.5</span>
             </div>
             <h2 className="paste-card-title">Tempel Transaksi dari Excel</h2>
             <p className="paste-card-subtitle">
@@ -140,8 +141,19 @@ function PasteImportPanel({ onImportSuccess, userId = null, clientInfo = {}, onS
         {/* Mode Selector & Quick Actions */}
         <div className="paste-controls-bar">
           <div className="paste-mode-group">
-            <span className="paste-mode-label">Mode Saldo Nominal:</span>
+            <span className="paste-mode-label">Mode Debit / Kredit:</span>
             <div className="paste-mode-toggle" role="radiogroup" aria-label="Pilih jenis saldo">
+              <button
+                type="button"
+                className={`paste-mode-btn ${mode === 'auto' ? 'is-active' : ''}`}
+                onClick={() => setMode('auto')}
+                disabled={isProcessing}
+                role="radio"
+                aria-checked={mode === 'auto'}
+                title="AI otomatis mendeteksi apakah setiap baris merupakan pengeluaran (debit) atau pendapatan (kredit)"
+              >
+                ✨ Otomatis oleh AI (Rekomendasi)
+              </button>
               <button
                 type="button"
                 className={`paste-mode-btn ${mode === 'debit' ? 'is-active' : ''}`}
@@ -149,8 +161,9 @@ function PasteImportPanel({ onImportSuccess, userId = null, clientInfo = {}, onS
                 disabled={isProcessing}
                 role="radio"
                 aria-checked={mode === 'debit'}
+                title="Paksa semua baris transaksi sebagai Debit (Biaya/Pengeluaran)"
               >
-                Debit (Biaya / Beban / Pengeluaran)
+                Semua Debit (Biaya)
               </button>
               <button
                 type="button"
@@ -159,8 +172,9 @@ function PasteImportPanel({ onImportSuccess, userId = null, clientInfo = {}, onS
                 disabled={isProcessing}
                 role="radio"
                 aria-checked={mode === 'kredit'}
+                title="Paksa semua baris transaksi sebagai Kredit (Omzet/Penjualan)"
               >
-                Kredit (Omzet / Penjualan / Pendapatan)
+                Semua Kredit (Omzet)
               </button>
             </div>
           </div>

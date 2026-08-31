@@ -94,7 +94,7 @@ export const ACCOUNT_CLASSIFICATION_TOOL = {
 
 export const PASTED_TRANSACTIONS_CLASSIFICATION_TOOL = {
   name: 'submit_pasted_transaction_classifications',
-  description: 'Submit per-row tax classification and synthetic account name for pasted 3-column transactions.',
+  description: 'Submit per-row tax classification, entry type (debit/kredit), and synthetic account name for pasted 3-column transactions.',
   input_schema: {
     type: 'object',
     properties: {
@@ -109,14 +109,19 @@ export const PASTED_TRANSACTIONS_CLASSIFICATION_TOOL = {
               enum: ['REVENUE', 'PPH23', 'PPH21', 'PPH42', 'PPH22', 'PPN_IN', 'PPN_OUT', 'FISCAL_CORRECTION', 'RELATED_PARTY', 'NON_TAX'],
               description: 'Target Indonesian tax category ID'
             },
+            entryType: {
+              type: 'string',
+              enum: ['debit', 'kredit'],
+              description: 'Transaction accounting entry side: "debit" for expenses/purchases/assets/withholding, "kredit" for revenue/sales/income/output VAT'
+            },
             suggestedAccountName: {
               type: 'string',
-              description: 'Concise standard synthetic GL account name reflecting economic substance (e.g. "Beban Jasa Konsultan (AI-Classified)")'
+              description: 'Concise standard synthetic GL account name reflecting economic substance (e.g. "Beban Jasa Konsultan (AI-Classified)" or "Pendapatan Penjualan (AI-Classified)")'
             },
             confidence: { type: 'number', description: 'Confidence score between 0.50 and 1.00' },
             reason: { type: 'string', description: 'Short tax rationale' }
           },
-          required: ['index', 'category', 'suggestedAccountName', 'confidence', 'reason']
+          required: ['index', 'category', 'entryType', 'suggestedAccountName', 'confidence', 'reason']
         }
       }
     },
@@ -1617,14 +1622,18 @@ Daftar Pos Pajak Indonesia yang Valid (Gunakan persis ID berikut):
 - RELATED_PARTY: Transaksi Hubungan Istimewa / Pihak Berelasi (Transfer Pricing, Bunga Pinjaman Afiliasi, Royalti Afiliasi)
 - NON_TAX: Transaksi Non-Objek Pajak / Operasional Umum Murni (ATK, Fotokopi, Materai, Beban Bank/Admin, Listrik/Air/Internet Standar, Kas/Bank)
 
+Pedoman Penentuan entryType (Debit vs Kredit):
+- "debit": Beban, Biaya, Pembelian, Pengeluaran, Gaji, Sewa, Jasa, Perbaikan, ATK, Jamuan, Penambahan Aset/Inventaris.
+- "kredit": Pendapatan, Penjualan, Penerimaan Kas/Omzet, PPN Keluaran, Retur Pembelian, Bunga Deposito/Giro, Penghasilan Lain.
+
 Pedoman Pembuatan suggestedAccountName:
-1. Buat nama akun sintetis yang baku, deskriptif, dan merefleksikan pos biaya (diakhiri "(AI-Classified)").
+1. Buat nama akun sintetis yang baku, deskriptif, dan merefleksikan pos transaksi (diakhiri "(AI-Classified)").
    Contoh:
-   - "Beban Jasa Konsultan Hukum (AI-Classified)"
-   - "Beban Sewa Gedung Kantor (AI-Classified)"
-   - "Beban Gaji & Tunjangan Karyawan (AI-Classified)"
-   - "Beban Jamuan Makan Klien (AI-Classified)"
-   - "Pendapatan Penjualan Produk (AI-Classified)"
+   - "Beban Jasa Konsultan Hukum (AI-Classified)" -> entryType: "debit"
+   - "Beban Sewa Gedung Kantor (AI-Classified)" -> entryType: "debit"
+   - "Beban Gaji & Tunjangan Karyawan (AI-Classified)" -> entryType: "debit"
+   - "Beban Jamuan Makan Klien (AI-Classified)" -> entryType: "debit"
+   - "Pendapatan Penjualan Produk (AI-Classified)" -> entryType: "kredit"
 2. Berikan nilai confidence (0.50 s.d. 1.00) dan reason yang singkat namun jelas.
 3. Wajib gunakan tool submit_pasted_transaction_classifications untuk mengembalikan hasil untuk SEMUA ${items.length} baris transaksi dalam batch ini secara berurutan sesuai 'index'.
 
@@ -1687,8 +1696,11 @@ ${JSON.stringify(items, null, 2)}
         const localIdx = Number(item.index);
         const targetIdx = offset + (isNaN(localIdx) ? 0 : localIdx);
         if (targetIdx >= 0 && targetIdx < rows.length) {
+          const cat = item.category;
+          const entryType = item.entryType || (cat === 'REVENUE' || cat === 'PPN_OUT' ? 'kredit' : 'debit');
           results[targetIdx] = {
-            category: item.category,
+            category: cat,
+            entryType,
             suggestedAccountName: item.suggestedAccountName,
             confidence: Number(item.confidence) || 0.95,
             reason: item.reason || 'Klasifikasi otomatis substansi transaksi via AI Claude'
@@ -1703,8 +1715,10 @@ ${JSON.stringify(items, null, 2)}
       if (!results[globalIdx]) {
         const row = rows[globalIdx];
         const cat = autoClassifyAccount(null, row.keterangan);
+        const isKredit = cat === 'REVENUE' || cat === 'PPN_OUT' || /penjualan|pendapatan|omzet|sales|revenue|penerimaan/i.test(row.keterangan);
         results[globalIdx] = {
           category: cat,
+          entryType: isKredit ? 'kredit' : 'debit',
           suggestedAccountName: DEFAULT_SYNTHETIC_ACCOUNTS[cat] || `Akun ${cat} (AI-Classified)`,
           confidence: 0.75,
           reason: 'Dipetakan via heuristik fallback (AI offline/unreachable)'

@@ -84,8 +84,8 @@
     "semantic_hash": ""
   },
   "src/App.jsx": {
-    "mtime": 1788143172.2885027,
-    "seen": 1788143240.1417377,
+    "mtime": 1788143268.483391,
+    "seen": 1788146944.0122168,
     "ast_hash": "9914f0cac6df0db4d26dfc9202d94cb8",
     "semantic_hash": ""
   },
@@ -270,9 +270,9 @@
     "semantic_hash": "f0303e47d2e0c595058202c7e204267c"
   },
   "src/services/claudeService.js": {
-    "mtime": 1788143104.0609093,
-    "seen": 1788143240.1535375,
-    "ast_hash": "bdafe18fd3635eb03948241b79da8df7",
+    "mtime": 1788143605.7579134,
+    "seen": 1788146944.0268764,
+    "ast_hash": "b8afc41441f00a6a2c64c2346b95a7fa",
     "semantic_hash": ""
   },
   "src/services/regulationDB.js": {
@@ -822,21 +822,21 @@
     "semantic_hash": ""
   },
   "src/components/PasteImportPanel.jsx": {
-    "mtime": 1788143182.0631487,
-    "seen": 1788143240.142617,
-    "ast_hash": "2249e272b164c54ffbc07f2bf3f8dfe1",
+    "mtime": 1788143624.2610166,
+    "seen": 1788146944.0131195,
+    "ast_hash": "0651afdb9729c7f1cf2ef799862386be",
     "semantic_hash": ""
   },
   "src/parsers/pasteImportParser.js": {
-    "mtime": 1788143190.957465,
-    "seen": 1788143240.1528258,
-    "ast_hash": "a6811c5a9e9131b3a8303dda5e7918be",
+    "mtime": 1788143614.4638352,
+    "seen": 1788146944.0262196,
+    "ast_hash": "562c8305495052f0df0197f252980fa0",
     "semantic_hash": ""
   },
   "src/parsers/pasteImportParser.test.js": {
-    "mtime": 1788143195.8231606,
-    "seen": 1788143240.1528287,
-    "ast_hash": "ea5b2ca39ce7b0f2eceec32cac339b8a",
+    "mtime": 1788143631.277424,
+    "seen": 1788146944.0262227,
+    "ast_hash": "6e73d688757183e1d280aa0fe6a3b74d",
     "semantic_hash": ""
   },
   "md/AI_TAX_AND_PARTNER_DASHBOARD_GUIDE.md": {
