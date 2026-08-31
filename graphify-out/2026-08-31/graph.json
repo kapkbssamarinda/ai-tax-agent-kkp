@@ -1004,18 +1004,6 @@
       "source_location": "L1097"
     },
     {
-      "id": "src_services_claudeservice_generatesp2dkresponsewithclaude",
-      "label": "generateSP2DKResponseWithClaude()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "claudeService.js",
-      "file_type": "code",
-      "norm_label": "generatesp2dkresponsewithclaude()",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1626"
-    },
-    {
       "id": "src_services_claudeservice_getaiusagelogs",
       "label": "getAIUsageLogs()",
       "_callable": true,
@@ -1086,18 +1074,6 @@
       "norm_label": "formatlegalcitation()",
       "source_file": "src/services/regulationDB.js",
       "source_location": "L311"
-    },
-    {
-      "id": "src_services_sp2dkservice_buildsp2dkclaudeprompt",
-      "label": "buildSP2DKClaudePrompt()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "claudeService.js",
-      "file_type": "code",
-      "norm_label": "buildsp2dkclaudeprompt()",
-      "source_file": "src/services/sp2dkService.js",
-      "source_location": "L406"
     },
     {
       "id": "src_tax_engine_riskscoring_calculateriskscore",
@@ -1242,6 +1218,30 @@
       "norm_label": "sp2dkresponsetab()",
       "source_file": "src/components/tax/SP2DKResponseTab.jsx",
       "source_location": "L33"
+    },
+    {
+      "id": "src_services_claudeservice_generatesp2dkresponsewithclaude",
+      "label": "generateSP2DKResponseWithClaude()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SP2DKResponseTab.jsx",
+      "file_type": "code",
+      "norm_label": "generatesp2dkresponsewithclaude()",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L1628"
+    },
+    {
+      "id": "src_services_sp2dkservice_buildsp2dkclaudeprompt",
+      "label": "buildSP2DKClaudePrompt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "SP2DKResponseTab.jsx",
+      "file_type": "code",
+      "norm_label": "buildsp2dkclaudeprompt()",
+      "source_file": "src/services/sp2dkService.js",
+      "source_location": "L406"
     },
     {
       "id": "src_services_sp2dkservice_calculatesp2dkdeadline",
@@ -10594,50 +10594,14 @@
     },
     {
       "source": "src_services_claudeservice_generatesp2dkresponsewithclaude",
-      "target": "src_services_sp2dkservice_buildsp2dkclaudeprompt",
+      "target": "src_services_sp2dkservice_generatefallbacksp2dkresponse",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1635",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_generatesp2dkresponsewithclaude",
-      "target": "src_services_claudeservice_callsonnet",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1645",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_generatesp2dkresponsewithclaude",
-      "target": "src_services_claudeservice_extracttoolinputfromclauderesponse",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1660",
-      "weight": 1.0
-    },
-    {
-      "source": "src_services_claudeservice_generatesp2dkresponsewithclaude",
-      "target": "src_services_claudeservice_extracttextfromclauderesponse",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/services/claudeService.js",
-      "source_location": "L1674",
+      "source_location": "L1637",
       "weight": 1.0
     },
     {
@@ -12851,6 +12815,18 @@
     {
       "source": "src_services_claudeservice",
       "target": "src_services_sp2dkservice_buildsp2dkclaudeprompt",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/services/claudeService.js",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_claudeservice",
+      "target": "src_services_sp2dkservice_generatefallbacksp2dkresponse",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18747,7 +18723,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/claudeService.js",
-      "source_location": "L1626",
+      "source_location": "L1628",
       "weight": 1.0
     },
     {

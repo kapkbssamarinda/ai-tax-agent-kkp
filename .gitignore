@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 Buku Besar
 .env
+.env.example
+.env.local

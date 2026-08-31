@@ -1,11 +1,11 @@
 # Graph Report - ai-tax-agent  (2026-08-31)
 
 ## Corpus Check
-- 135 files · ~142,032 words
+- 135 files · ~141,741 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 700 nodes · 1109 edges · 47 communities (35 shown, 12 thin omitted)
+- 700 nodes · 1107 edges · 47 communities (35 shown, 12 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
@@ -138,7 +138,7 @@ Nodes (24): KEYWORD_PRESETS, KeywordScannerTab(), extractTaxBadge(), TaxReconWor
 
 ### Community 10 - "claudeService.js"
 Cohesion: 0.12
-Nodes (37): AISettingsModal(), PRESET_MODELS, ACCOUNT_CLASSIFICATION_TOOL, aiClassifyAccounts(), analyzeHonorariumClassification(), analyzeTaxFindings(), callClaudeProxy(), callClaudeTaxAnalysis() (+29 more)
+Nodes (35): AISettingsModal(), PRESET_MODELS, ACCOUNT_CLASSIFICATION_TOOL, aiClassifyAccounts(), analyzeHonorariumClassification(), analyzeTaxFindings(), callClaudeProxy(), callClaudeTaxAnalysis() (+27 more)
 
 ### Community 11 - "📝 Panduan Alur Input Data Staff Tax Analyst (SOP Step-by-Step)"
 Cohesion: 0.09
@@ -157,8 +157,8 @@ Cohesion: 0.13
 Nodes (15): Caveman Discover Skill, Operator Approval Protocol, Workflow Labeling Convention, Evidence Accounting Buckets, Caveman Evidence Review Skill, Trace Inspection Protocol, Server-Authoritative Execution Gate, Experiment Lifecycle Actions (+7 more)
 
 ### Community 15 - "SP2DKResponseTab.jsx"
-Cohesion: 0.28
-Nodes (10): SP2DKResponseTab(), calculateSP2DKDeadline(), CAUSE_CATEGORIES, downloadSP2DKWordDocument(), generateFallbackSP2DKResponse(), parseSP2DKText(), SP2DK_DEMO_PRESETS, fmtRupiah() (+2 more)
+Cohesion: 0.24
+Nodes (12): SP2DKResponseTab(), generateSP2DKResponseWithClaude(), buildSP2DKClaudePrompt(), calculateSP2DKDeadline(), CAUSE_CATEGORIES, downloadSP2DKWordDocument(), generateFallbackSP2DKResponse(), parseSP2DKText() (+4 more)
 
 ### Community 16 - "Changelog — GL Cleaner"
 Cohesion: 0.09
@@ -229,7 +229,7 @@ Nodes (17): PartnerDashboard(), calculateInterestSanction(), calculatePartnerDas
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `react` connect `App.jsx` to `aiUsageService.js`, `.oxlintrc.json`, `kkpWorkbookGenerator.js`, `claudeService.js`, `deterministicCalc.js`, `SP2DKResponseTab.jsx`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
 - **Why does `AdminDashboard()` connect `AdminDashboard` to `App.jsx`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
 - **Why does `plugins` connect `.oxlintrc.json` to `App.jsx`?**
