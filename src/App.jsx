@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo, useRef, useDeferredValue, useCallback } from 'react';
-import { AlertCircle, Loader2, CheckCircle2, X, Sparkles } from 'lucide-react';
+import { AlertCircle, Loader2, CheckCircle2, X, Sparkles, ClipboardPaste, FileSpreadsheet } from 'lucide-react';
 import './App.css';
 import Topbar from './components/Topbar';
 import AccountRail from './components/AccountRail';
 import Dropzone from './components/Dropzone';
+import PasteImportPanel from './components/PasteImportPanel';
 import DataTable from './components/DataTable';
 import WarningsPanel from './components/WarningsPanel';
 
@@ -83,6 +84,7 @@ function App() {
   const { profile, loading: authLoading, signOut, isAdmin, isAuthenticated, userId } = useAuth();
 
   const [step, setStep] = useState('upload');
+  const [uploadMethod, setUploadMethod] = useState('file'); // 'file' | 'paste'
   const [theme, setTheme] = useState(getInitialTheme);
   const [viewMode, setViewMode] = useState('GL_CLEANER'); // 'GL_CLEANER' | 'TAX_AGENT' | 'PARTNER_DASHBOARD'
 
@@ -570,6 +572,32 @@ function App() {
     textReader.readAsText(slice);
   };
 
+  const handlePasteImportSuccess = ({ glRows, taxMappings: initialTaxMappings, warnings: pasteWarnings, sourceFormat: customSourceFormat }) => {
+    setFileName('Data_Tempel_Excel.xlsx');
+    setSourceFormat(customSourceFormat || 'Manual Paste');
+    setCurrentColumns(ACCURATE_COLUMNS);
+    setProcessedData(glRows);
+    setTaxMappings(initialTaxMappings);
+    setWarnings(pasteWarnings || []);
+    setSelectedAccount(null);
+    setFilters({});
+    setStep('success');
+    setAiAnalysisSummary(null);
+
+    // Hitung rekonsiliasi deterministik langsung dari pemetaan AI yang sudah jadi
+    recalculateTaxRecons(initialTaxMappings, glRows);
+
+    const finishTimeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    setSideNotification({
+      id: Date.now(),
+      type: 'success',
+      title: 'Import Data Tempel Selesai',
+      message: `Berhasil mengimpor & memetakan ${glRows.length} transaksi ke dalam ${initialTaxMappings.length} akun via AI Claude Haiku 4.5.`,
+      timestamp: `${finishTimeStr} WIB`,
+      duration: 6500
+    });
+  };
+
   const resetWorkflow = () => {
     if (userId) {
       clearDraftFromStorage(userId);
@@ -578,6 +606,7 @@ function App() {
     }
     setAvailableDraft(null);
     setStep('upload');
+    setUploadMethod('file');
     setViewMode('GL_CLEANER');
     setProcessedData([]);
     setWarnings([]);
@@ -892,7 +921,41 @@ function App() {
               Pembersihan Buku Besar (Accurate, MYOB, Krishand) + Ekualisasi Pajak (Omzet vs PPN, Biaya vs PPh 23) + KKP 13-Sheet &amp; Partner Dashboard.
             </p>
           </header>
-          <Dropzone onFile={handleFile} />
+
+          {/* Tab Pilihan Metode Input: Upload File vs Tempel dari Excel */}
+          <div className="upload-method-tabs" role="tablist" aria-label="Metode Ingesti Data">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={uploadMethod === 'file'}
+              className={`upload-method-tab ${uploadMethod === 'file' ? 'is-active' : ''}`}
+              onClick={() => setUploadMethod('file')}
+            >
+              <FileSpreadsheet size={16} />
+              <span>Upload File (Excel / PDF / MYOB)</span>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={uploadMethod === 'paste'}
+              className={`upload-method-tab ${uploadMethod === 'paste' ? 'is-active' : ''}`}
+              onClick={() => setUploadMethod('paste')}
+            >
+              <ClipboardPaste size={16} />
+              <span>Tempel dari Excel (3 Kolom)</span>
+            </button>
+          </div>
+
+          {uploadMethod === 'file' ? (
+            <Dropzone onFile={handleFile} />
+          ) : (
+            <PasteImportPanel
+              onImportSuccess={handlePasteImportSuccess}
+              userId={userId}
+              clientInfo={clientInfo}
+              onSwitchToFileUpload={() => setUploadMethod('file')}
+            />
+          )}
         </main>
       )}
 

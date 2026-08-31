@@ -270,8 +270,8 @@
     "semantic_hash": "f0303e47d2e0c595058202c7e204267c"
   },
   "src/services/claudeService.js": {
-    "mtime": 1788109529.3278372,
-    "seen": 1788109558.4752483,
+    "mtime": 1788109587.4876606,
+    "seen": 1788137816.1563532,
     "ast_hash": "5a80de54c2efdccccc81506a63558e32",
     "semantic_hash": ""
   },
@@ -348,9 +348,9 @@
     "semantic_hash": ""
   },
   "vite.config.js": {
-    "mtime": 1788003811.5181904,
-    "seen": 1788011046.404543,
-    "ast_hash": "4b765e6d32d11c895e728ed9f48ac2b7",
+    "mtime": 1788137690.8727071,
+    "seen": 1788137816.1603067,
+    "ast_hash": "660feb439da4800042402ff10306e951",
     "semantic_hash": ""
   },
   ".agents/rules/graphify.md": {

@@ -417,6 +417,6 @@ def generate_pdf(output_filename):
     print("Updated preview images generated.")
 
 if __name__ == "__main__":
-    output_pdf = os.path.join(os.getcwd(), "SOP_Panduan_Penggunaan_AI_Tax_Agent.pdf")
+    output_pdf = os.path.join(os.getcwd(), "md", "SOP_Panduan_Penggunaan_AI_Tax_Agent.pdf")
     generate_pdf(output_pdf)
 

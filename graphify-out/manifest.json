@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "src/App.jsx": {
-    "mtime": 1788106530.705817,
-    "seen": 1788107193.9603693,
-    "ast_hash": "108a9cdb2378b99a4a61bd60018f773b",
+    "mtime": 1788143172.2885027,
+    "seen": 1788143240.1417377,
+    "ast_hash": "9914f0cac6df0db4d26dfc9202d94cb8",
     "semantic_hash": ""
   },
   "src/App.test.jsx": {
@@ -270,9 +270,9 @@
     "semantic_hash": "f0303e47d2e0c595058202c7e204267c"
   },
   "src/services/claudeService.js": {
-    "mtime": 1788109587.4876606,
-    "seen": 1788137816.1563532,
-    "ast_hash": "5a80de54c2efdccccc81506a63558e32",
+    "mtime": 1788143104.0609093,
+    "seen": 1788143240.1535375,
+    "ast_hash": "bdafe18fd3635eb03948241b79da8df7",
     "semantic_hash": ""
   },
   "src/services/regulationDB.js": {
@@ -348,8 +348,8 @@
     "semantic_hash": ""
   },
   "vite.config.js": {
-    "mtime": 1788137690.8727071,
-    "seen": 1788137816.1603067,
+    "mtime": 1788142541.284471,
+    "seen": 1788143240.1577787,
     "ast_hash": "660feb439da4800042402ff10306e951",
     "semantic_hash": ""
   },
@@ -635,36 +635,6 @@
     "ast_hash": "a831cf3669f1e6ab85d8a80ebe655f99",
     "semantic_hash": "a831cf3669f1e6ab85d8a80ebe655f99"
   },
-  "AI_TAX_AND_PARTNER_DASHBOARD_GUIDE.md": {
-    "mtime": 1787966206.320103,
-    "seen": 1787966610.3224273,
-    "ast_hash": "e4a600fb75a468856050a2979f985d56",
-    "semantic_hash": ""
-  },
-  "CHANGELOG.md": {
-    "mtime": 1787494195.8031137,
-    "seen": 1787496506.8654962,
-    "ast_hash": "3cad7be41858706532c6199d73a43a61",
-    "semantic_hash": "3cad7be41858706532c6199d73a43a61"
-  },
-  "DEVELOPMENT_LOG.md": {
-    "mtime": 1786322232.9029193,
-    "seen": 1787496506.8655028,
-    "ast_hash": "b65d87c533c6b9f268c6d0a635e9d7a0",
-    "semantic_hash": "b65d87c533c6b9f268c6d0a635e9d7a0"
-  },
-  "PANDUAN_ALUR_INPUT_TAX_ANALYST.md": {
-    "mtime": 1787966206.320103,
-    "seen": 1787966610.3224332,
-    "ast_hash": "19a1d76b105e0de9696b4a342969b746",
-    "semantic_hash": ""
-  },
-  "README.md": {
-    "mtime": 1787966206.3221047,
-    "seen": 1787966610.3224351,
-    "ast_hash": "f38893c8633c16ca8ffe92d4dbf06bf2",
-    "semantic_hash": ""
-  },
   "graphify-out/converted/merger-faktur_0c974ac1.md": {
     "mtime": 1787496040.7736437,
     "seen": 1787496506.86551,
@@ -676,12 +646,6 @@
     "seen": 1787496506.865512,
     "ast_hash": "b58085166abedee47de1a1ae668a2640",
     "semantic_hash": "b58085166abedee47de1a1ae668a2640"
-  },
-  "instruksi_awal.md": {
-    "mtime": 1787412844.119567,
-    "seen": 1787496506.8655136,
-    "ast_hash": "cef80ec5014b9f433d973beeca156b5f",
-    "semantic_hash": "cef80ec5014b9f433d973beeca156b5f"
   },
   "public/favicon.png": {
     "mtime": 1786322232.907112,
@@ -708,27 +672,9 @@
     "semantic_hash": "2870217b2021660781ba1d764ae99db9"
   },
   "generate_sop_pdf.py": {
-    "mtime": 1787541241.4265594,
-    "seen": 1787581986.8868058,
-    "ast_hash": "1c53fbed716856c6cebfe9424e27376f",
-    "semantic_hash": "1c53fbed716856c6cebfe9424e27376f"
-  },
-  "SOP_Panduan_Penggunaan_AI_Tax_Agent.pdf": {
-    "mtime": 1787541207.3111632,
-    "seen": 1787550412.1591613,
-    "ast_hash": "3e5adbfe05c0530f706c4273ec3c39f2",
-    "semantic_hash": ""
-  },
-  "sop_page_1.png": {
-    "mtime": 1787541207.45645,
-    "seen": 1787550412.1591702,
-    "ast_hash": "75460126387e99882723dc8ba227197e",
-    "semantic_hash": ""
-  },
-  "sop_page_2.png": {
-    "mtime": 1787541207.5327919,
-    "seen": 1787550412.1591723,
-    "ast_hash": "b7a7270e3c97167eb33f9bb38cf8f387",
+    "mtime": 1788142748.1021454,
+    "seen": 1788143240.1415093,
+    "ast_hash": "69f3571e8343d6536561a2d423b09749",
     "semantic_hash": ""
   },
   "src/utils/constants.js": {
@@ -833,18 +779,6 @@
     "ast_hash": "c518d410724dd6983bb653b770c17a4f",
     "semantic_hash": ""
   },
-  "PANDUAN_PENGGUNAAN_AI_TAX_AGENT_KKP.pdf": {
-    "mtime": 1787969791.5999188,
-    "seen": 1788011046.4046528,
-    "ast_hash": "29baaaaa88b54594b0e2024dfdfb6419",
-    "semantic_hash": ""
-  },
-  "plan-monitoring-ai-usage.md": {
-    "mtime": 1788096152.761964,
-    "seen": 1788097529.8886569,
-    "ast_hash": "50c94e7fea96b7091ecf189c6fd7fbb7",
-    "semantic_hash": ""
-  },
   "src/components/admin/AIUsageMonitoringTab.jsx": {
     "mtime": 1788099336.272515,
     "seen": 1788099975.761942,
@@ -861,12 +795,6 @@
     "mtime": 1788099336.276525,
     "seen": 1788099975.7683876,
     "ast_hash": "1478e8ba727c72777811b85aee1b7513",
-    "semantic_hash": ""
-  },
-  "plan-monitoring-ai-usage copy.md": {
-    "mtime": 1788096152.761964,
-    "seen": 1788099297.7829616,
-    "ast_hash": "50c94e7fea96b7091ecf189c6fd7fbb7",
     "semantic_hash": ""
   },
   "src/components/auth/LogoutConfirmModal.jsx": {
@@ -891,6 +819,90 @@
     "mtime": 1788106530.705817,
     "seen": 1788107193.9639325,
     "ast_hash": "fbef0cb0533f78c5ef33be9d948554a5",
+    "semantic_hash": ""
+  },
+  "src/components/PasteImportPanel.jsx": {
+    "mtime": 1788143182.0631487,
+    "seen": 1788143240.142617,
+    "ast_hash": "2249e272b164c54ffbc07f2bf3f8dfe1",
+    "semantic_hash": ""
+  },
+  "src/parsers/pasteImportParser.js": {
+    "mtime": 1788143190.957465,
+    "seen": 1788143240.1528258,
+    "ast_hash": "a6811c5a9e9131b3a8303dda5e7918be",
+    "semantic_hash": ""
+  },
+  "src/parsers/pasteImportParser.test.js": {
+    "mtime": 1788143195.8231606,
+    "seen": 1788143240.1528287,
+    "ast_hash": "ea5b2ca39ce7b0f2eceec32cac339b8a",
+    "semantic_hash": ""
+  },
+  "md/AI_TAX_AND_PARTNER_DASHBOARD_GUIDE.md": {
+    "mtime": 1787966206.320103,
+    "seen": 1788143240.1715052,
+    "ast_hash": "e4a600fb75a468856050a2979f985d56",
+    "semantic_hash": ""
+  },
+  "md/CHANGELOG.md": {
+    "mtime": 1787494195.8031137,
+    "seen": 1788143240.1715088,
+    "ast_hash": "3cad7be41858706532c6199d73a43a61",
+    "semantic_hash": ""
+  },
+  "md/DEVELOPMENT_LOG.md": {
+    "mtime": 1786322232.9029193,
+    "seen": 1788143240.171511,
+    "ast_hash": "b65d87c533c6b9f268c6d0a635e9d7a0",
+    "semantic_hash": ""
+  },
+  "md/PANDUAN_ALUR_INPUT_TAX_ANALYST.md": {
+    "mtime": 1787966206.320103,
+    "seen": 1788143240.171513,
+    "ast_hash": "19a1d76b105e0de9696b4a342969b746",
+    "semantic_hash": ""
+  },
+  "md/README.md": {
+    "mtime": 1787966206.3221047,
+    "seen": 1788143240.171515,
+    "ast_hash": "f38893c8633c16ca8ffe92d4dbf06bf2",
+    "semantic_hash": ""
+  },
+  "md/instruksi_awal.md": {
+    "mtime": 1787412844.119567,
+    "seen": 1788143240.171517,
+    "ast_hash": "cef80ec5014b9f433d973beeca156b5f",
+    "semantic_hash": ""
+  },
+  "md/plan-import-tempel-excel.md": {
+    "mtime": 1788142523.654466,
+    "seen": 1788143240.171519,
+    "ast_hash": "dd2168fc2d5c1c41e91324dcc46e41ca",
+    "semantic_hash": ""
+  },
+  "md/plan-monitoring-ai-usage copy.md": {
+    "mtime": 1788096152.761964,
+    "seen": 1788143240.1715207,
+    "ast_hash": "50c94e7fea96b7091ecf189c6fd7fbb7",
+    "semantic_hash": ""
+  },
+  "md/plan-monitoring-ai-usage.md": {
+    "mtime": 1788096152.761964,
+    "seen": 1788143240.1715229,
+    "ast_hash": "50c94e7fea96b7091ecf189c6fd7fbb7",
+    "semantic_hash": ""
+  },
+  "md/PANDUAN_PENGGUNAAN_AI_TAX_AGENT_KKP.pdf": {
+    "mtime": 1787969791.5999188,
+    "seen": 1788143240.1715243,
+    "ast_hash": "29baaaaa88b54594b0e2024dfdfb6419",
+    "semantic_hash": ""
+  },
+  "md/SOP_Panduan_Penggunaan_AI_Tax_Agent.pdf": {
+    "mtime": 1787541207.3111632,
+    "seen": 1788143240.171526,
+    "ast_hash": "3e5adbfe05c0530f706c4273ec3c39f2",
     "semantic_hash": ""
   }
 }

@@ -7,7 +7,9 @@
 
 import { formatLegalCitation } from './regulationDB.js';
 import { estimateFindingRisk } from '../tax-engine/riskScoring.js';
-import { buildSP2DKClaudePrompt, generateFallbackSP2DKResponse } from './sp2dkService.js';
+import { generateFallbackSP2DKResponse } from './sp2dkService.js';
+import { autoClassifyAccount } from '../tax-engine/taxMapping.js';
+import { DEFAULT_SYNTHETIC_ACCOUNTS } from '../parsers/pasteImportParser.js';
 import { supabase } from '../lib/supabase.js';
 import { jsonrepair } from 'jsonrepair';
 
@@ -83,6 +85,38 @@ export const ACCOUNT_CLASSIFICATION_TOOL = {
             aiReason: { type: 'string' }
           },
           required: ['coa', 'namaAkun', 'aiCategory', 'aiConfidence', 'aiReason']
+        }
+      }
+    },
+    required: ['classifications']
+  }
+};
+
+export const PASTED_TRANSACTIONS_CLASSIFICATION_TOOL = {
+  name: 'submit_pasted_transaction_classifications',
+  description: 'Submit per-row tax classification and synthetic account name for pasted 3-column transactions.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      classifications: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            index: { type: 'number', description: '0-based index of the row within the batch' },
+            category: {
+              type: 'string',
+              enum: ['REVENUE', 'PPH23', 'PPH21', 'PPH42', 'PPH22', 'PPN_IN', 'PPN_OUT', 'FISCAL_CORRECTION', 'RELATED_PARTY', 'NON_TAX'],
+              description: 'Target Indonesian tax category ID'
+            },
+            suggestedAccountName: {
+              type: 'string',
+              description: 'Concise standard synthetic GL account name reflecting economic substance (e.g. "Beban Jasa Konsultan (AI-Classified)")'
+            },
+            confidence: { type: 'number', description: 'Confidence score between 0.50 and 1.00' },
+            reason: { type: 'string', description: 'Short tax rationale' }
+          },
+          required: ['index', 'category', 'suggestedAccountName', 'confidence', 'reason']
         }
       }
     },
@@ -1375,8 +1409,14 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
 export async function aiClassifyAccounts(accounts, glRows = [], userId = null) {
   if (!accounts || accounts.length === 0) return accounts;
 
+  // Lewati akun yang sudah diproses oleh AI (misal dari alur tempel Excel atau pemetaan sebelumnya)
+  const accountsToClassify = accounts.filter(acc => !acc.aiProcessed);
+  if (accountsToClassify.length === 0) {
+    return accounts;
+  }
+
   // Ringkasan akun + sample memo & nominal per akun (maks 4 memo per akun)
-  const accountSummaries = accounts.map(acc => {
+  const accountSummaries = accountsToClassify.map(acc => {
     const sampleRows = glRows
       .filter(r => r.namaAkun === acc.namaAkun && r.keterangan !== 'Saldo Awal')
       .slice(0, 4)
@@ -1497,8 +1537,9 @@ ${JSON.stringify(currentChunk, null, 2)}
     }
   }
 
-  // Terapkan hasil analisis AI langsung ke setiap akun
+  // Terapkan hasil analisis AI langsung ke setiap akun (pertahankan yang sudah aiProcessed)
   return accounts.map(acc => {
+    if (acc.aiProcessed) return acc;
     const ai = aiMap.get(acc.namaAkun);
     if (ai && ai.aiCategory) {
       const isOverridden = ai.aiCategory !== acc.category;
@@ -1523,6 +1564,156 @@ ${JSON.stringify(currentChunk, null, 2)}
       aiProcessed: false
     };
   });
+}
+
+/**
+ * AI-Assisted Pasted Transactions Classification (Haiku 4.5)
+ * Mengklasifikasikan setiap baris transaksi yang ditempel manual dari Excel
+ * berdasarkan analisis semantik uraian/memo transaksi dan besaran nominal.
+ *
+ * @param {object} params
+ * @param {Array<{ rowNumber: number, tanggal: string, keterangan: string, nominal: number }>} params.rows
+ * @param {string} [params.userId]
+ * @param {string} [params.clientName]
+ * @param {string|number} [params.taxYear]
+ * @returns {Promise<Array<{ index: number, category: string, suggestedAccountName: string, confidence: number, reason: string }>>}
+ */
+export async function classifyPastedTransactions({ rows = [], userId = null, clientName = null, taxYear = null }) {
+  if (!rows || rows.length === 0) return [];
+
+  // Batching 40 baris per panggilan agar prompt fokus dan menghindari truncation token
+  const CHUNK_SIZE = 40;
+  const chunks = [];
+  for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+    chunks.push({
+      offset: i,
+      items: rows.slice(i, i + CHUNK_SIZE).map((r, subIdx) => ({
+        index: subIdx,
+        tanggal: r.tanggal,
+        keterangan: r.keterangan,
+        nominal: r.nominal
+      }))
+    });
+  }
+
+  const results = new Array(rows.length);
+
+  for (let chunkIdx = 0; chunkIdx < chunks.length; chunkIdx++) {
+    const { offset, items } = chunks[chunkIdx];
+
+    const prompt = `
+Anda adalah AI Senior Tax Partner Indonesia.
+Tugas: Lakukan analisis klasifikasi pajak komprehensif untuk setiap baris transaksi hasil tempel Excel berdasarkan substansi ekonomi keterangan transaksinya.
+
+Daftar Pos Pajak Indonesia yang Valid (Gunakan persis ID berikut):
+- REVENUE: Penjualan / Pendapatan Usaha / Omzet (Objek PPN & PPh Badan)
+- PPH23: Objek PPh 23 (Jasa Teknik/Manajemen/Konsultan/Hukum/Audit, Sewa Alat/Mesin/Kendaraan, Pemeliharaan/Service AC/Mobil/Mesin, Outsourcing, Jasa Lainnya PMK 141/2015)
+- PPH21: Objek PPh 21 (Beban Gaji, Upah Harian/Borongan, Bonus, THR, Honorarium Tenaga Ahli/Narasumber/Dokter, Komisi OP, Tunjangan, Pesangon, Fasilitas Karyawan)
+- PPH42: Objek PPh Final Pasal 4(2) (Sewa Tanah/Bangunan/Gedung/Ruko/Kantor/Mess, Jasa Pelaksanaan/Perencanaan Konstruksi/Renovasi, Bunga Deposito/Giro)
+- PPH22: Objek PPh 22 (Pembelian dari BUMN/Instansi Pemerintah, Impor, Bahan Bakar Minyak/Pertamina, Semen/Kertas/Baja/Otomotif/Farmasi)
+- PPN_IN: PPN Masukan
+- PPN_OUT: PPN Keluaran
+- FISCAL_CORRECTION: Potensi Koreksi Fiskal Positif Non-Deductible (Biaya Jamuan/Entertainment/Makan Tanpa Daftar Nominatif, Sumbangan, Denda/Sanksi Bunga Pajak, Pengeluaran Pribadi/Prive)
+- RELATED_PARTY: Transaksi Hubungan Istimewa / Pihak Berelasi (Transfer Pricing, Bunga Pinjaman Afiliasi, Royalti Afiliasi)
+- NON_TAX: Transaksi Non-Objek Pajak / Operasional Umum Murni (ATK, Fotokopi, Materai, Beban Bank/Admin, Listrik/Air/Internet Standar, Kas/Bank)
+
+Pedoman Pembuatan suggestedAccountName:
+1. Buat nama akun sintetis yang baku, deskriptif, dan merefleksikan pos biaya (diakhiri "(AI-Classified)").
+   Contoh:
+   - "Beban Jasa Konsultan Hukum (AI-Classified)"
+   - "Beban Sewa Gedung Kantor (AI-Classified)"
+   - "Beban Gaji & Tunjangan Karyawan (AI-Classified)"
+   - "Beban Jamuan Makan Klien (AI-Classified)"
+   - "Pendapatan Penjualan Produk (AI-Classified)"
+2. Berikan nilai confidence (0.50 s.d. 1.00) dan reason yang singkat namun jelas.
+3. Wajib gunakan tool submit_pasted_transaction_classifications untuk mengembalikan hasil untuk SEMUA ${items.length} baris transaksi dalam batch ini secara berurutan sesuai 'index'.
+
+Daftar Transaksi yang Dianalisis (Batch ${chunkIdx + 1}/${chunks.length}, Total ${items.length} Baris):
+${JSON.stringify(items, null, 2)}
+`;
+
+    let chunkParsed = null;
+
+    try {
+      const { data: haikuData } = await callHaiku({
+        system: MASTER_SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: prompt }],
+        tools: [PASTED_TRANSACTIONS_CLASSIFICATION_TOOL],
+        tool_choice: { type: 'tool', name: 'submit_pasted_transaction_classifications' },
+        maxTokens: 4096,
+        userId,
+        feature: 'paste-import-classification',
+        clientName,
+        taxYear
+      });
+
+      const toolInput = extractToolInputFromClaudeResponse(haikuData, 'submit_pasted_transaction_classifications');
+      if (toolInput && Array.isArray(toolInput.classifications)) {
+        chunkParsed = toolInput.classifications;
+      } else if (toolInput && Array.isArray(toolInput)) {
+        chunkParsed = toolInput;
+      }
+
+      if (!chunkParsed) {
+        const text = extractTextFromClaudeResponse(haikuData);
+        chunkParsed = extractAndParseClaudeJson(text);
+      }
+    } catch (err) {
+      console.warn(`[classifyPastedTransactions] Batch ${chunkIdx + 1} gagal dengan Haiku:`, err.message);
+      // Fallback ke Sonnet
+      try {
+        const { data: sonnetData } = await callSonnet({
+          system: MASTER_SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: prompt }],
+          tools: [PASTED_TRANSACTIONS_CLASSIFICATION_TOOL],
+          tool_choice: { type: 'tool', name: 'submit_pasted_transaction_classifications' },
+          maxTokens: 4096,
+          userId,
+          feature: 'paste-import-classification',
+          clientName,
+          taxYear
+        });
+
+        const sInput = extractToolInputFromClaudeResponse(sonnetData, 'submit_pasted_transaction_classifications');
+        chunkParsed = sInput?.classifications || extractAndParseClaudeJson(extractTextFromClaudeResponse(sonnetData));
+      } catch (sErr) {
+        console.warn(`[classifyPastedTransactions] Fallback Sonnet juga gagal untuk batch ${chunkIdx + 1}:`, sErr.message);
+      }
+    }
+
+    // Map hasil chunk ke array total
+    if (Array.isArray(chunkParsed) && chunkParsed.length > 0) {
+      chunkParsed.forEach(item => {
+        const localIdx = Number(item.index);
+        const targetIdx = offset + (isNaN(localIdx) ? 0 : localIdx);
+        if (targetIdx >= 0 && targetIdx < rows.length) {
+          results[targetIdx] = {
+            category: item.category,
+            suggestedAccountName: item.suggestedAccountName,
+            confidence: Number(item.confidence) || 0.95,
+            reason: item.reason || 'Klasifikasi otomatis substansi transaksi via AI Claude'
+          };
+        }
+      });
+    }
+
+    // Isi fallback deterministik jika ada baris yang belum terisi di chunk ini
+    for (let i = 0; i < items.length; i++) {
+      const globalIdx = offset + i;
+      if (!results[globalIdx]) {
+        const row = rows[globalIdx];
+        const cat = autoClassifyAccount(null, row.keterangan);
+        results[globalIdx] = {
+          category: cat,
+          suggestedAccountName: DEFAULT_SYNTHETIC_ACCOUNTS[cat] || `Akun ${cat} (AI-Classified)`,
+          confidence: 0.75,
+          reason: 'Dipetakan via heuristik fallback (AI offline/unreachable)'
+        };
+      }
+    }
+  }
+
+  return results;
 }
 
 /**
