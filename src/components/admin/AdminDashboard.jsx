@@ -11,20 +11,19 @@ import {
   Users,
   RefreshCw,
   Search,
-  KeyRound,
   X,
-  Eye,
-  EyeOff,
-  Filter,
-  Activity
+  Filter
 } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import AIUsageMonitoringTab from './AIUsageMonitoringTab';
+import {
+  fetchUsers,
+  addUser,
+  updateUser,
+  deleteUser
+} from '../../services/gasAuthService';
 
 function AdminDashboard({ onBack }) {
   const { isAdmin, user: currentUser } = useAuth();
-  const [activeAdminTab, setActiveAdminTab] = useState('USERS');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -38,9 +37,7 @@ function AdminDashboard({ onBack }) {
   // Form state untuk tambah user baru
   const [newEmail, setNewEmail] = useState('');
   const [newFullName, setNewFullName] = useState('');
-  const [newPassword, setNewPassword] = useState('');
   const [newRole, setNewRole] = useState('analyst');
-  const [showNewPassword, setShowNewPassword] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
 
   // State untuk Edit Modal
@@ -48,71 +45,39 @@ function AdminDashboard({ onBack }) {
   const [editFullName, setEditFullName] = useState('');
   const [editRole, setEditRole] = useState('analyst');
   const [editIsActive, setEditIsActive] = useState(true);
-  const [editNewPassword, setEditNewPassword] = useState('');
-  const [showEditPassword, setShowEditPassword] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [editError, setEditError] = useState('');
 
-  // Fetch semua user dari tabel profiles (dengan fallback ke /api/admin/users)
-  async function fetchUsers() {
+  // Fetch semua user dari Google Apps Script
+  async function loadUsers() {
     setLoading(true);
     setError('');
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const requesterEmail = currentUser?.email || '';
+      const res = await fetchUsers(requesterEmail);
 
-      if (!fetchError && data) {
-        setUsers(data);
-        setLoading(false);
-        return;
-      }
-
-      // Fallback ke serverless function jika direct RLS gagal (misal infinite recursion RLS)
-      const headers = await getAuthHeader();
-      const res = await fetch('/api/admin/users', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ action: 'list' })
-      });
-
-      const resData = await res.json();
-      if (res.ok && resData.users) {
-        setUsers(resData.users);
+      if (res && res.success && Array.isArray(res.users)) {
+        setUsers(res.users);
       } else {
-        setError('Gagal memuat daftar pengguna: ' + (resData.error || fetchError?.message || 'Akses ditolak'));
+        setError(res?.message || 'Gagal memuat daftar pengguna dari Google Apps Script.');
       }
     } catch (err) {
-      setError('Gagal memuat daftar pengguna: ' + err.message);
+      setError('Gagal memuat daftar pengguna: ' + (err.message || 'Koneksi error'));
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    if (isAdmin) fetchUsers();
+    if (isAdmin) loadUsers();
   }, [isAdmin]);
 
-  // Helper untuk mendapatkan token autentikasi admin
-  async function getAuthHeader() {
-    const { data: { session } } = await supabase.auth.getSession();
-    return {
-      'content-type': 'application/json',
-      'authorization': `Bearer ${session?.access_token || ''}`
-    };
-  }
-
-  // Tambah user baru via serverless function
+  // Tambah user baru ke whitelist via GAS
   async function handleAddUser(e) {
     e.preventDefault();
-    if (!newEmail || !newPassword || !newFullName) {
-      setError('Email, nama lengkap, dan password wajib diisi.');
-      return;
-    }
-    if (newPassword.length < 6) {
-      setError('Password minimal 6 karakter.');
+    if (!newEmail || !newFullName) {
+      setError('Email dan nama lengkap wajib diisi.');
       return;
     }
 
@@ -121,28 +86,22 @@ function AdminDashboard({ onBack }) {
     setSuccess('');
 
     try {
-      const headers = await getAuthHeader();
-      const response = await fetch('/api/admin/users', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          action: 'create',
-          email: newEmail.trim(),
-          password: newPassword,
-          full_name: newFullName.trim(),
-          role: newRole
-        })
+      const requesterEmail = currentUser?.email || '';
+      const res = await addUser(requesterEmail, {
+        email: newEmail.trim(),
+        fullName: newFullName.trim(),
+        role: newRole
       });
 
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Gagal menambahkan pengguna.');
+      if (!res.success) {
+        throw new Error(res.message || 'Gagal menambahkan pengguna.');
+      }
 
-      setSuccess(`Pengguna ${newEmail} berhasil ditambahkan sebagai ${newRole === 'admin' ? 'Administrator' : 'Tax Analyst'}.`);
+      setSuccess(`Pengguna ${newEmail} berhasil didaftarkan ke whitelist.`);
       setNewEmail('');
       setNewFullName('');
-      setNewPassword('');
       setNewRole('analyst');
-      fetchUsers();
+      loadUsers();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -151,13 +110,11 @@ function AdminDashboard({ onBack }) {
   }
 
   // Buka Modal Edit
-  function openEditModal(user) {
-    setEditingUser(user);
-    setEditFullName(user.full_name || '');
-    setEditRole(user.role || 'analyst');
-    setEditIsActive(user.is_active !== false);
-    setEditNewPassword('');
-    setShowEditPassword(false);
+  function openEditModal(u) {
+    setEditingUser(u);
+    setEditFullName(u.full_name || '');
+    setEditRole(u.role || 'analyst');
+    setEditIsActive(String(u.status || '').toLowerCase() === 'active');
     setEditError('');
   }
 
@@ -175,35 +132,26 @@ function AdminDashboard({ onBack }) {
       setEditError('Nama lengkap tidak boleh kosong.');
       return;
     }
-    if (editNewPassword && editNewPassword.length < 6) {
-      setEditError('Password baru minimal 6 karakter.');
-      return;
-    }
 
     setIsUpdating(true);
     setEditError('');
 
     try {
-      const headers = await getAuthHeader();
-      const response = await fetch('/api/admin/users', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          action: 'update',
-          userId: editingUser.id,
-          full_name: editFullName.trim(),
-          role: editRole,
-          is_active: editIsActive,
-          password: editNewPassword ? editNewPassword.trim() : undefined
-        })
+      const requesterEmail = currentUser?.email || '';
+      const res = await updateUser(requesterEmail, {
+        email: editingUser.email,
+        fullName: editFullName.trim(),
+        role: editRole,
+        status: editIsActive ? 'Active' : 'Inactive'
       });
 
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Gagal memperbarui pengguna.');
+      if (!res.success) {
+        throw new Error(res.message || 'Gagal memperbarui pengguna.');
+      }
 
       setSuccess(`Data pengguna ${editingUser.email} berhasil diperbarui.`);
       closeEditModal();
-      fetchUsers();
+      loadUsers();
     } catch (err) {
       setEditError(err.message);
     } finally {
@@ -212,43 +160,46 @@ function AdminDashboard({ onBack }) {
   }
 
   // Toggle cepat status aktif/nonaktif dari tabel
-  async function handleToggleActive(userId, currentActive) {
+  async function handleToggleActive(email, currentActive) {
     setError('');
     setSuccess('');
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update({ is_active: !currentActive, updated_at: new Date().toISOString() })
-      .eq('id', userId);
 
-    if (updateError) {
-      setError('Gagal mengubah status: ' + updateError.message);
-    } else {
-      setSuccess(`Status pengguna berhasil diubah menjadi ${!currentActive ? 'Aktif' : 'Nonaktif'}.`);
-      fetchUsers();
+    try {
+      const requesterEmail = currentUser?.email || '';
+      const res = await updateUser(requesterEmail, {
+        email,
+        status: currentActive ? 'Inactive' : 'Active'
+      });
+
+      if (!res.success) {
+        throw new Error(res.message || 'Gagal mengubah status pengguna.');
+      }
+
+      setSuccess(`Status pengguna ${email} berhasil diubah.`);
+      loadUsers();
+    } catch (err) {
+      setError('Gagal mengubah status: ' + err.message);
     }
   }
 
-  // Hapus user via serverless function
-  async function handleDeleteUser(userId, email) {
-    if (!window.confirm(`Yakin ingin menghapus pengguna ${email}? Tindakan ini akan menghapus akun dan profil secara permanen.`)) {
+  // Hapus user dari whitelist
+  async function handleDeleteUser(email) {
+    if (!window.confirm(`Yakin ingin menghapus ${email} dari whitelist? Pengguna tidak akan dapat login lagi.`)) {
       return;
     }
 
     setError('');
     setSuccess('');
     try {
-      const headers = await getAuthHeader();
-      const response = await fetch('/api/admin/users', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ action: 'delete', userId })
-      });
+      const requesterEmail = currentUser?.email || '';
+      const res = await deleteUser(requesterEmail, email);
 
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Gagal menghapus pengguna.');
+      if (!res.success) {
+        throw new Error(res.message || 'Gagal menghapus pengguna.');
+      }
 
-      setSuccess(`Pengguna ${email} berhasil dihapus.`);
-      fetchUsers();
+      setSuccess(`Pengguna ${email} berhasil dihapus dari whitelist.`);
+      loadUsers();
     } catch (err) {
       setError(err.message);
     }
@@ -265,12 +216,13 @@ function AdminDashboard({ onBack }) {
         if (!matchName && !matchEmail) return false;
       }
       // 2. Role filter
-      if (roleFilter !== 'ALL' && u.role !== roleFilter) {
+      if (roleFilter !== 'ALL' && u.role?.toLowerCase() !== roleFilter.toLowerCase()) {
         return false;
       }
       // 3. Status filter
-      if (statusFilter === 'ACTIVE' && u.is_active === false) return false;
-      if (statusFilter === 'INACTIVE' && u.is_active !== false) return false;
+      const isActive = String(u.status || '').toLowerCase() === 'active';
+      if (statusFilter === 'ACTIVE' && !isActive) return false;
+      if (statusFilter === 'INACTIVE' && isActive) return false;
 
       return true;
     });
@@ -296,62 +248,41 @@ function AdminDashboard({ onBack }) {
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Shield size={22} className="text-accent" />
-            <h2 className="admin-title">Kelola Pengguna & Monitoring AI KAP</h2>
+            <h2 className="admin-title">Kelola Pengguna Whitelist KKP</h2>
           </div>
         </div>
-        {activeAdminTab === 'USERS' && (
-          <button className="btn btn-ghost" onClick={fetchUsers} disabled={loading} title="Muat ulang data">
-            <RefreshCw size={14} className={loading ? 'spinner-inline' : ''} /> Muat Ulang
+        <button className="btn btn-ghost" onClick={loadUsers} disabled={loading} title="Muat ulang data">
+          <RefreshCw size={14} className={loading ? 'spinner-inline' : ''} /> Muat Ulang
+        </button>
+      </div>
+
+      {error && (
+        <div className="admin-alert is-error">
+          <AlertCircle size={16} />
+          <span>{error}</span>
+          <button className="btn-icon-subtle" onClick={() => setError('')} style={{ marginLeft: 'auto' }}>
+            <X size={14} />
           </button>
-        )}
-      </div>
+        </div>
+      )}
+      {success && (
+        <div className="admin-alert is-success">
+          <CheckCircle2 size={16} />
+          <span>{success}</span>
+          <button className="btn-icon-subtle" onClick={() => setSuccess('')} style={{ marginLeft: 'auto' }}>
+            <X size={14} />
+          </button>
+        </div>
+      )}
 
-      {/* Tab Navigation Admin */}
-      <div className="tab-navigation" style={{ marginBottom: '1.5rem', display: 'flex', gap: '8px' }}>
-        <button
-          className={`tab-btn ${activeAdminTab === 'USERS' ? 'active' : ''}`}
-          onClick={() => setActiveAdminTab('USERS')}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-        >
-          <Users size={16} /> Manajemen Pengguna
-        </button>
-        <button
-          className={`tab-btn ${activeAdminTab === 'AI_MONITORING' ? 'active' : ''}`}
-          onClick={() => setActiveAdminTab('AI_MONITORING')}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-        >
-          <Activity size={16} /> Monitoring Penggunaan AI
-        </button>
-      </div>
-
-      {activeAdminTab === 'AI_MONITORING' ? (
-        <AIUsageMonitoringTab />
-      ) : (
-        <>
-          {error && (
-            <div className="admin-alert is-error">
-              <AlertCircle size={16} />
-              <span>{error}</span>
-              <button className="btn-icon-subtle" onClick={() => setError('')} style={{ marginLeft: 'auto' }}>
-                <X size={14} />
-              </button>
-            </div>
-          )}
-          {success && (
-            <div className="admin-alert is-success">
-              <CheckCircle2 size={16} />
-              <span>{success}</span>
-              <button className="btn-icon-subtle" onClick={() => setSuccess('')} style={{ marginLeft: 'auto' }}>
-                <X size={14} />
-              </button>
-            </div>
-          )}
-
-      {/* Section 1: Form Tambah User Baru */}
+      {/* Section 1: Form Tambah User Baru ke Whitelist */}
       <div className="admin-section">
-        <h3 className="admin-section-title"><UserPlus size={18} className="text-accent" /> Tambah Pengguna Baru</h3>
+        <h3 className="admin-section-title"><UserPlus size={18} className="text-accent" /> Daftarkan Pengguna ke Whitelist</h3>
+        <p className="form-hint" style={{ marginBottom: '1rem' }}>
+          Pengguna yang didaftarkan akan dapat login langsung menggunakan akun Google mereka tanpa perlu password.
+        </p>
         <form className="admin-add-form" onSubmit={handleAddUser}>
-          <div className="admin-form-row">
+          <div className="admin-form-row" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
             <div className="form-group">
               <label className="form-label" htmlFor="new-fullname">Nama Lengkap <span className="text-required">*</span></label>
               <input
@@ -366,40 +297,17 @@ function AdminDashboard({ onBack }) {
               />
             </div>
             <div className="form-group">
-              <label className="form-label" htmlFor="new-email">Email <span className="text-required">*</span></label>
+              <label className="form-label" htmlFor="new-email">Email Google <span className="text-required">*</span></label>
               <input
                 id="new-email"
                 type="email"
                 className="form-input"
-                placeholder="andi@perusahaan.com"
+                placeholder="andi@gmail.com / andi@kantor.com"
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 disabled={isAdding}
                 required
               />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="new-password">Password <span className="text-required">*</span></label>
-              <div className="input-with-action">
-                <input
-                  id="new-password"
-                  type={showNewPassword ? 'text' : 'password'}
-                  className="form-input"
-                  placeholder="Min. 6 karakter"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  disabled={isAdding}
-                  required
-                />
-                <button
-                  type="button"
-                  className="btn-icon-subtle"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                  title={showNewPassword ? 'Sembunyikan' : 'Tampilkan'}
-                >
-                  {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
             </div>
             <div className="form-group">
               <label className="form-label" htmlFor="new-role">Role Akses</label>
@@ -410,14 +318,14 @@ function AdminDashboard({ onBack }) {
                 onChange={(e) => setNewRole(e.target.value)}
                 disabled={isAdding}
               >
-                <option value="analyst">Tax Analyst (Hanya Analisis Pajak)</option>
-                <option value="admin">Administrator (Akses Penuh &amp; Kelola User)</option>
+                <option value="analyst">Tax Analyst (Akses Workbench Pajak)</option>
+                <option value="admin">Administrator (Akses Penuh &amp; Kelola Whitelist)</option>
               </select>
             </div>
           </div>
           <button type="submit" className="btn btn-primary" disabled={isAdding}>
             {isAdding ? <><Loader2 size={14} className="spinner-inline" /> Menambahkan...</>
-                      : <><UserPlus size={14} /> Tambah Pengguna</>}
+                      : <><UserPlus size={14} /> Tambah ke Whitelist</>}
           </button>
         </form>
       </div>
@@ -426,7 +334,7 @@ function AdminDashboard({ onBack }) {
       <div className="admin-section">
         <div className="admin-section-header-row">
           <h3 className="admin-section-title" style={{ margin: 0 }}>
-            <Users size={18} className="text-accent" /> Daftar Pengguna ({filteredUsers.length} dari {users.length})
+            <Users size={18} className="text-accent" /> Daftar Whitelist Pengguna ({filteredUsers.length} dari {users.length})
           </h3>
         </div>
 
@@ -479,7 +387,7 @@ function AdminDashboard({ onBack }) {
         </div>
 
         {loading ? (
-          <div className="admin-loading"><Loader2 size={24} className="spinner" /> Memuat data pengguna...</div>
+          <div className="admin-loading"><Loader2 size={24} className="spinner" /> Memuat data whitelist dari Google Sheets...</div>
         ) : filteredUsers.length === 0 ? (
           <div className="admin-empty">
             <p>Tidak ada pengguna yang sesuai dengan kriteria pencarian atau filter.</p>
@@ -493,15 +401,16 @@ function AdminDashboard({ onBack }) {
                   <th>Email</th>
                   <th>Role</th>
                   <th>Status Akun</th>
-                  <th>Tanggal Dibuat</th>
+                  <th>Login Terakhir</th>
                   <th className="align-center">Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredUsers.map(u => {
-                  const isSelf = currentUser?.id === u.id;
+                  const isSelf = currentUser?.email === u.email;
+                  const isActive = String(u.status || '').toLowerCase() === 'active';
                   return (
-                    <tr key={u.id} className={!u.is_active ? 'row-inactive' : ''}>
+                    <tr key={u.email} className={!isActive ? 'row-inactive' : ''}>
                       <td className="font-medium">
                         {u.full_name || '-'}
                         {isSelf && <span className="badge-self" title="Akun Anda saat ini">(Anda)</span>}
@@ -514,28 +423,32 @@ function AdminDashboard({ onBack }) {
                       </td>
                       <td>
                         <button
-                          className={`badge-status ${u.is_active ? 'badge-active' : 'badge-inactive'}`}
-                          onClick={() => handleToggleActive(u.id, u.is_active)}
+                          className={`badge-status ${isActive ? 'badge-active' : 'badge-inactive'}`}
+                          onClick={() => handleToggleActive(u.email, isActive)}
                           title="Klik untuk ubah status aktif/nonaktif"
                         >
-                          {u.is_active ? '✅ Aktif' : '⛔ Nonaktif'}
+                          {isActive ? '✅ Aktif' : '⛔ Nonaktif'}
                         </button>
                       </td>
-                      <td>{new Date(u.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                      <td>
+                        {u.last_login_at
+                          ? new Date(u.last_login_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                          : 'Belum pernah login'}
+                      </td>
                       <td className="align-center">
                         <div style={{ display: 'inline-flex', gap: '0.25rem' }}>
                           <button
                             className="btn-icon-edit"
                             onClick={() => openEditModal(u)}
-                            title="Edit profil & reset password"
+                            title="Edit profil pengguna"
                           >
                             <Pencil size={15} />
                           </button>
                           {!isSelf && (
                             <button
                               className="btn-icon-danger"
-                              onClick={() => handleDeleteUser(u.id, u.email)}
-                              title="Hapus pengguna"
+                              onClick={() => handleDeleteUser(u.email)}
+                              title="Hapus dari whitelist"
                             >
                               <Trash2 size={15} />
                             </button>
@@ -559,7 +472,7 @@ function AdminDashboard({ onBack }) {
               <div className="modal-title-wrap">
                 <Pencil className="modal-icon" size={20} />
                 <div>
-                  <h2 id="edit-user-title" className="modal-title">Edit Pengguna</h2>
+                  <h2 id="edit-user-title" className="modal-title">Edit Pengguna Whitelist</h2>
                   <p className="modal-subtitle">{editingUser.email}</p>
                 </div>
               </div>
@@ -617,35 +530,6 @@ function AdminDashboard({ onBack }) {
                     <option value="inactive">⛔ Nonaktif (Login Diblokir)</option>
                   </select>
                 </div>
-
-                {/* Reset Password */}
-                <div className="admin-password-reset-box">
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="edit-password" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <KeyRound size={14} className="text-accent" /> Reset Password Baru (Opsional)
-                    </label>
-                    <div className="input-with-action">
-                      <input
-                        id="edit-password"
-                        type={showEditPassword ? 'text' : 'password'}
-                        className="form-input"
-                        placeholder="Kosongkan jika tidak ingin mengubah password..."
-                        value={editNewPassword}
-                        onChange={(e) => setEditNewPassword(e.target.value)}
-                        disabled={isUpdating}
-                      />
-                      <button
-                        type="button"
-                        className="btn-icon-subtle"
-                        onClick={() => setShowEditPassword(!showEditPassword)}
-                        title={showEditPassword ? 'Sembunyikan' : 'Tampilkan'}
-                      >
-                        {showEditPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    </div>
-                    <span className="form-hint">Minimal 6 karakter jika ingin mengganti password akun ini.</span>
-                  </div>
-                </div>
               </div>
 
               <div className="modal-footer">
@@ -659,8 +543,6 @@ function AdminDashboard({ onBack }) {
             </form>
           </div>
         </div>
-      )}
-        </>
       )}
     </div>
   );
