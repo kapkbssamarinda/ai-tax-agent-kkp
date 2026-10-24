@@ -72,3 +72,4 @@ describe('TaxRiskRegister Component', () => {
     expect(handleUpdate).toHaveBeenCalledWith('FND-001', 'CONFIRMED');
   });
 });
+

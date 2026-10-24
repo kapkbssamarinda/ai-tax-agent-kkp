@@ -34,3 +34,4 @@ describe('UI Primitives', () => {
     expect(screen.getByPlaceholderText('Cari NPWP...')).toBeInTheDocument();
   });
 });
+
