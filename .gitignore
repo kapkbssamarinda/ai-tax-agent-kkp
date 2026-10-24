@@ -25,3 +25,5 @@ dist-ssr
 Buku Besar
 .env
 .env.local
+
+.env.local

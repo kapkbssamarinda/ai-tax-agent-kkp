@@ -61,6 +61,43 @@ VITE_GAS_SECRET_TOKEN=kkp-secret-token-2026-auth
 
 ---
 
+## Langkah 6: Membuat Google OAuth Client ID (Agar Tombol Login Muncul & Popup Pilih Akun)
+
+Agar tombol **"Sign in with Google"** muncul di halaman login dan langsung memunculkan jendela dialog **pilihan akun Google**:
+
+1. Buka [Google Cloud Console](https://console.cloud.google.com/).
+2. Login dengan akun Google Anda.
+3. Di bilah navigasi atas, klik pemilih proyek (*Select a Project*) > klik **NEW PROJECT** (Proyek Baru):
+   - Beri nama: `AI Tax Agent`
+   - Klik **CREATE** (Buat).
+4. Pastikan proyek `AI Tax Agent` tersebut sedang aktif terpilih di bagian atas.
+5. Di sidebar kiri, buka menu **APIs & Services** > **OAuth consent screen** (Layar persetujuan OAuth):
+   - Pilih jenis pengguna: **External** (Eksternal), lalu klik **CREATE**.
+   - Isi informasi aplikasi:
+     - **App name:** `AI Tax Agent KKP`
+     - **User support email:** (Pilih email Anda)
+     - **Developer contact information:** (Ketik email Anda)
+   - Klik **SAVE AND CONTINUE** (Simpan dan Lanjutkan) sampai tahap akhir (Summary / Ringkasan), lalu klik **BACK TO DASHBOARD**.
+   *(Catatan: Anda tidak perlu menambahkan scope khusus atau mempublikasikan aplikasi, biarkan statusnya "Testing" atau tambahkan email staf sebagai Test Users).*
+6. Di sidebar kiri, buka menu **Credentials** (Kredensial):
+   - Klik tombol **+ CREATE CREDENTIALS** di bagian atas > pilih **OAuth client ID**.
+   - **Application type:** Pilih **Web application**.
+   - **Name:** `AI Tax Agent Web Client`.
+   - Di bagian **Authorized JavaScript origins** (Asal JavaScript yang diotorisasi), klik **+ ADD URI** dan masukkan:
+     - `http://localhost:5173` *(Port default Vite)*
+     - `http://localhost:3000` *(Jika memakai port alternatif)*
+     - *(Jika sudah deploy ke Vercel/domain kantor, tambahkan juga URL domain Anda, misalnya: `https://ai-tax-agent.vercel.app` tanpa tanda garis miring di akhir).*
+   - Di bagian **Authorized redirect URIs**, Anda bisa biarkan kosong karena kita menggunakan Google Identity Services (GIS popup).
+   - Klik tombol **CREATE**.
+7. Jendela dialog akan memunculkan **Client ID** Anda (format: `xxxxxxxxxxxx-xxxxxxxxxxxxxxxx.apps.googleusercontent.com`).
+8. Salin Client ID tersebut, lalu buka file `.env` di proyek Anda dan masukkan:
+   ```env
+   VITE_GOOGLE_CLIENT_ID=xxxxxxxxxxxx-xxxxxxxxxxxxxxxx.apps.googleusercontent.com
+   ```
+9. Simpan file `.env`, lalu restart server dev Anda (`npm run dev`).
+
+---
+
 ## 💡 Fitur Bootstrap Otomatis
 - **Akun Pertama Menjadi Super Admin:** Saat spreadsheet masih kosong, orang pertama yang login dengan akun Google-nya otomatis akan terdaftar sebagai **`admin`** dengan status **`Active`**.
 - Setelah Super Admin pertama masuk, akun tersebut dapat membuka menu **Admin Panel** di aplikasi untuk mendaftarkan rekan staf lainnya ke whitelist.

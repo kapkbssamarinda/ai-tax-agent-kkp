@@ -118,3 +118,4 @@ export async function deleteUser(requesterEmail, targetEmail) {
     email: targetEmail
   });
 }
+

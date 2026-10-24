@@ -19,6 +19,8 @@ function LoginPage() {
         try {
           window.google.accounts.id.initialize({
             client_id: googleClientId,
+            auto_select: false, // Selalu tampilkan dialog pemilih akun (tidak auto-select akun tunggal)
+            itp_support: true,
             callback: async (response) => {
               if (response?.credential) {
                 setLoading(true);
@@ -43,6 +45,12 @@ function LoginPage() {
             logo_alignment: 'left',
             width: 280
           });
+
+          // Tampilkan prompt popup One Tap pemilih akun jika didukung peramban
+          if (typeof window.google.accounts.id.prompt === 'function') {
+            window.google.accounts.id.prompt();
+          }
+
           return true;
         } catch (e) {
           console.warn('Gagal render Google button:', e);
