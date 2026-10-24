@@ -1,18 +1,12 @@
 import React, { useRef, useState } from 'react';
-import { UploadCloud } from 'lucide-react';
+import { UploadCloud, FileSpreadsheet, FileText, CheckCircle2 } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
-/* role="button" + tabIndex + keydown handler make this reachable and
-   operable by keyboard. The real <input type="file"> is kept in the DOM
-   via .sr-only (not display:none, which strips it from the a11y tree)
-   but taken out of tab order (tabIndex=-1) so this div is the single,
-   consistent tab stop and accessible name for the control. */
 function Dropzone({ onFile }) {
   const fileInputRef = useRef(null);
-  // Umpan balik visual saat file diseret di atas zona — kelas .active dulunya
-  // CSS mati karena tidak ada handler drag-enter/leave (impeccable audit, P3).
   const [isDragging, setIsDragging] = useState(false);
-  // dragenter/dragleave juga menyala saat melintasi elemen anak; counter
-  // mencegah highlight berkedip.
   const dragDepth = useRef(0);
 
   const openFilePicker = () => fileInputRef.current?.click();
@@ -43,22 +37,77 @@ function Dropzone({ onFile }) {
     if (file) onFile(file);
   };
 
+  const supportedFormats = [
+    { label: 'Excel (.xlsx, .xls)', primary: true },
+    { label: 'PDF Buku Besar' },
+    { label: 'CSV / TXT' },
+    { label: 'Accurate XML' },
+    { label: 'Proyek (.aitax)' },
+  ];
+
   return (
-    <div
-      className={`dropzone ${isDragging ? 'active' : ''}`}
+    <motion.div
+      whileHover={{ scale: 1.005 }}
+      whileTap={{ scale: 0.995 }}
+      transition={{ duration: 0.15 }}
+      className={cn(
+        'dropzone group relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 sm:p-12 text-center transition-all cursor-pointer select-none',
+        isDragging
+          ? 'active border-primary bg-primary/10 shadow-lg scale-[1.01]'
+          : 'border-border/80 bg-card hover:border-primary/60 hover:bg-muted/30 shadow-xs'
+      )}
       role="button"
       tabIndex={0}
       aria-label="Unggah file Excel atau PDF. Klik atau seret file ke area ini."
       onClick={openFilePicker}
       onKeyDown={handleKeyDown}
       onDragOver={(e) => e.preventDefault()}
-      onDragEnter={(e) => { e.preventDefault(); dragDepth.current += 1; setIsDragging(true); }}
-      onDragLeave={() => { dragDepth.current -= 1; if (dragDepth.current <= 0) { dragDepth.current = 0; setIsDragging(false); } }}
+      onDragEnter={(e) => {
+        e.preventDefault();
+        dragDepth.current += 1;
+        setIsDragging(true);
+      }}
+      onDragLeave={() => {
+        dragDepth.current -= 1;
+        if (dragDepth.current <= 0) {
+          dragDepth.current = 0;
+          setIsDragging(false);
+        }
+      }}
       onDrop={handleDrop}
     >
-      <UploadCloud className="dropzone-icon" size={40} strokeWidth={1.5} aria-hidden="true" />
-      <span className="dropzone-text">Klik atau seret file ke sini untuk mengunggah</span>
-      <span className="dropzone-hint">Mendukung Buku Besar (.xlsx, .xls, .pdf, .txt) atau File Proyek (.aitax)</span>
+      <div className={cn(
+        'mb-4 flex h-16 w-16 items-center justify-center rounded-2xl transition-transform duration-200 group-hover:scale-105',
+        isDragging
+          ? 'bg-primary text-primary-foreground shadow-md'
+          : 'bg-primary/10 text-primary border border-primary/20'
+      )}>
+        <UploadCloud className="dropzone-icon h-8 w-8" strokeWidth={1.75} aria-hidden="true" />
+      </div>
+
+      <h3 className="dropzone-text text-base sm:text-lg font-semibold tracking-tight text-foreground mb-1.5">
+        Klik atau seret file Buku Besar ke sini
+      </h3>
+
+      <p className="dropzone-hint text-xs sm:text-sm text-muted-foreground max-w-md mb-5 leading-relaxed">
+        Sistem otomatis mengekstrak transaksi, mendeteksi software akuntansi, dan memetakan pos rekonsiliasi pajak.
+      </p>
+
+      <div className="flex flex-wrap items-center justify-center gap-1.5 max-w-lg">
+        {supportedFormats.map((fmt, i) => (
+          <Badge
+            key={i}
+            variant={fmt.primary ? 'default' : 'outline'}
+            className={cn(
+              'text-[11px] font-normal py-0.5 px-2 rounded-md',
+              fmt.primary ? 'bg-primary/90 text-primary-foreground' : 'text-muted-foreground border-border/80'
+            )}
+          >
+            {fmt.label}
+          </Badge>
+        ))}
+      </div>
+
       <input
         ref={fileInputRef}
         type="file"
@@ -68,7 +117,7 @@ function Dropzone({ onFile }) {
         accept=".xlsx, .xls, .csv, .xml, .pdf, .txt, .aitax, .json"
         onChange={handleChange}
       />
-    </div>
+    </motion.div>
   );
 }
 

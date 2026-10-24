@@ -10,8 +10,13 @@ import {
   Loader2,
   Info
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { parsePastedTransactions, transformPastedDataToGL } from '../parsers/pasteImportParser.js';
 import { classifyPastedTransactions } from '../services/claudeService.js';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/input';
 
 const SAMPLE_PASTE_DATA = `02/01/2024\tPenjualan Produk Barang Jadi Batch 1\t150.000.000
 05/01/2024\tBiaya Jasa Konsultan Hukum & Notaris\t15.000.000
@@ -61,7 +66,6 @@ function PasteImportPanel({ onImportSuccess, userId = null, clientInfo = {}, onS
     setProgressMessage(`Mempersiapkan ${validRows.length} baris transaksi...`);
 
     try {
-      // Step 1: Jalankan klasifikasi semantik per-baris via Claude Haiku 4.5
       setProgressMessage(`Menganalisis pos pajak & debit/kredit ${validRows.length} baris dengan Claude Haiku 4.5...`);
       
       const classifications = await classifyPastedTransactions({
@@ -71,7 +75,6 @@ function PasteImportPanel({ onImportSuccess, userId = null, clientInfo = {}, onS
         taxYear: clientInfo.taxYear
       });
 
-      // Step 2: Transformasikan hasil klasifikasi ke glRows dan taxMappings
       setProgressMessage('Menyusun General Ledger dan Matriks Pemetaan Pajak...');
       const { glRows, taxMappings } = transformPastedDataToGL({
         validRows,
@@ -79,12 +82,10 @@ function PasteImportPanel({ onImportSuccess, userId = null, clientInfo = {}, onS
         mode
       });
 
-      // Siapkan warnings untuk baris yang tidak dapat diparse
       const warnings = invalidRows.map(inv => ({
         line: `Baris ${inv.rowNumber}: "${inv.rawLine}" — ${inv.reason}`
       }));
 
-      // Panggil callback sukses ke App.jsx
       onImportSuccess({
         glRows,
         taxMappings,
@@ -99,192 +100,215 @@ function PasteImportPanel({ onImportSuccess, userId = null, clientInfo = {}, onS
   };
 
   return (
-    <div className="paste-import-container">
-      {/* Header Info & Format Guideline */}
-      <div className="paste-import-card">
-        <div className="paste-header-row">
-          <div className="paste-header-title-group">
-            <div className="paste-badge-pill">
-              <Sparkles size={14} className="text-accent" />
-              <span>3 Kolom &bull; Auto Debit/Kredit &bull; AI Haiku 4.5</span>
+    <div className="paste-import-container w-full max-w-4xl mx-auto py-2">
+      <Card className="paste-import-card border-border shadow-lg bg-card">
+        <CardHeader className="paste-header-row flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 gap-3">
+          <div className="paste-header-title-group space-y-1">
+            <div className="flex items-center gap-2 mb-1">
+              <Badge variant="outline" className="text-[11px] font-medium border-border gap-1 text-muted-foreground">
+                <Sparkles size={12} className="text-primary" /> 3 Kolom &bull; Auto Debit/Kredit &bull; AI Haiku 4.5
+              </Badge>
             </div>
-            <h2 className="paste-card-title">Tempel Transaksi dari Excel</h2>
-            <p className="paste-card-subtitle">
+            <CardTitle className="paste-card-title text-xl font-bold tracking-tight text-foreground">
+              Tempel Transaksi dari Excel
+            </CardTitle>
+            <CardDescription className="paste-card-subtitle text-xs text-muted-foreground">
               Copy tabel 3 kolom (<strong>Tanggal</strong>, <strong>Keterangan</strong>, <strong>Nominal</strong>) langsung dari Microsoft Excel atau Google Sheets.
-            </p>
+            </CardDescription>
           </div>
 
           {onSwitchToFileUpload && (
-            <button
+            <Button
               type="button"
-              className="btn btn-secondary btn-action-sm"
+              variant="outline"
+              size="sm"
               onClick={onSwitchToFileUpload}
               disabled={isProcessing}
+              className="h-8 gap-1.5 text-xs self-start sm:self-center"
             >
-              <FileSpreadsheet size={15} />
+              <FileSpreadsheet size={14} className="text-primary" />
               <span>Beralih ke Upload File</span>
-            </button>
+            </Button>
           )}
-        </div>
+        </CardHeader>
 
-        {/* Format Guidance Banner */}
-        <div className="paste-guide-banner">
-          <Info size={16} className="paste-guide-icon" />
-          <div className="paste-guide-text">
-            <span>Format kolom yang diharapkan:</span>
-            <code>Kolom 1: Tanggal (DD/MM/YYYY)</code> &bull;{' '}
-            <code>Kolom 2: Keterangan Transaksi</code> &bull;{' '}
-            <code>Kolom 3: Nominal (Rp)</code>
-          </div>
-        </div>
-
-        {/* Mode Selector & Quick Actions */}
-        <div className="paste-controls-bar">
-          <div className="paste-mode-group">
-            <span className="paste-mode-label">Mode Debit / Kredit:</span>
-            <div className="paste-mode-toggle" role="radiogroup" aria-label="Pilih jenis saldo">
-              <button
-                type="button"
-                className={`paste-mode-btn ${mode === 'auto' ? 'is-active' : ''}`}
-                onClick={() => setMode('auto')}
-                disabled={isProcessing}
-                role="radio"
-                aria-checked={mode === 'auto'}
-                title="AI otomatis mendeteksi apakah setiap baris merupakan pengeluaran (debit) atau pendapatan (kredit)"
-              >
-                ✨ Otomatis oleh AI (Rekomendasi)
-              </button>
-              <button
-                type="button"
-                className={`paste-mode-btn ${mode === 'debit' ? 'is-active' : ''}`}
-                onClick={() => setMode('debit')}
-                disabled={isProcessing}
-                role="radio"
-                aria-checked={mode === 'debit'}
-                title="Paksa semua baris transaksi sebagai Debit (Biaya/Pengeluaran)"
-              >
-                Semua Debit (Biaya)
-              </button>
-              <button
-                type="button"
-                className={`paste-mode-btn ${mode === 'kredit' ? 'is-active' : ''}`}
-                onClick={() => setMode('kredit')}
-                disabled={isProcessing}
-                role="radio"
-                aria-checked={mode === 'kredit'}
-                title="Paksa semua baris transaksi sebagai Kredit (Omzet/Penjualan)"
-              >
-                Semua Kredit (Omzet)
-              </button>
+        <CardContent className="space-y-4 px-6">
+          {/* Format Guidance Banner */}
+          <div className="paste-guide-banner flex items-center gap-2.5 rounded-lg border border-border/80 bg-muted/40 p-3 text-xs text-muted-foreground">
+            <Info size={15} className="text-primary shrink-0" />
+            <div className="paste-guide-text flex flex-wrap items-center gap-1.5">
+              <span>Format kolom:</span>
+              <code className="rounded bg-background px-1.5 py-0.5 border border-border/60 text-[11px] font-mono text-foreground">Kolom 1: Tanggal (DD/MM/YYYY)</code>
+              <span>&bull;</span>
+              <code className="rounded bg-background px-1.5 py-0.5 border border-border/60 text-[11px] font-mono text-foreground">Kolom 2: Keterangan Transaksi</code>
+              <span>&bull;</span>
+              <code className="rounded bg-background px-1.5 py-0.5 border border-border/60 text-[11px] font-mono text-foreground">Kolom 3: Nominal (Rp)</code>
             </div>
           </div>
 
-          <div className="paste-quick-actions">
-            <button
-              type="button"
-              className="btn btn-ghost btn-action-sm"
-              onClick={handleLoadSample}
-              disabled={isProcessing}
-            >
-              <HelpCircle size={14} />
-              <span>Muat Contoh Data</span>
-            </button>
-            {pasteText && (
-              <button
-                type="button"
-                className="btn btn-ghost btn-action-sm text-danger"
-                onClick={handleClear}
-                disabled={isProcessing}
-              >
-                <RotateCcw size={14} />
-                <span>Bersihkan</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Textarea Input */}
-        <div className="paste-textarea-wrap">
-          <textarea
-            className="paste-textarea"
-            rows={10}
-            placeholder={`Contoh tempel (paste) langsung dari sel Excel:\n01/01/2024\tBiaya Jasa Notaris Akta Perubahan\t5.000.000\n05/01/2024\tSewa Ruko Kantor Cabang Q1\t25.000.000\n10/01/2024\tGaji Staff Bulan Januari\t50.000.000`}
-            value={pasteText}
-            onChange={(e) => setPasteText(e.target.value)}
-            disabled={isProcessing}
-            spellCheck={false}
-          />
-        </div>
-
-        {/* Status Preview Bar */}
-        {pasteText.trim().length > 0 && (
-          <div className="paste-status-bar">
-            <div className="paste-counts">
-              <span className="paste-count-item success">
-                <CheckCircle2 size={15} />
-                <strong>{validRows.length}</strong> baris valid siap diproses
-              </span>
-              {invalidRows.length > 0 && (
+          {/* Mode Selector & Quick Actions */}
+          <div className="paste-controls-bar flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
+            <div className="paste-mode-group flex flex-wrap items-center gap-2">
+              <span className="paste-mode-label text-xs text-muted-foreground font-medium">Mode Saldo:</span>
+              <div className="paste-mode-toggle inline-flex rounded-lg border border-border bg-muted/30 p-0.5 text-xs" role="radiogroup" aria-label="Pilih jenis saldo">
                 <button
                   type="button"
-                  className="paste-count-item warning-btn"
-                  onClick={() => setShowInvalidRows(prev => !prev)}
+                  className={`paste-mode-btn rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                    mode === 'auto'
+                      ? 'is-active bg-background text-foreground shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => setMode('auto')}
+                  disabled={isProcessing}
+                  role="radio"
+                  aria-checked={mode === 'auto'}
+                  title="AI otomatis mendeteksi apakah setiap baris merupakan pengeluaran (debit) atau pendapatan (kredit)"
                 >
-                  <AlertTriangle size={15} />
-                  <strong>{invalidRows.length}</strong> baris tidak valid (klik untuk lihat)
+                  ✨ Otomatis oleh AI
                 </button>
-              )}
+                <button
+                  type="button"
+                  className={`paste-mode-btn rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                    mode === 'debit'
+                      ? 'is-active bg-background text-foreground shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => setMode('debit')}
+                  disabled={isProcessing}
+                  role="radio"
+                  aria-checked={mode === 'debit'}
+                  title="Paksa semua baris transaksi sebagai Debit (Biaya/Pengeluaran)"
+                >
+                  Semua Debit (Biaya)
+                </button>
+                <button
+                  type="button"
+                  className={`paste-mode-btn rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                    mode === 'kredit'
+                      ? 'is-active bg-background text-foreground shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => setMode('kredit')}
+                  disabled={isProcessing}
+                  role="radio"
+                  aria-checked={mode === 'kredit'}
+                  title="Paksa semua baris transaksi sebagai Kredit (Omzet/Penjualan)"
+                >
+                  Semua Kredit (Omzet)
+                </button>
+              </div>
             </div>
 
-            {invalidRows.length > 0 && showInvalidRows && (
-              <div className="paste-invalid-details">
-                <div className="paste-invalid-title">Daftar Baris Tidak Valid:</div>
-                <ul className="paste-invalid-list">
-                  {invalidRows.slice(0, 10).map((inv, idx) => (
-                    <li key={idx} className="paste-invalid-line">
-                      <strong>Baris {inv.rowNumber}:</strong> <code>{inv.rawLine}</code> &mdash; {inv.reason}
-                    </li>
-                  ))}
-                  {invalidRows.length > 10 && (
-                    <li className="paste-invalid-more">
-                      ...dan {invalidRows.length - 10} baris lainnya.
-                    </li>
-                  )}
-                </ul>
+            <div className="paste-quick-actions flex items-center gap-1.5 self-end sm:self-center">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs text-muted-foreground hover:text-foreground gap-1"
+                onClick={handleLoadSample}
+                disabled={isProcessing}
+              >
+                <HelpCircle size={13} />
+                <span>Muat Contoh Data</span>
+              </Button>
+              {pasteText && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive gap-1"
+                  onClick={handleClear}
+                  disabled={isProcessing}
+                >
+                  <RotateCcw size={13} />
+                  <span>Bersihkan</span>
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Textarea Input */}
+          <div className="paste-textarea-wrap">
+            <Textarea
+              className="paste-textarea min-h-[180px] font-mono text-xs leading-relaxed resize-y bg-background"
+              rows={8}
+              placeholder={`Contoh tempel (paste) langsung dari sel Excel:\n01/01/2024\tBiaya Jasa Notaris Akta Perubahan\t5.000.000\n05/01/2024\tSewa Ruko Kantor Cabang Q1\t25.000.000\n10/01/2024\tGaji Staff Bulan Januari\t50.000.000`}
+              value={pasteText}
+              onChange={(e) => setPasteText(e.target.value)}
+              disabled={isProcessing}
+              spellCheck={false}
+            />
+          </div>
+
+          {/* Status Preview Bar */}
+          {pasteText.trim().length > 0 && (
+            <div className="paste-status-bar rounded-lg border border-border/80 bg-muted/20 p-3 space-y-2">
+              <div className="paste-counts flex items-center justify-between text-xs">
+                <span className="paste-count-item success flex items-center gap-1.5 text-emerald-500 font-medium">
+                  <CheckCircle2 size={15} />
+                  <span><strong>{validRows.length}</strong> baris valid siap diproses</span>
+                </span>
+                {invalidRows.length > 0 && (
+                  <button
+                    type="button"
+                    className="paste-count-item warning-btn flex items-center gap-1.5 text-amber-500 hover:underline cursor-pointer"
+                    onClick={() => setShowInvalidRows(prev => !prev)}
+                  >
+                    <AlertTriangle size={15} />
+                    <span><strong>{invalidRows.length}</strong> baris tidak valid ({showInvalidRows ? 'tutup' : 'lihat'})</span>
+                  </button>
+                )}
               </div>
-            )}
-          </div>
-        )}
 
-        {/* Error Alert */}
-        {error && (
-          <div className="paste-error-alert" role="alert">
-            <AlertTriangle size={16} />
-            <span>{error}</span>
-          </div>
-        )}
+              {invalidRows.length > 0 && showInvalidRows && (
+                <div className="paste-invalid-details border-t border-border/60 pt-2 text-xs space-y-1">
+                  <div className="paste-invalid-title font-medium text-foreground">Daftar Baris Tidak Valid:</div>
+                  <ul className="paste-invalid-list space-y-1 max-h-32 overflow-y-auto font-mono text-[11px] text-muted-foreground">
+                    {invalidRows.slice(0, 10).map((inv, idx) => (
+                      <li key={idx} className="paste-invalid-line">
+                        <span className="text-amber-500 font-medium">Baris {inv.rowNumber}:</span> <code>{inv.rawLine}</code> &mdash; {inv.reason}
+                      </li>
+                    ))}
+                    {invalidRows.length > 10 && (
+                      <li className="paste-invalid-more text-muted-foreground italic">
+                        ...dan {invalidRows.length - 10} baris lainnya.
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
 
-        {/* Action Button & Processing Indicator */}
-        <div className="paste-footer-row">
+          {/* Error Alert */}
+          {error && (
+            <div className="paste-error-alert rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive flex items-center gap-2" role="alert">
+              <AlertTriangle size={15} className="shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+        </CardContent>
+
+        <CardFooter className="paste-footer-row border-t border-border/60 bg-muted/10 px-6 py-4 flex items-center justify-end">
           {isProcessing ? (
-            <div className="paste-processing-banner">
-              <Loader2 className="spinner-inline" size={18} />
+            <div className="paste-processing-banner flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="animate-spin text-primary" size={16} />
               <span>{progressMessage}</span>
             </div>
           ) : (
-            <button
+            <Button
               type="button"
-              className="btn btn-primary paste-submit-btn"
+              className="paste-submit-btn gap-2"
               onClick={handleProcess}
               disabled={validRows.length === 0 || isProcessing}
             >
-              <Sparkles size={16} />
+              <Sparkles size={15} />
               <span>Proses Data &amp; Klasifikasi AI ({validRows.length} Baris)</span>
-              <ArrowRight size={16} />
-            </button>
+              <ArrowRight size={15} />
+            </Button>
           )}
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
