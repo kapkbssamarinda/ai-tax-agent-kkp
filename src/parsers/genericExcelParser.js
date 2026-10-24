@@ -47,17 +47,15 @@ function normalizeDate(cell) {
  * @returns {Array<object>} Daftar transaksi GL terstandarisasi
  */
 export function parseGenericExcelRows(rows = [], mapping = {}) {
-  const {
-    dataStartRowIndex = 1,
-    dateIdx = -1,
-    descIdx = -1,
-    coaIdx = -1,
-    accountNameIdx = -1,
-    debitIdx = -1,
-    creditIdx = -1,
-    balanceIdx = -1,
-    voucherNoIdx = -1
-  } = mapping;
+  const dateIdx = mapping.dateColumnIndex !== undefined ? mapping.dateColumnIndex : (mapping.dateIdx ?? -1);
+  const descIdx = mapping.descriptionColumnIndex !== undefined ? mapping.descriptionColumnIndex : (mapping.descIdx ?? -1);
+  const coaIdx = mapping.coaColumnIndex !== undefined ? mapping.coaColumnIndex : (mapping.coaIdx ?? -1);
+  const accountNameIdx = mapping.accountNameColumnIndex !== undefined ? mapping.accountNameColumnIndex : (mapping.accountNameIdx ?? -1);
+  const debitIdx = mapping.debitColumnIndex !== undefined ? mapping.debitColumnIndex : (mapping.debitIdx ?? -1);
+  const creditIdx = mapping.creditColumnIndex !== undefined ? mapping.creditColumnIndex : (mapping.creditIdx ?? -1);
+  const balanceIdx = mapping.balanceColumnIndex !== undefined ? mapping.balanceColumnIndex : (mapping.balanceIdx ?? -1);
+  const voucherNoIdx = mapping.voucherNoColumnIndex !== undefined ? mapping.voucherNoColumnIndex : (mapping.voucherNoIdx ?? -1);
+  const dataStartRowIndex = mapping.dataStartRowIndex ?? 1;
 
   const results = [];
   let runningBalance = 0;

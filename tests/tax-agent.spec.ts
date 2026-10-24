@@ -1,4 +1,7 @@
 import { test, expect } from '@playwright/test';
+import * as XLSX from 'xlsx-js-style';
+
+const xlsxLib = (XLSX as any).default || XLSX;
 
 const SAMPLE_AUTH_ADMIN = {
   user: {
@@ -175,5 +178,115 @@ test.describe('AI Tax Agent — E2E Suite', () => {
     const backBtn = page.getByRole('button', { name: /Kembali/i }).first();
     await backBtn.click();
     await expect(page.getByText(/AI Tax Agent Indonesia/i)).toBeVisible();
+  });
+
+  test('6. Unrecognized legacy .xls file triggers LegacyXlsGuideModal and switching to paste tab', async ({ page }) => {
+    await page.addInitScript(({ auth }) => {
+      localStorage.setItem('aitax_auth_session', JSON.stringify(auth));
+    }, { auth: SAMPLE_AUTH_ADMIN });
+
+    await page.goto('/');
+
+    // Buat file .xls dengan schema acak yang tidak sesuai pola Accurate / MYOB / Krishand
+    const ws = xlsxLib.utils.aoa_to_sheet([
+      ['Kolom Acak A', 'Kolom Acak B', 'Kolom Acak C'],
+      ['Nilai 1', 'Nilai 2', 'Nilai 3'],
+      ['Nilai 4', 'Nilai 5', 'Nilai 6']
+    ]);
+    const wb = xlsxLib.utils.book_new();
+    xlsxLib.utils.book_append_sheet(wb, ws, 'Sheet1');
+    const xlsBuf = xlsxLib.write(wb, { type: 'buffer', bookType: 'biff8' });
+
+    // Upload file via file input
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles({
+      name: 'laporan_tidak_dikenal.xls',
+      mimeType: 'application/vnd.ms-excel',
+      buffer: xlsBuf
+    });
+
+    // Guardrail modal harus muncul
+    await expect(page.getByText(/Format .xls Lawas Belum Dikenali/i)).toBeVisible();
+    await expect(page.getByText(/laporan_tidak_dikenal\.xls/i)).toBeVisible();
+    await expect(page.getByText(/Simpan Sebagai \.xlsx/i)).toBeVisible();
+
+    // Klik tombol switch ke tab tempel
+    const switchBtn = page.getByRole('button', { name: /Beralih ke Tempel dari Excel/i });
+    await expect(switchBtn).toBeVisible();
+    await switchBtn.click();
+
+    // Modal tertutup dan tab tempel aktif
+    await expect(page.getByText(/Format .xls Lawas Belum Dikenali/i)).not.toBeVisible();
+    await expect(page.getByText(/Tempel Transaksi dari Excel/i)).toBeVisible();
+  });
+
+  test('7. Unrecognized .xlsx triggers AI Schema Mapping, opens confirm modal and parses full rows', async ({ page }) => {
+    await page.addInitScript(({ auth }) => {
+      localStorage.setItem('aitax_auth_session', JSON.stringify(auth));
+    }, { auth: SAMPLE_AUTH_ADMIN });
+
+    // Mock Anthropic Claude API for schema mapping tool use
+    await page.route('**/api/claude', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          content: [
+            {
+              type: 'tool_use',
+              name: 'submit_schema_mapping',
+              input: {
+                headerRowIndex: 0,
+                dataStartRowIndex: 1,
+                dateColumnIndex: 0,
+                descriptionColumnIndex: 1,
+                debitColumnIndex: 2,
+                creditColumnIndex: 3,
+                balanceColumnIndex: -1,
+                confidence: 0.95,
+                reasoning: 'Kolom 0: Tanggal, Kolom 1: Keterangan, Kolom 2: Debit, Kolom 3: Kredit'
+              }
+            }
+          ]
+        })
+      });
+    });
+
+    await page.goto('/');
+
+    // Buat file .xlsx dengan header custom
+    const ws = xlsxLib.utils.aoa_to_sheet([
+      ['Tgl Transaksi', 'Uraian Transaksi', 'Debet (Rp)', 'Kredit (Rp)'],
+      ['02/01/2026', 'Penerimaan Kas Klien', 50000000, 0],
+      ['08/01/2026', 'Pembayaran Biaya Konsultan', 0, 15000000]
+    ]);
+    const wb = xlsxLib.utils.book_new();
+    xlsxLib.utils.book_append_sheet(wb, ws, 'Sheet1');
+    const xlsxBuf = xlsxLib.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+    // Upload file .xlsx
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles({
+      name: 'laporan_custom.xlsx',
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      buffer: xlsxBuf
+    });
+
+    // Modal Verifikasi Pemetaan Kolom AI harus muncul
+    await expect(page.getByText(/Verifikasi Pemetaan Kolom AI/i)).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/laporan_custom\.xlsx/i)).toBeVisible();
+    await expect(page.getByText(/Keyakinan AI: 95%/i)).toBeVisible();
+
+    // Verifikasi pratinjau tabel ada di modal
+    await expect(page.getByText(/Penerimaan Kas Klien/i)).toBeVisible();
+
+    // Klik tombol Terapkan & Proses Data
+    const applyBtn = page.getByRole('button', { name: /Terapkan & Proses Data/i });
+    await expect(applyBtn).toBeEnabled();
+    await applyBtn.click();
+
+    // Modal harus tertutup dan data hasil parsing generic excel muncul di tabel
+    await expect(page.getByText(/Verifikasi Pemetaan Kolom AI/i)).not.toBeVisible();
+    await expect(page.getByText(/Penerimaan Kas Klien/i).first()).toBeVisible({ timeout: 10000 });
   });
 });

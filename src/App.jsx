@@ -425,7 +425,7 @@ function App() {
               message: 'Silakan tinjau dan konfirmasi pemetaan kolom sebelum data diproses.',
               duration: 4000
             });
-            setSchemaInitialMapping(detected);
+            setSchemaInitialMapping(detected?.mapping || detected);
             setIsSchemaMappingModalOpen(true);
           })
           .catch((err) => {
