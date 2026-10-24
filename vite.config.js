@@ -1,5 +1,7 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import path from 'path'
 
 function localApiPlugin() {
   return {
@@ -46,13 +48,18 @@ export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), '');
   Object.assign(process.env, env);
 
-  const plugins = [react()];
+  const plugins = [react(), tailwindcss()];
   if (command === 'serve' && mode !== 'test' && !process.env.VITEST) {
     plugins.push(localApiPlugin());
   }
 
   return {
     plugins,
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+      },
+    },
     test: {
       environment: 'jsdom',
       globals: true,
