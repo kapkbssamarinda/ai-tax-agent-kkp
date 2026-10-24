@@ -16,7 +16,9 @@ import {
   TAX_FINDINGS_TOOL,
   ACCOUNT_CLASSIFICATION_TOOL,
   HONORARIUM_DISAMBIGUATION_TOOL,
-  SP2DK_RESPONSE_TOOL
+  SP2DK_RESPONSE_TOOL,
+  SCHEMA_MAPPING_TOOL,
+  detectSchemaWithClaude
 } from './claudeService';
 
 describe('Claude Service & AI Account Classification', () => {
@@ -31,6 +33,50 @@ describe('Claude Service & AI Account Classification', () => {
     expect(ACCOUNT_CLASSIFICATION_TOOL.name).toBe('submit_account_classifications');
     expect(HONORARIUM_DISAMBIGUATION_TOOL.name).toBe('submit_honorarium_disambiguations');
     expect(SP2DK_RESPONSE_TOOL.name).toBe('submit_sp2dk_response');
+    expect(SCHEMA_MAPPING_TOOL.name).toBe('submit_schema_mapping');
+    expect(SCHEMA_MAPPING_TOOL.input_schema.required).toContain('dateColumnIndex');
+  });
+
+  it('detectSchemaWithClaude memanggil Haiku dan mengekstrak mapping kolom', async () => {
+    const mockResponse = {
+      ok: true,
+      json: async () => ({
+        content: [
+          {
+            type: 'tool_use',
+            name: 'submit_schema_mapping',
+            input: {
+              headerRowIndex: 1,
+              dataStartRowIndex: 2,
+              dateColumnIndex: 0,
+              descriptionColumnIndex: 1,
+              coaColumnIndex: 2,
+              accountNameColumnIndex: 3,
+              debitColumnIndex: 4,
+              creditColumnIndex: 5,
+              balanceColumnIndex: -1,
+              voucherNoColumnIndex: 6,
+              confidence: 0.95,
+              reasoning: 'Kolom 0 berisi tanggal, kolom 1 keterangan transaksi, kolom 4-5 nominal'
+            }
+          }
+        ],
+        usage: { input_tokens: 250, output_tokens: 120 }
+      })
+    };
+    global.fetch = vi.fn().mockResolvedValue(mockResponse);
+
+    const sampleRows = [
+      ['Header Laporan'],
+      ['Tgl', 'Memo', 'COA', 'Nama', 'Debet', 'Kredit', 'Voucher'],
+      ['01/01/2024', 'Beban ATK', '5-100', 'ATK', 500000, 0, 'V-01']
+    ];
+
+    const result = await detectSchemaWithClaude({ sampleRows });
+    expect(result.success).toBe(true);
+    expect(result.mapping.dateColumnIndex).toBe(0);
+    expect(result.mapping.debitColumnIndex).toBe(4);
+    expect(result.mapping.confidence).toBe(0.95);
   });
 
   it('extractToolInputFromClaudeResponse mengekstrak input dari blok tool_use dengan benar', () => {

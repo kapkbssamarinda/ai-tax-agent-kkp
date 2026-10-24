@@ -198,6 +198,32 @@ export const SP2DK_RESPONSE_TOOL = {
   }
 };
 
+export const SCHEMA_MAPPING_TOOL = {
+  name: 'submit_schema_mapping',
+  description: 'Submit detected column index mapping from sample spreadsheet rows.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      headerRowIndex: { type: 'number', description: '0-based row index containing column headers' },
+      dataStartRowIndex: { type: 'number', description: '0-based row index where transaction data begins' },
+      dateColumnIndex: { type: 'number', description: '0-based column index for Transaction Date (-1 if not found)' },
+      coaColumnIndex: { type: 'number', description: '0-based column index for COA / Account Code (-1 if not found)' },
+      accountNameColumnIndex: { type: 'number', description: '0-based column index for Account Name (-1 if not found)' },
+      descriptionColumnIndex: { type: 'number', description: '0-based column index for Transaction Description / Memo (-1 if not found)' },
+      debitColumnIndex: { type: 'number', description: '0-based column index for Debit Amount (-1 if not found)' },
+      creditColumnIndex: { type: 'number', description: '0-based column index for Credit Amount (-1 if not found)' },
+      balanceColumnIndex: { type: 'number', description: '0-based column index for Balance / Saldo (-1 if not found)' },
+      voucherNoColumnIndex: { type: 'number', description: '0-based column index for Voucher No / Reference (-1 if not found)' },
+      confidence: { type: 'number', description: 'Confidence score from 0.0 to 1.0' },
+      reasoning: { type: 'string', description: 'Brief explanation of how the schema was inferred' }
+    },
+    required: [
+      'headerRowIndex', 'dataStartRowIndex', 'dateColumnIndex',
+      'descriptionColumnIndex', 'debitColumnIndex', 'creditColumnIndex', 'confidence'
+    ]
+  }
+};
+
 const MASTER_SYSTEM_PROMPT = `
 Anda adalah AI Tax Agent Indonesia yang berfungsi membantu Tax Staff, Tax Manager, Konsultan Pajak, dan Partner melakukan tax diagnostic, tax compliance review, tax reconciliation, serta tax risk assessment.
 
@@ -1847,5 +1873,73 @@ export async function generateSP2DKResponseWithClaude({
     expenseRecon
   });
 }
+
+/**
+ * AI Schema Mapping: Menganalisis 10-15 baris sampel spreadsheet Buku Besar
+ * menggunakan Claude Haiku 4.5 untuk menentukan indeks kolom (0-based) secara cerdas.
+ */
+export async function detectSchemaWithClaude({
+  sampleRows = [],
+  userId = null,
+  clientName = null,
+  taxYear = null
+}) {
+  if (!Array.isArray(sampleRows) || sampleRows.length === 0) {
+    throw new Error('Sampel baris data tidak boleh kosong.');
+  }
+
+  const prompt = `
+Anda adalah AI Spesialis Normalisasi Data Akuntansi Indonesia.
+Tugas: Analisis 10-15 baris sampel spreadsheet Buku Besar (GL) berikut dan tentukan indeks kolom (0-based) untuk setiap komponen data akuntansi.
+
+Format GL Standar yang Harus Ditemukan:
+1. dateColumnIndex: Kolom tanggal transaksi (contoh isi: '02/01/2024', serial '45300', dll).
+2. descriptionColumnIndex: Kolom keterangan, uraian, memo transaksi, atau rincian kegiatan.
+3. debitColumnIndex: Kolom mutasi debit (jika debit & kredit digabung dalam 1 kolom nominal, isi debitColumnIndex dengan kolom nominal tersebut).
+4. creditColumnIndex: Kolom mutasi kredit (-1 jika kolom nominal digabung atau tidak ada).
+5. balanceColumnIndex: Kolom saldo / balance berjalan (-1 jika tidak ada).
+6. coaColumnIndex: Kolom kode akun / COA / No Perkiraan (-1 jika tidak ada).
+7. accountNameColumnIndex: Kolom nama akun (-1 jika tidak ada).
+8. voucherNoColumnIndex: Kolom nomor bukti / no voucher / referensi (-1 jika tidak ada).
+9. headerRowIndex: Indeks baris (0-based) tempat judul kolom berada.
+10. dataStartRowIndex: Indeks baris (0-based) tempat transaksi pertama dimulai.
+
+Pedoman Tambahan:
+- Periksa nilai-nilai di setiap baris sampel untuk memastikan kolom mana yang berisi tanggal, teks keterangan, dan angka mutasi rupiah.
+- Berikan skor confidence (0.00 s.d 1.00) dan reasoning singkat.
+- Panggil tool submit_schema_mapping.
+
+Sampel Baris Data:
+${JSON.stringify(sampleRows, null, 2)}
+`;
+
+  try {
+    const { data } = await callHaiku({
+      system: MASTER_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: prompt }],
+      tools: [SCHEMA_MAPPING_TOOL],
+      tool_choice: { type: 'tool', name: 'submit_schema_mapping' },
+      maxTokens: 2048,
+      userId,
+      feature: 'ai-schema-mapping',
+      clientName,
+      taxYear
+    });
+
+    const toolInput = extractToolInputFromClaudeResponse(data, 'submit_schema_mapping');
+    if (toolInput) {
+      return {
+        success: true,
+        mapping: toolInput
+      };
+    }
+
+    throw new Error('AI tidak mengembalikan skema pemetaan terstruktur.');
+  } catch (err) {
+    console.warn('[detectSchemaWithClaude] Gagal mendeteksi skema dengan AI:', err);
+    throw err;
+  }
+}
+
 
 
