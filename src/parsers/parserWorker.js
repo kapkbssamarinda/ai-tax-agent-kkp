@@ -6,11 +6,12 @@ import { parseAccurateExcelRows } from './accurateExcelParser';
 import { parseAccuratePdfText } from './accuratePdfParser';
 import { parseAccuratePdfJournalText } from './accuratePdfJournalParser';
 import { parseKrishandExcelRows } from './krishandParser';
+import { parseGenericExcelRows } from './genericExcelParser';
 import { detectCompanyAndTaxYear } from './companyDetector';
 
 // Kolom ekspor identik untuk XLSX dan CSV agar hasil unduhan konsisten.
 // Field diambil dengan urutan prioritas agar mendukung semua format
-// (Accurate, MYOB, Krishand) dari satu fungsi.
+// (Accurate, MYOB, Krishand, Generic) dari satu fungsi.
 const toWorksheetData = (exportData) => exportData.map(row => ({
   'Tanggal': row.tanggal,
   'COA': row.coa,
@@ -24,7 +25,7 @@ const toWorksheetData = (exportData) => exportData.map(row => ({
 }));
 
 /** Post success message with standard shape */
-function postSuccess(data, format, meta, warnings = []) {
+function postSuccess(data, format, meta = {}, warnings = []) {
   self.postMessage({
     status: 'success',
     data,
@@ -36,7 +37,7 @@ function postSuccess(data, format, meta, warnings = []) {
 }
 
 self.onmessage = async (e) => {
-  const { type, fileData, exportData, fileName } = e.data;
+  const { type, fileData, exportData, fileName, fullRows, mapping, meta } = e.data;
   // Error saat ekspor tidak boleh melempar pengguna keluar dari tabel hasil,
   // jadi setiap pesan error membawa konteksnya (impeccable audit, P1).
   const errorContext = type.startsWith('EXPORT_') ? 'export' : 'parse';
@@ -45,12 +46,15 @@ self.onmessage = async (e) => {
     if (type === 'MYOB_TEXT') {
       // Ekspor MYOB "General Ledger [Detail]" berbentuk teks CSV (.txt)
       const parsedData = parseMYOBTextRows(fileData);
-      const meta = detectCompanyAndTaxYear({ rawText: fileData, fileName });
-      postSuccess(parsedData, 'MYOB', meta);
+      const detectedMeta = detectCompanyAndTaxYear({ rawText: fileData, fileName });
+      postSuccess(parsedData, 'MYOB', detectedMeta);
     } else if (type === 'ACCURATE_XML') {
       const parsedData = parseAccurateXMLSS(fileData);
-      const meta = detectCompanyAndTaxYear({ rawText: fileData, fileName });
-      postSuccess(parsedData, 'ACCURATE', meta);
+      const detectedMeta = detectCompanyAndTaxYear({ rawText: fileData, fileName });
+      postSuccess(parsedData, 'ACCURATE', detectedMeta);
+    } else if (type === 'PARSE_WITH_SCHEMA_MAPPING') {
+      const parsedData = parseGenericExcelRows(fullRows, mapping);
+      postSuccess(parsedData, 'GENERIC_EXCEL', meta || {});
     } else if (type === 'EXCEL_BINARY') {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -61,23 +65,29 @@ self.onmessage = async (e) => {
            const worksheet = workbook.Sheets[sheetName];
            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
 
-           const meta = detectCompanyAndTaxYear({ rows, fileName });
+           const detectedMeta = detectCompanyAndTaxYear({ rows, fileName });
 
            // DETECT FORMAT — scan the whole row (not just col 0) case-insensitively;
            // some exports (e.g. Hartora) put "BUKU BESAR (RP)" several columns in.
            let isAccurate = false;
            let isKrishand = false;
-           for (let i = 0; i < Math.min(rows.length, 10); i++) {
+           let isMYOB = false;
+           for (let i = 0; i < Math.min(rows.length, 15); i++) {
               const row = rows[i];
               if (!row) continue;
-              const rowStr = row.join(' ');
+              const rowStr = row.join(' ').toLowerCase();
               if (row.some(cell => typeof cell === 'string' && cell.toLowerCase().includes('buku besar'))) {
                  // Krishand punya "No Perkiraan:" dan "Laporan Buku Besar" di baris awal
-                 if (rowStr.includes('No Perkiraan:') || rowStr.includes('Laporan Buku Besar')) {
+                 if (rowStr.includes('no perkiraan:') || rowStr.includes('laporan buku besar')) {
                     isKrishand = true;
                     break;
                  }
                  isAccurate = true;
+                 break;
+              }
+              if (rowStr.includes('id#') || rowStr.includes('ending balance') || rowStr.includes('net activity') || rowStr.includes('general ledger [detail]')) {
+                 isMYOB = true;
+                 break;
               }
            }
 
@@ -85,13 +95,36 @@ self.onmessage = async (e) => {
               // Krishand: re-read dengan raw:true agar tanggal tetap sebagai serial number
               const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '', raw: true });
               const parsedData = parseKrishandExcelRows(rawRows);
-              postSuccess(parsedData, 'KRISHAND', meta);
+              postSuccess(parsedData, 'KRISHAND', detectedMeta);
            } else if (isAccurate) {
                const parsedData = parseAccurateExcelRows(rows);
-               postSuccess(parsedData, 'ACCURATE', meta);
+               postSuccess(parsedData, 'ACCURATE', detectedMeta);
            } else {
-               const parsedData = parseMYOBExcelRows(rows);
-               postSuccess(parsedData, 'MYOB', meta);
+               const myobCandidate = parseMYOBExcelRows(rows);
+               const hasValidMyobRows = myobCandidate && myobCandidate.length > 0 && myobCandidate.some(r => r.tanggal && r.tanggal !== '-' && (r.debit !== 0 || r.credit !== 0 || r.balance !== 0));
+
+               if (isMYOB || hasValidMyobRows) {
+                   postSuccess(myobCandidate, 'MYOB', detectedMeta);
+               } else {
+                   // Pola belum terdaftar! Cek ekstensi file
+                   const isXls = typeof fileName === 'string' && fileName.toLowerCase().endsWith('.xls');
+                   const sampleRows = rows.slice(0, 15);
+                   if (isXls) {
+                     self.postMessage({
+                       status: 'unrecognized_legacy_xls',
+                       fileName,
+                       sampleRows
+                     });
+                   } else {
+                     self.postMessage({
+                       status: 'unrecognized_xlsx',
+                       fileName,
+                       sampleRows,
+                       fullRows: rows,
+                       meta: detectedMeta
+                     });
+                   }
+               }
            }
          } catch (err) {
            self.postMessage({ status: 'error', context: 'parse', error: err.message || String(err) });
@@ -100,11 +133,11 @@ self.onmessage = async (e) => {
       reader.onerror = () => { self.postMessage({ status: 'error', context: 'parse', error: 'FileReader error' }); };
       reader.readAsArrayBuffer(fileData);
     } else if (type === 'ACCURATE_PDF_TEXT') {
-      const meta = detectCompanyAndTaxYear({ rawText: fileData, fileName });
+      const detectedMeta = detectCompanyAndTaxYear({ rawText: fileData, fileName });
       const { rows, warnings } = fileData.includes('Daftar Histori GL')
         ? parseAccuratePdfJournalText(fileData)
         : parseAccuratePdfText(fileData);
-      postSuccess(rows, 'ACCURATE', meta, warnings);
+      postSuccess(rows, 'ACCURATE', detectedMeta, warnings);
     } else if (type === 'EXPORT_XLSX') {
       const worksheet = XLSX.utils.json_to_sheet(toWorksheetData(exportData));
       const workbook = XLSX.utils.book_new();

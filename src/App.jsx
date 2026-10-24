@@ -20,7 +20,9 @@ import SideNotification from './components/common/SideNotification';
 import { useAuth } from './contexts/AuthContext';
 import { buildTaxMappingFromGL } from './tax-engine/taxMapping';
 import { reconcileRevenueVsPPN, reconcileExpenseVsPPh23, reconcilePayrollVsPPh21, reconcileRentVsPPhFinal } from './tax-engine/deterministicCalc';
-import { analyzeTaxFindings, generateDeterministicFindings, aiClassifyAccounts, clearAIUsageLogs } from './services/claudeService';
+import { analyzeTaxFindings, generateDeterministicFindings, aiClassifyAccounts, clearAIUsageLogs, detectSchemaWithClaude } from './services/claudeService';
+import LegacyXlsGuideModal from './components/modals/LegacyXlsGuideModal';
+import SchemaMappingConfirmModal from './components/modals/SchemaMappingConfirmModal';
 import { downloadKKPWorkbook } from './tax-engine/kkpWorkbookGenerator';
 import {
   createProjectSnapshot,
@@ -105,6 +107,16 @@ function App() {
   const [clientInfo, setClientInfo] = useState(DEFAULT_CLIENT_INFO);
   const [availableDraft, setAvailableDraft] = useState(null);
 
+  // AI Schema Mapping & .xls Guardrail Modals State
+  const [isLegacyXlsModalOpen, setIsLegacyXlsModalOpen] = useState(false);
+  const [legacyXlsFileName, setLegacyXlsFileName] = useState('');
+  const [isSchemaMappingModalOpen, setIsSchemaMappingModalOpen] = useState(false);
+  const [schemaMappingFileName, setSchemaMappingFileName] = useState('');
+  const [schemaSampleRows, setSchemaSampleRows] = useState([]);
+  const [schemaFullRows, setSchemaFullRows] = useState([]);
+  const [schemaInitialMapping, setSchemaInitialMapping] = useState({});
+  const [pendingSchemaMeta, setPendingSchemaMeta] = useState({});
+
   // AI Tax & Equalization State
   const [taxMappings, setTaxMappings] = useState([]);
   const [revenueRecon, setRevenueRecon] = useState({ glRevenueTotal: 0, sptDPPTotal: 0, difference: 0, potentialPPNExposure: 0, status: 'RECONCILED' });
@@ -119,6 +131,10 @@ function App() {
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const prevUserIdRef = useRef(userId);
+  const clientInfoRef = useRef(clientInfo);
+  useEffect(() => { clientInfoRef.current = clientInfo; }, [clientInfo]);
+  const fileNameRef = useRef(fileName);
+  useEffect(() => { fileNameRef.current = fileName; }, [fileName]);
 
   // Bersihkan data dan muat draft saat terjadi pergantian user (multi-user on same device)
   useEffect(() => {
@@ -296,6 +312,9 @@ function App() {
         } else if (e.data.format === 'KRISHAND') {
           setSourceFormat('Krishand');
           setCurrentColumns(KRISHAND_COLUMNS);
+        } else if (e.data.format === 'GENERIC_EXCEL') {
+          setSourceFormat('Excel (AI Mapping)');
+          setCurrentColumns(ACCURATE_COLUMNS);
         }
         setProcessedData(data);
         setWarnings(parseWarnings || []);
@@ -372,6 +391,71 @@ function App() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
+      } else if (status === 'unrecognized_legacy_xls') {
+        setIsLegacyXlsModalOpen(true);
+        setLegacyXlsFileName(e.data.fileName || fileNameRef.current || 'Dokumen .xls');
+        setStep('upload');
+      } else if (status === 'unrecognized_xlsx') {
+        const { fileName: unrecFileName, sampleRows, fullRows, meta: unrecMeta } = e.data;
+        const targetFileName = unrecFileName || fileNameRef.current || 'Dokumen .xlsx';
+        setSchemaMappingFileName(targetFileName);
+        setSchemaSampleRows(sampleRows || []);
+        setSchemaFullRows(fullRows || []);
+        setPendingSchemaMeta(unrecMeta || {});
+
+        setSideNotification({
+          id: Date.now(),
+          type: 'loading',
+          title: 'Menganalisis Skema Kolom Baru',
+          message: 'Claude Haiku sedang mempelajari struktur kolom file Excel Anda...',
+          duration: 0
+        });
+
+        detectSchemaWithClaude({
+          sampleRows,
+          userId,
+          clientName: clientInfoRef.current?.name,
+          taxYear: clientInfoRef.current?.taxYear
+        })
+          .then((detected) => {
+            setSideNotification({
+              id: Date.now(),
+              type: 'success',
+              title: 'Skema Kolom Terdeteksi',
+              message: 'Silakan tinjau dan konfirmasi pemetaan kolom sebelum data diproses.',
+              duration: 4000
+            });
+            setSchemaInitialMapping(detected?.mapping || detected);
+            setIsSchemaMappingModalOpen(true);
+          })
+          .catch((err) => {
+            console.warn('Gagal mendeteksi skema otomatis dengan Claude:', err);
+            setSideNotification({
+              id: Date.now(),
+              type: 'warning',
+              title: 'Pemetaan Manual Diperlukan',
+              message: 'AI tidak dapat mendeteksi otomatis. Silakan tentukan kolom secara manual.',
+              duration: 5000
+            });
+            setSchemaInitialMapping({
+              headerRowIndex: 0,
+              dataStartRowIndex: 1,
+              dateColumnIndex: -1,
+              descriptionColumnIndex: -1,
+              debitColumnIndex: -1,
+              creditColumnIndex: -1,
+              balanceColumnIndex: -1,
+              coaColumnIndex: -1,
+              accountNameColumnIndex: -1,
+              voucherNoColumnIndex: -1,
+              confidence: 0,
+              reasoning: 'Gagal menganalisis otomatis. Silakan petakan kolom sesuai tabel pratinjau.'
+            });
+            setIsSchemaMappingModalOpen(true);
+          })
+          .finally(() => {
+            setStep('upload');
+          });
       } else {
         setIsExporting(false);
         setError(workerError || 'Terjadi kesalahan saat memproses file.');
@@ -596,6 +680,19 @@ function App() {
       timestamp: `${finishTimeStr} WIB`,
       duration: 6500
     });
+  };
+
+  const handleConfirmSchemaMapping = (confirmedMapping) => {
+    setIsSchemaMappingModalOpen(false);
+    setStep('processing');
+    if (workerRef.current) {
+      workerRef.current.postMessage({
+        type: 'PARSE_WITH_SCHEMA_MAPPING',
+        fullRows: schemaFullRows,
+        mapping: confirmedMapping,
+        meta: pendingSchemaMeta
+      });
+    }
   };
 
   const resetWorkflow = () => {
@@ -823,14 +920,14 @@ function App() {
   // Admin Dashboard view
   if (showAdminDashboard) {
     return (
-      <div className="app-shell">
+      <div className="app-shell min-h-screen bg-background text-foreground flex flex-col transition-colors">
         <AdminDashboard onBack={() => setShowAdminDashboard(false)} />
       </div>
     );
   }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell min-h-screen bg-background text-foreground flex flex-col transition-colors">
       <div className="sr-only" role="status" aria-live="polite">{statusMessage}</div>
 
       <Topbar
@@ -1068,6 +1165,27 @@ function App() {
         onConfirm={handleConfirmSignOut}
         userName={profile?.full_name}
         userEmail={profile?.email || profile?.id}
+      />
+
+      {/* Modal Panduan .xls Lawas (Guardrail Rejection) */}
+      <LegacyXlsGuideModal
+        isOpen={isLegacyXlsModalOpen}
+        fileName={legacyXlsFileName}
+        onClose={() => setIsLegacyXlsModalOpen(false)}
+        onSwitchToPaste={() => {
+          setIsLegacyXlsModalOpen(false);
+          setUploadMethod('paste');
+        }}
+      />
+
+      {/* Modal Verifikasi Pemetaan Kolom AI */}
+      <SchemaMappingConfirmModal
+        isOpen={isSchemaMappingModalOpen}
+        fileName={schemaMappingFileName}
+        sampleRows={schemaSampleRows}
+        initialMapping={schemaInitialMapping}
+        onClose={() => setIsSchemaMappingModalOpen(false)}
+        onConfirm={handleConfirmSchemaMapping}
       />
 
       {/* Side Notification Mengambang (Proses & Hasil AI) */}

@@ -36,13 +36,12 @@ export function parsePastedAmount(val) {
     .replace(/\(Dr\)/gi, '')
     .replace(/\(Cr\)/gi, '')
     .replace(/Rp\.?/gi, '')
-    .replace(/[^\d.,-]/g, '')
     .trim();
 
   if (!str || str === '-') return 0;
 
   const isNegative = str.startsWith('-') || (str.startsWith('(') && str.endsWith(')'));
-  str = str.replace(/[()-]/g, '').trim();
+  str = str.replace(/[^\d.,]/g, '').trim();
 
   const commaCount = (str.match(/,/g) || []).length;
   const dotCount = (str.match(/\./g) || []).length;

@@ -420,7 +420,7 @@ function TaxReconWorkbench({
           <div className="recon-summary-cards">
             <div className="recon-card">
               <span className="recon-card-label">Total Omzet Menurut Buku Besar (GL)</span>
-              <span className="recon-card-val text-primary">
+              <span className="recon-card-val text-primary font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(revenueRecon.glRevenueTotal || 0)}
               </span>
               <span className="recon-card-sub">Dari {revenueAccountNames.size} akun peredaran usaha</span>
@@ -428,7 +428,7 @@ function TaxReconWorkbench({
 
             <div className="recon-card">
               <span className="recon-card-label">Total DPP SPT Masa PPN (Jan–Des)</span>
-              <span className="recon-card-val">
+              <span className="recon-card-val font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(revenueRecon.sptDPPTotal || 0)}
               </span>
               <div className="input-inline-group">
@@ -447,7 +447,7 @@ function TaxReconWorkbench({
 
             <div className="recon-card">
               <span className="recon-card-label">Selisih Ekualisasi (Variance)</span>
-              <span className={`recon-card-val ${(revenueRecon.difference || 0) !== 0 ? 'text-danger' : 'text-success'}`}>
+              <span className={`recon-card-val font-mono tabular-nums ${(revenueRecon.difference || 0) !== 0 ? 'text-danger' : 'text-success'}`}>
                 Rp {new Intl.NumberFormat('id-ID').format(revenueRecon.difference || 0)}
               </span>
               <span className="recon-card-sub">
@@ -457,7 +457,7 @@ function TaxReconWorkbench({
 
             <div className="recon-card recon-card-highlight">
               <span className="recon-card-label">Potensi Pokok PPN Terutang (11%)</span>
-              <span className="recon-card-val text-danger">
+              <span className="recon-card-val text-danger font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(revenueRecon.potentialPPNExposure || 0)}
               </span>
               <span className="recon-card-sub">Dihitung otomatis oleh Deterministic Engine</span>
@@ -556,7 +556,7 @@ function TaxReconWorkbench({
           <div className="recon-summary-cards">
             <div className="recon-card">
               <span className="recon-card-label">Total Beban Jasa/Sewa di GL</span>
-              <span className="recon-card-val text-primary">
+              <span className="recon-card-val text-primary font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.glExpenseTotal || 0)}
               </span>
               <span className="recon-card-sub">Dari {pph23AccountNames.size} akun beban jasa &amp; sewa</span>
@@ -564,7 +564,7 @@ function TaxReconWorkbench({
 
             <div className="recon-card">
               <span className="recon-card-label">Total DPP Bukti Potong e-Bupot</span>
-              <span className="recon-card-val">
+              <span className="recon-card-val font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.bupotDPPTotal || 0)}
               </span>
               <div className="input-inline-group">
@@ -583,7 +583,7 @@ function TaxReconWorkbench({
 
             <div className="recon-card">
               <span className="recon-card-label">Beban Jasa Belum Dipotong (Unmatched)</span>
-              <span className={`recon-card-val ${(expenseRecon.unmatchedDPP || 0) > 0 ? 'text-danger' : 'text-success'}`}>
+              <span className={`recon-card-val font-mono tabular-nums ${(expenseRecon.unmatchedDPP || 0) > 0 ? 'text-danger' : 'text-success'}`}>
                 Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.unmatchedDPP || 0)}
               </span>
               <span className="recon-card-sub">Objek pemotongan PPh 23 tanpa e-Bupot</span>
@@ -591,7 +591,7 @@ function TaxReconWorkbench({
 
             <div className="recon-card recon-card-highlight">
               <span className="recon-card-label">Total Potential Exposure (Pokok + Bunga)</span>
-              <span className="recon-card-val text-danger">
+              <span className="recon-card-val text-danger font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.totalExposure || 0)}
               </span>
               <span className="recon-card-sub">
@@ -692,7 +692,7 @@ function TaxReconWorkbench({
           <div className="recon-summary-cards">
             <div className="recon-card">
               <span className="recon-card-label">Total Beban Gaji &amp; Imbalan di GL</span>
-              <span className="recon-card-val text-primary">
+              <span className="recon-card-val text-primary font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.glPayrollTotal || 0)}
               </span>
               <span className="recon-card-sub">Dari {pph21AccountNames.size} akun gaji, upah &amp; tunjangan</span>
@@ -700,7 +700,7 @@ function TaxReconWorkbench({
 
             <div className="recon-card">
               <span className="recon-card-label">Total Bruto SPT Masa PPh 21 (Jan–Des)</span>
-              <span className="recon-card-val">
+              <span className="recon-card-val font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.sptBrutoTotal || 0)}
               </span>
               <div className="input-inline-group">
@@ -719,7 +719,7 @@ function TaxReconWorkbench({
 
             <div className="recon-card">
               <span className="recon-card-label">Selisih Gaji Belum Dilapor (Unmatched)</span>
-              <span className={`recon-card-val ${(payrollRecon.unmatchedBase || 0) > 0 ? 'text-danger' : 'text-success'}`}>
+              <span className={`recon-card-val font-mono tabular-nums ${(payrollRecon.unmatchedBase || 0) > 0 ? 'text-danger' : 'text-success'}`}>
                 Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.unmatchedBase || 0)}
               </span>
               <span className="recon-card-sub">Objek PPh 21 / natura belum tercakup</span>
@@ -727,7 +727,7 @@ function TaxReconWorkbench({
 
             <div className="recon-card recon-card-highlight">
               <span className="recon-card-label">Total Potential Exposure (Pokok + Bunga)</span>
-              <span className="recon-card-val text-danger">
+              <span className="recon-card-val text-danger font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.totalExposure || 0)}
               </span>
               <span className="recon-card-sub">
@@ -887,7 +887,7 @@ function TaxReconWorkbench({
           <div className="recon-summary-cards">
             <div className="recon-card">
               <span className="recon-card-label">Total Beban Sewa &amp; Konstruksi GL</span>
-              <span className="recon-card-val text-primary">
+              <span className="recon-card-val text-primary font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.glFinalTaxTotal || 0)}
               </span>
               <span className="recon-card-sub">Dari {finalTaxAccountNames.size} akun sewa properti &amp; renovasi</span>
@@ -895,7 +895,7 @@ function TaxReconWorkbench({
 
             <div className="recon-card">
               <span className="recon-card-label">Total DPP Bukti Potong PPh Final 4(2)</span>
-              <span className="recon-card-val">
+              <span className="recon-card-val font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.bupotDPPTotal || 0)}
               </span>
               <div className="input-inline-group">
@@ -914,7 +914,7 @@ function TaxReconWorkbench({
 
             <div className="recon-card">
               <span className="recon-card-label">Beban Sewa/Konstruksi Belum Dipotong</span>
-              <span className={`recon-card-val ${(finalTaxRecon.unmatchedBase || 0) > 0 ? 'text-danger' : 'text-success'}`}>
+              <span className={`recon-card-val font-mono tabular-nums ${(finalTaxRecon.unmatchedBase || 0) > 0 ? 'text-danger' : 'text-success'}`}>
                 Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.unmatchedBase || 0)}
               </span>
               <span className="recon-card-sub">Objek PPh Final 4(2) tanpa bukti pemotongan</span>
@@ -922,7 +922,7 @@ function TaxReconWorkbench({
 
             <div className="recon-card recon-card-highlight">
               <span className="recon-card-label">Total Potential Exposure (Pokok + Bunga)</span>
-              <span className="recon-card-val text-danger">
+              <span className="recon-card-val text-danger font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.totalExposure || 0)}
               </span>
               <span className="recon-card-sub">
