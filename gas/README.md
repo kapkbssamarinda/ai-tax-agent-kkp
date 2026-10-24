@@ -20,8 +20,8 @@ Panduan ini menjelaskan cara membuat dan mendeploy backend serverless **Google A
 
 ---
 
-## Langkah 3: Konfigurasi Secret Token (Opsional tapi Direkomendasikan)
-Untuk mengamankan aksi administrator (tambah, ubah role, hapus user):
+## Langkah 3: Konfigurasi Secret Token (Wajib untuk Keamanan Endpoint Admin)
+Untuk mengamankan aksi administrator (tambah, ubah role, hapus user) agar tidak dapat dipanggil sembarangan oleh pihak luar:
 1. Di sidebar kiri Apps Script, klik ikon gerigi **Project Settings** (Setelan Proyek).
 2. Gulir ke bawah ke bagian **Script Properties** (Properti Skrip).
 3. Klik **Add script property** (Tambahkan properti skrip):
@@ -64,3 +64,4 @@ VITE_GAS_SECRET_TOKEN=kkp-secret-token-2026-auth
 ## 💡 Fitur Bootstrap Otomatis
 - **Akun Pertama Menjadi Super Admin:** Saat spreadsheet masih kosong, orang pertama yang login dengan akun Google-nya otomatis akan terdaftar sebagai **`admin`** dengan status **`Active`**.
 - Setelah Super Admin pertama masuk, akun tersebut dapat membuka menu **Admin Panel** di aplikasi untuk mendaftarkan rekan staf lainnya ke whitelist.
+

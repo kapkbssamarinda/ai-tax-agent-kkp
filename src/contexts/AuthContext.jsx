@@ -3,6 +3,7 @@ import { loginWithGas } from '../services/gasAuthService';
 
 const AuthContext = createContext(null);
 const STORAGE_KEY = 'aitax_auth_session';
+const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 hari masa berlaku sesi lokal
 
 /**
  * Decode JWT token dari Google Identity Services (GIS) tanpa library eksternal
@@ -38,7 +39,12 @@ export function AuthProvider({ children }) {
       const savedRaw = localStorage.getItem(STORAGE_KEY);
       if (savedRaw) {
         const savedSession = JSON.parse(savedRaw);
-        if (savedSession?.user) {
+        // Validasi kedaluwarsa sesi (maksimal 7 hari)
+        if (savedSession?.savedAt && Date.now() - savedSession.savedAt > SESSION_MAX_AGE_MS) {
+          localStorage.removeItem(STORAGE_KEY);
+          setUser(null);
+          setProfile(null);
+        } else if (savedSession?.user) {
           setUser(savedSession.user);
           setProfile(savedSession.user);
         }

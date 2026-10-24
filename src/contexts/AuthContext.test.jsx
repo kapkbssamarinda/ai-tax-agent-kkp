@@ -177,5 +177,33 @@ describe('AuthContext with Google GIS and GAS', () => {
     expect(screen.getByTestId('auth-authenticated').textContent).toBe('no');
     expect(localStorage.getItem('aitax_auth_session')).toBeNull();
   });
+
+  it('expires session older than 7 days and resets auth state', async () => {
+    const expiredUser = {
+      id: 'staff@kkp.com',
+      email: 'staff@kkp.com',
+      full_name: 'Staff Tax',
+      role: 'analyst',
+      is_active: true
+    };
+    const eightDaysAgo = Date.now() - (8 * 24 * 60 * 60 * 1000);
+    localStorage.setItem('aitax_auth_session', JSON.stringify({
+      user: expiredUser,
+      savedAt: eightDaysAgo
+    }));
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('auth-loading').textContent).toBe('ready');
+    });
+
+    expect(screen.getByTestId('auth-authenticated').textContent).toBe('no');
+    expect(localStorage.getItem('aitax_auth_session')).toBeNull();
+  });
 });
 

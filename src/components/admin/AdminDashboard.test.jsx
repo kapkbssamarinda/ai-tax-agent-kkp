@@ -75,4 +75,27 @@ describe('AdminDashboard Component', () => {
     expect(screen.getByText('Budi Santoso')).toBeInTheDocument();
     expect(screen.queryByText('Citra Dewi')).not.toBeInTheDocument();
   });
+
+  it('menonaktifkan tombol ubah status aktif untuk akun admin sendiri (isSelf)', async () => {
+    vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
+      isAdmin: true,
+      user: { id: 'admin@kkp.com', email: 'admin@kkp.com' }
+    });
+
+    gasAuthService.fetchUsers.mockResolvedValueOnce({
+      success: true,
+      users: [
+        { email: 'admin@kkp.com', full_name: 'Admin Utama', role: 'admin', status: 'Active', created_at: '2026-08-01' }
+      ]
+    });
+
+    render(<AdminDashboard onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Admin Utama')).toBeInTheDocument();
+    });
+
+    const statusBtn = screen.getByTitle(/Anda tidak dapat menonaktifkan akun sendiri/i);
+    expect(statusBtn).toBeDisabled();
+  });
 });

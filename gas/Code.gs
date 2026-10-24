@@ -59,11 +59,11 @@ function getSecretToken() {
 }
 
 /**
- * Validasi otorisasi Admin
+ * Validasi otorisasi Admin (Wajib SECRET_TOKEN dan role admin)
  */
 function isAuthorizedAdmin(sheets, requesterEmail, secretToken) {
   var configuredToken = getSecretToken();
-  if (configuredToken && secretToken !== configuredToken) {
+  if (!configuredToken || secretToken !== configuredToken) {
     return false;
   }
 
@@ -172,8 +172,17 @@ function handleLogin(sheets, payload) {
   var logsSheet = sheets.logs;
   var data = usersSheet.getDataRange().getValues();
 
+  // Cek apakah ada pengguna non-empty selain header
+  var hasExistingUsers = false;
+  for (var k = 1; k < data.length; k++) {
+    if (data[k][0] && String(data[k][0]).trim() !== '') {
+      hasExistingUsers = true;
+      break;
+    }
+  }
+
   // Kasus Bootstrap: Jika Sheet Users hanya berisi header (belum ada baris data user sama sekali)
-  if (data.length <= 1) {
+  if (!hasExistingUsers) {
     var firstUser = [email, name || email.split('@')[0], 'admin', 'Active', now, now];
     usersSheet.appendRow(firstUser);
     logsSheet.appendRow([now, email, name, picture, 'Success', 'First Bootstrap Super Admin']);
@@ -332,6 +341,17 @@ function handleUpdateUser(sheets, payload) {
   }
 
   var targetEmail = String(payload.email || '').trim().toLowerCase();
+
+  // Cegah admin menonaktifkan atau mendemosi akun sendiri
+  if (targetEmail === String(requesterEmail).trim().toLowerCase()) {
+    if (payload.status !== undefined && String(payload.status).toLowerCase() !== 'active') {
+      return createJsonResponse({ success: false, message: 'Anda tidak dapat menonaktifkan akun Anda sendiri.' });
+    }
+    if (payload.role !== undefined && String(payload.role).toLowerCase() !== 'admin') {
+      return createJsonResponse({ success: false, message: 'Anda tidak dapat menurunkan role akun Anda sendiri.' });
+    }
+  }
+
   var data = sheets.users.getDataRange().getValues();
   var rowIndex = -1;
 
@@ -396,3 +416,4 @@ function handleDeleteUser(sheets, payload) {
   sheets.users.deleteRow(rowIndex);
   return createJsonResponse({ success: true, message: 'User berhasil dihapus dari whitelist.' });
 }
+

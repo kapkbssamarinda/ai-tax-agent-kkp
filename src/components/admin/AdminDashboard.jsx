@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   UserPlus,
   Trash2,
@@ -49,7 +49,7 @@ function AdminDashboard({ onBack }) {
   const [editError, setEditError] = useState('');
 
   // Fetch semua user dari Google Apps Script
-  async function loadUsers() {
+  const loadUsers = useCallback(async () => {
     setLoading(true);
     setError('');
 
@@ -67,11 +67,11 @@ function AdminDashboard({ onBack }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [currentUser?.email]);
 
   useEffect(() => {
     if (isAdmin) loadUsers();
-  }, [isAdmin]);
+  }, [isAdmin, loadUsers]);
 
   // Tambah user baru ke whitelist via GAS
   async function handleAddUser(e) {
@@ -424,8 +424,10 @@ function AdminDashboard({ onBack }) {
                       <td>
                         <button
                           className={`badge-status ${isActive ? 'badge-active' : 'badge-inactive'}`}
-                          onClick={() => handleToggleActive(u.email, isActive)}
-                          title="Klik untuk ubah status aktif/nonaktif"
+                          onClick={() => !isSelf && handleToggleActive(u.email, isActive)}
+                          disabled={isSelf}
+                          title={isSelf ? 'Anda tidak dapat menonaktifkan akun sendiri' : 'Klik untuk ubah status aktif/nonaktif'}
+                          style={isSelf ? { opacity: 0.7, cursor: 'not-allowed' } : undefined}
                         >
                           {isActive ? '✅ Aktif' : '⛔ Nonaktif'}
                         </button>
@@ -510,11 +512,16 @@ function AdminDashboard({ onBack }) {
                     className="form-select"
                     value={editRole}
                     onChange={(e) => setEditRole(e.target.value)}
-                    disabled={isUpdating}
+                    disabled={isUpdating || editingUser?.email === currentUser?.email}
                   >
                     <option value="analyst">Tax Analyst (Hanya Analisis Pajak)</option>
                     <option value="admin">Administrator (Akses Penuh &amp; Kelola User)</option>
                   </select>
+                  {editingUser?.email === currentUser?.email && (
+                    <span className="form-hint" style={{ color: 'var(--text-muted, #94a3b8)', marginTop: '4px', display: 'block' }}>
+                      Anda tidak dapat menurunkan role akun admin Anda sendiri.
+                    </span>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -524,7 +531,7 @@ function AdminDashboard({ onBack }) {
                     className="form-select"
                     value={editIsActive ? 'active' : 'inactive'}
                     onChange={(e) => setEditIsActive(e.target.value === 'active')}
-                    disabled={isUpdating}
+                    disabled={isUpdating || editingUser?.email === currentUser?.email}
                   >
                     <option value="active">✅ Aktif (Bisa Login)</option>
                     <option value="inactive">⛔ Nonaktif (Login Diblokir)</option>

@@ -105,15 +105,17 @@ function LoginPage() {
           />
 
           {/* Hidden helper button untuk testing / headless environment */}
-          <button
-            type="button"
-            data-testid="google-signin-test-btn"
-            style={{ display: 'none' }}
-            onClick={handleManualTestClick}
-            aria-hidden="true"
-          >
-            Google Sign-In Test
-          </button>
+          {(import.meta.env?.MODE === 'test' || import.meta.env?.DEV) && (
+            <button
+              type="button"
+              data-testid="google-signin-test-btn"
+              style={{ display: 'none' }}
+              onClick={handleManualTestClick}
+              aria-hidden="true"
+            >
+              Google Sign-In Test
+            </button>
+          )}
 
           {isBusy && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary, #94a3b8)', fontSize: '0.875rem' }}>
