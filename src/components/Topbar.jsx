@@ -16,7 +16,11 @@ import {
   ChevronDown,
   LogOut,
   Shield,
-  User
+  User,
+  LayoutGrid,
+  Cloud,
+  Sparkles,
+  Check
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import logoImage from '../assets/logo2-mark.png';
@@ -35,7 +39,7 @@ function Topbar({
   onSaveProject,
   onLoadProject,
   isExporting,
-  viewMode = 'GL_CLEANER', // 'GL_CLEANER' | 'TAX_AGENT' | 'PARTNER_DASHBOARD'
+  viewMode = 'GL_CLEANER', // 'GL_CLEANER' | 'TAX_AGENT' | 'PARTNER_DASHBOARD' | 'CLIENT_HUB'
   onSelectViewMode,
   onOpenClientMaster,
   onOpenUserProfile,
@@ -43,14 +47,22 @@ function Topbar({
   userProfile = null,
   isAdmin = false,
   onSignOut,
-  onOpenAdmin
+  onOpenAdmin,
+  onBackToClientHub,
+  projects = [],
+  onSwitchClient,
+  onSyncCloud,
+  isSyncing = false,
+  onOpenRunAI
 }) {
   const hasData = step === 'success';
   const [isProjectMenuOpen, setIsProjectMenuOpen] = useState(false);
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const [isClientSwitcherOpen, setIsClientSwitcherOpen] = useState(false);
 
   const projectMenuRef = useRef(null);
   const exportMenuRef = useRef(null);
+  const clientSwitcherRef = useRef(null);
 
   // Close dropdowns on outside click or Escape key
   useEffect(() => {
@@ -61,11 +73,15 @@ function Topbar({
       if (exportMenuRef.current && !exportMenuRef.current.contains(e.target)) {
         setIsExportMenuOpen(false);
       }
+      if (clientSwitcherRef.current && !clientSwitcherRef.current.contains(e.target)) {
+        setIsClientSwitcherOpen(false);
+      }
     };
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         setIsProjectMenuOpen(false);
         setIsExportMenuOpen(false);
+        setIsClientSwitcherOpen(false);
       }
     };
     document.addEventListener('mousedown', handleOutsideClick);
@@ -102,35 +118,112 @@ function Topbar({
             </div>
           </div>
 
-          {/* Unified Client Context Pill di Baris 1 */}
-          {hasData && (
+          {/* Tombol Kembali ke Daftar Klien */}
+          {onBackToClientHub && viewMode !== 'CLIENT_HUB' && (
             <>
               <div className="h-4 w-px bg-border mx-1" aria-hidden="true" />
-              <button
-                type="button"
-                className="client-unified-pill inline-flex items-center gap-2 rounded-full border border-border bg-muted/40 hover:bg-muted/80 px-3 py-1 text-xs text-foreground transition-colors group cursor-pointer"
-                onClick={onOpenClientMaster}
-                title={`Klien: ${clientInfo?.name || 'PT Wajib Pajak'} | Tahun: ${clientInfo?.taxYear || '2024'} (Klik untuk kelola master data)`}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onBackToClientHub}
+                className="h-8 gap-1.5 text-xs font-medium border-border/80 text-foreground hover:bg-muted"
+                title="Kembali ke Daftar Klien (Workspace Hub)"
               >
-                <Building2 size={13} className="text-primary shrink-0" aria-hidden="true" />
-                <span className="pill-client-name font-medium max-w-[140px] sm:max-w-[200px] truncate">
-                  {clientInfo?.name || 'PT Wajib Pajak'}
-                </span>
-                <span className="pill-badge pill-year rounded-md bg-background px-1.5 py-0.5 text-[10px] font-mono border border-border/60 text-muted-foreground">
-                  {clientInfo?.taxYear || '2024'}
-                </span>
-                {sourceFormat && (
-                  <span className="pill-badge pill-format rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary border border-primary/20">
-                    {sourceFormat}
-                  </span>
-                )}
-              </button>
+                <LayoutGrid size={13} className="text-primary" />
+                <span className="hidden md:inline">Daftar Klien</span>
+              </Button>
             </>
+          )}
+
+          {/* Unified Client Context Pill & Switcher di Baris 1 */}
+          {hasData && (
+            <div className="relative" ref={clientSwitcherRef}>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  className="client-unified-pill inline-flex items-center gap-2 rounded-l-full border border-border bg-muted/40 hover:bg-muted/80 px-3 py-1 text-xs text-foreground transition-colors group cursor-pointer"
+                  onClick={onOpenClientMaster}
+                  title={`Klien: ${clientInfo?.name || 'PT Wajib Pajak'} | Tahun: ${clientInfo?.taxYear || '2024'} (Klik untuk kelola master data)`}
+                >
+                  <Building2 size={13} className="text-primary shrink-0" aria-hidden="true" />
+                  <span className="pill-client-name font-medium max-w-[130px] sm:max-w-[180px] truncate">
+                    {clientInfo?.name || 'PT Wajib Pajak'}
+                  </span>
+                  <span className="pill-badge pill-year rounded-md bg-background px-1.5 py-0.5 text-[10px] font-mono border border-border/60 text-muted-foreground">
+                    {clientInfo?.taxYear || '2024'}
+                  </span>
+                  {sourceFormat && (
+                    <span className="pill-badge pill-format rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary border border-primary/20">
+                      {sourceFormat}
+                    </span>
+                  )}
+                </button>
+
+                {projects && projects.length > 0 && onSwitchClient && (
+                  <button
+                    type="button"
+                    onClick={() => setIsClientSwitcherOpen(prev => !prev)}
+                    className="inline-flex items-center justify-center rounded-r-full border border-l-0 border-border bg-muted/40 hover:bg-muted/80 px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    title="Ganti Klien"
+                    aria-expanded={isClientSwitcherOpen}
+                  >
+                    <ChevronDown size={13} className={`transition-transform duration-150 ${isClientSwitcherOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                )}
+              </div>
+
+              {/* Client Switcher Dropdown */}
+              {isClientSwitcherOpen && (
+                <div className="absolute left-0 top-full mt-1.5 w-72 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-xl z-50 animate-in fade-in-0 zoom-in-95">
+                  <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Beralih Klien ({projects.length})
+                  </div>
+                  <div className="max-h-60 overflow-y-auto mt-1 space-y-0.5">
+                    {projects.map(proj => {
+                      const isCurrent = (proj.project_id === clientInfo?.projectId) || (proj.client_name === clientInfo?.name && proj.tax_year === clientInfo?.taxYear);
+                      return (
+                        <button
+                          key={proj.project_id}
+                          type="button"
+                          className={`w-full flex items-center justify-between rounded-md px-2.5 py-1.5 text-xs text-left transition-colors ${
+                            isCurrent ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-accent text-foreground'
+                          }`}
+                          onClick={() => {
+                            setIsClientSwitcherOpen(false);
+                            if (!isCurrent) onSwitchClient(proj);
+                          }}
+                        >
+                          <div className="min-w-0 flex-1 pr-2">
+                            <div className="truncate font-medium">{proj.client_name}</div>
+                            <div className="text-[10px] text-muted-foreground font-mono">Tahun {proj.tax_year || '2024'} &bull; {proj.total_rows || 0} baris</div>
+                          </div>
+                          {isCurrent && <Check size={14} className="text-primary shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
         {/* Sisi Kanan: User Profile, Admin, Theme Toggle & Logout */}
         <div className="topbar-top-right flex items-center gap-2">
+          {/* Tombol Simpan Cloud */}
+          {hasData && onSyncCloud && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onSyncCloud}
+              disabled={isSyncing}
+              className="h-8 gap-1.5 text-xs font-medium border-border/80"
+              title="Simpan data saat ini ke Google Drive"
+            >
+              <Cloud size={13} className={isSyncing ? "text-amber-500 animate-pulse" : "text-emerald-500"} />
+              <span className="hidden sm:inline">{isSyncing ? "Menyinkronkan..." : "Simpan Cloud"}</span>
+            </Button>
+          )}
           {/* Tombol Muat Proyek bila belum ada data */}
           {!hasData && onLoadProject && (
             <>
@@ -254,6 +347,20 @@ function Topbar({
 
           {/* Sisi Kanan: Action Tools (Proyek, Ekspor, File Baru) */}
           <div className="topbar-bottom-right flex items-center gap-1.5">
+            {/* Tombol Jalankan Analisis AI On-Demand */}
+            {onOpenRunAI && (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={onOpenRunAI}
+                className="h-8 gap-1.5 text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs cursor-pointer"
+                title="Jalankan Analisis AI Claude Sonnet 5.5"
+              >
+                <Sparkles size={13} />
+                <span>Analisis AI</span>
+              </Button>
+            )}
+
             {/* Proyek Dropdown (.aitax) */}
             <div className="topbar-dropdown-wrap relative" ref={projectMenuRef}>
               <Button

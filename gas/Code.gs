@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * AI Tax Agent — Google Apps Script Auth & Whitelist Backend
+ * AI Tax Agent â€” Google Apps Script Auth & Whitelist Backend
  * ============================================================================
  * Backend serverless berbasis Google Apps Script yang terhubung ke Google Sheets
  * untuk mengelola Whitelist Pengguna, Role-Based Access Control, dan Audit Log.
@@ -22,6 +22,8 @@
 
 var SHEET_USERS = 'Users';
 var SHEET_LOGS = 'LoginLogs';
+var SHEET_PROJECTS = 'Projects';
+var FOLDER_PROJECTS = 'AI_Tax_Agent_Projects';
 
 /**
  * Inisialisasi Sheet jika belum tersedia
@@ -47,7 +49,38 @@ function getOrInitSpreadsheet() {
     sheetLogs.setFrozenRows(1);
   }
 
-  return { ss: ss, users: sheetUsers, logs: sheetLogs };
+  // Inisialisasi Tab Projects
+  var sheetProjects = ss.getSheetByName(SHEET_PROJECTS);
+  if (!sheetProjects) {
+    sheetProjects = ss.insertSheet(SHEET_PROJECTS);
+    sheetProjects.appendRow([
+      'project_id',
+      'user_email',
+      'client_name',
+      'npwp',
+      'tax_year',
+      'total_rows',
+      'findings_count',
+      'drive_file_id',
+      'created_at',
+      'updated_at'
+    ]);
+    sheetProjects.getRange(1, 1, 1, 10).setFontWeight('bold').setBackground('#E2E8F0');
+    sheetProjects.setFrozenRows(1);
+  }
+
+  return { ss: ss, users: sheetUsers, logs: sheetLogs, projects: sheetProjects };
+}
+
+/**
+ * Mengambil atau membuat folder penyimpanan file di Google Drive
+ */
+function getOrCreateProjectsFolder() {
+  var folders = DriveApp.getFoldersByName(FOLDER_PROJECTS);
+  if (folders.hasNext()) {
+    return folders.next();
+  }
+  return DriveApp.createFolder(FOLDER_PROJECTS);
 }
 
 /**
@@ -134,6 +167,14 @@ function doPost(e) {
         return handleUpdateUser(sheets, payload);
       case 'deleteUser':
         return handleDeleteUser(sheets, payload);
+      case 'saveProject':
+        return handleSaveProject(sheets, payload);
+      case 'listProjects':
+        return handleListProjects(sheets, payload);
+      case 'loadProject':
+        return handleLoadProject(sheets, payload);
+      case 'deleteProject':
+        return handleDeleteProject(sheets, payload);
       default:
         return createJsonResponse({ success: false, message: 'Aksi tidak dikenal: ' + action });
     }
@@ -415,5 +456,285 @@ function handleDeleteUser(sheets, payload) {
 
   sheets.users.deleteRow(rowIndex);
   return createJsonResponse({ success: true, message: 'User berhasil dihapus dari whitelist.' });
+}
+
+/**
+ * ============================================================================
+ * 6. Manajemen Proyek Klien (Multi-Client & Google Drive Sync)
+ * ============================================================================
+ */
+
+/**
+ * Simpan / Auto-Sync snapshot proyek klien ke Google Drive dan catat metadata ke Google Sheets
+ */
+function handleSaveProject(sheets, payload) {
+  var userEmail = String(payload.user_email || '').trim().toLowerCase();
+  var projectId = String(payload.project_id || '').trim();
+  var clientName = String(payload.client_name || 'Klien Tanpa Nama').trim();
+  var npwp = String(payload.npwp || '').trim();
+  var taxYear = String(payload.tax_year || new Date().getFullYear()).trim();
+  var totalRows = Number(payload.total_rows) || 0;
+  var findingsCount = Number(payload.findings_count) || 0;
+  var snapshotData = payload.snapshot_data;
+
+  if (!userEmail) {
+    return createJsonResponse({ success: false, message: 'user_email wajib disertakan.' });
+  }
+  if (!projectId) {
+    return createJsonResponse({ success: false, message: 'project_id wajib disertakan.' });
+  }
+  if (!snapshotData || typeof snapshotData !== 'object') {
+    return createJsonResponse({ success: false, message: 'snapshot_data tidak valid atau kosong.' });
+  }
+
+  var now = new Date().toISOString();
+  var projectsSheet = sheets.projects;
+  var data = projectsSheet.getDataRange().getValues();
+  var existingRowIndex = -1;
+  var existingDriveFileId = '';
+  var createdAt = now;
+
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]).trim() === projectId) {
+      existingRowIndex = i + 1; // 1-based index
+      existingDriveFileId = String(data[i][7] || '').trim();
+      createdAt = data[i][8] || now;
+      break;
+    }
+  }
+
+  var folder = getOrCreateProjectsFolder();
+  var jsonContent = JSON.stringify(snapshotData);
+  var cleanClientName = clientName.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_');
+  var fileName = cleanClientName + '_' + taxYear + '_' + projectId + '.aitax';
+  var driveFileId = existingDriveFileId;
+
+  try {
+    if (existingDriveFileId) {
+      try {
+        var existingFile = DriveApp.getFileById(existingDriveFileId);
+        existingFile.setContent(jsonContent);
+        existingFile.setName(fileName);
+      } catch (fileErr) {
+        // Jika file lama di Drive terhapus, buat file baru
+        var newFile = folder.createFile(fileName, jsonContent, MimeType.PLAIN_TEXT);
+        driveFileId = newFile.getId();
+      }
+    } else {
+      var createdFile = folder.createFile(fileName, jsonContent, MimeType.PLAIN_TEXT);
+      driveFileId = createdFile.getId();
+    }
+  } catch (driveErr) {
+    return createJsonResponse({
+      success: false,
+      message: 'Gagal menyimpan file ke Google Drive: ' + driveErr.message
+    });
+  }
+
+  if (existingRowIndex > 0) {
+    // Update baris yang sudah ada
+    // Kolom: project_id (1), user_email (2), client_name (3), npwp (4), tax_year (5), total_rows (6), findings_count (7), drive_file_id (8), created_at (9), updated_at (10)
+    projectsSheet.getRange(existingRowIndex, 2).setValue(userEmail);
+    projectsSheet.getRange(existingRowIndex, 3).setValue(clientName);
+    projectsSheet.getRange(existingRowIndex, 4).setValue(npwp);
+    projectsSheet.getRange(existingRowIndex, 5).setValue(taxYear);
+    projectsSheet.getRange(existingRowIndex, 6).setValue(totalRows);
+    projectsSheet.getRange(existingRowIndex, 7).setValue(findingsCount);
+    projectsSheet.getRange(existingRowIndex, 8).setValue(driveFileId);
+    projectsSheet.getRange(existingRowIndex, 10).setValue(now);
+  } else {
+    // Tambah baris baru
+    projectsSheet.appendRow([
+      projectId,
+      userEmail,
+      clientName,
+      npwp,
+      taxYear,
+      totalRows,
+      findingsCount,
+      driveFileId,
+      createdAt,
+      now
+    ]);
+  }
+
+  return createJsonResponse({
+    success: true,
+    message: 'Proyek berhasil disinkronkan ke Google Drive.',
+    project: {
+      project_id: projectId,
+      user_email: userEmail,
+      client_name: clientName,
+      npwp: npwp,
+      tax_year: taxYear,
+      total_rows: totalRows,
+      findings_count: findingsCount,
+      drive_file_id: driveFileId,
+      created_at: createdAt,
+      updated_at: now
+    }
+  });
+}
+
+/**
+ * Mengambil daftar proyek klien (Role-Based: Staf melihat miliknya, Partner/Admin melihat semua)
+ */
+function handleListProjects(sheets, payload) {
+  var userEmail = String(payload.user_email || '').trim().toLowerCase();
+  var userRole = String(payload.user_role || 'analyst').trim().toLowerCase();
+
+  if (!userEmail) {
+    return createJsonResponse({ success: false, message: 'user_email wajib disertakan.' });
+  }
+
+  var projectsSheet = sheets.projects;
+  var data = projectsSheet.getDataRange().getValues();
+  var isAllAccess = (userRole === 'admin' || userRole === 'partner');
+  var projectList = [];
+
+  for (var i = 1; i < data.length; i++) {
+    var pId = String(data[i][0] || '').trim();
+    if (!pId) continue;
+
+    var ownerEmail = String(data[i][1] || '').trim().toLowerCase();
+    if (isAllAccess || ownerEmail === userEmail) {
+      projectList.push({
+        project_id: pId,
+        user_email: ownerEmail,
+        client_name: String(data[i][2] || 'Klien Tanpa Nama'),
+        npwp: String(data[i][3] || ''),
+        tax_year: String(data[i][4] || ''),
+        total_rows: Number(data[i][5]) || 0,
+        findings_count: Number(data[i][6]) || 0,
+        drive_file_id: String(data[i][7] || ''),
+        created_at: data[i][8] ? new Date(data[i][8]).toISOString() : null,
+        updated_at: data[i][9] ? new Date(data[i][9]).toISOString() : null
+      });
+    }
+  }
+
+  // Urutkan berdasarkan updated_at menurun (terbaru di atas)
+  projectList.sort(function(a, b) {
+    var dateA = a.updated_at ? new Date(a.updated_at).getTime() : 0;
+    var dateB = b.updated_at ? new Date(b.updated_at).getTime() : 0;
+    return dateB - dateA;
+  });
+
+  return createJsonResponse({
+    success: true,
+    projects: projectList,
+    total: projectList.length
+  });
+}
+
+/**
+ * Memuat isi snapshot proyek (.aitax) dari Google Drive
+ */
+function handleLoadProject(sheets, payload) {
+  var userEmail = String(payload.user_email || '').trim().toLowerCase();
+  var userRole = String(payload.user_role || 'analyst').trim().toLowerCase();
+  var projectId = String(payload.project_id || '').trim();
+  var driveFileId = String(payload.drive_file_id || '').trim();
+
+  if (!projectId && !driveFileId) {
+    return createJsonResponse({ success: false, message: 'project_id atau drive_file_id wajib disertakan.' });
+  }
+
+  var projectsSheet = sheets.projects;
+  var data = projectsSheet.getDataRange().getValues();
+  var matchedFileId = driveFileId;
+  var projectOwner = '';
+
+  for (var i = 1; i < data.length; i++) {
+    if (projectId && String(data[i][0]).trim() === projectId) {
+      projectOwner = String(data[i][1] || '').trim().toLowerCase();
+      matchedFileId = String(data[i][7] || '').trim();
+      break;
+    } else if (driveFileId && String(data[i][7]).trim() === driveFileId) {
+      projectOwner = String(data[i][1] || '').trim().toLowerCase();
+      matchedFileId = driveFileId;
+      break;
+    }
+  }
+
+  // Cek hak akses
+  var isAllAccess = (userRole === 'admin' || userRole === 'partner');
+  if (!isAllAccess && projectOwner && projectOwner !== userEmail) {
+    return createJsonResponse({ success: false, message: 'Akses ditolak. Anda bukan pemilik proyek ini.' });
+  }
+
+  if (!matchedFileId) {
+    return createJsonResponse({ success: false, message: 'File proyek tidak ditemukan di database.' });
+  }
+
+  try {
+    var file = DriveApp.getFileById(matchedFileId);
+    var content = file.getBlob().getDataAsString();
+    var snapshot = JSON.parse(content);
+    return createJsonResponse({
+      success: true,
+      project: snapshot
+    });
+  } catch (err) {
+    return createJsonResponse({
+      success: false,
+      message: 'Gagal membaca file dari Google Drive: ' + err.message
+    });
+  }
+}
+
+/**
+ * Hapus proyek dari Google Drive dan dari tabel Google Sheets
+ */
+function handleDeleteProject(sheets, payload) {
+  var userEmail = String(payload.user_email || '').trim().toLowerCase();
+  var userRole = String(payload.user_role || 'analyst').trim().toLowerCase();
+  var projectId = String(payload.project_id || '').trim();
+
+  if (!projectId) {
+    return createJsonResponse({ success: false, message: 'project_id wajib disertakan.' });
+  }
+
+  var projectsSheet = sheets.projects;
+  var data = projectsSheet.getDataRange().getValues();
+  var rowIndex = -1;
+  var driveFileId = '';
+  var projectOwner = '';
+
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]).trim() === projectId) {
+      rowIndex = i + 1;
+      projectOwner = String(data[i][1] || '').trim().toLowerCase();
+      driveFileId = String(data[i][7] || '').trim();
+      break;
+    }
+  }
+
+  if (rowIndex === -1) {
+    return createJsonResponse({ success: false, message: 'Proyek tidak ditemukan.' });
+  }
+
+  var isAllAccess = (userRole === 'admin' || userRole === 'partner');
+  if (!isAllAccess && projectOwner !== userEmail) {
+    return createJsonResponse({ success: false, message: 'Akses ditolak. Hanya pemilik atau Admin yang dapat menghapus proyek ini.' });
+  }
+
+  // Hapus dari Drive (pindahkan ke sampah)
+  if (driveFileId) {
+    try {
+      var file = DriveApp.getFileById(driveFileId);
+      file.setTrashed(true);
+    } catch (e) {
+      console.warn('Gagal memindahkan file ke trash Drive: ' + e.message);
+    }
+  }
+
+  // Hapus baris dari sheet
+  projectsSheet.deleteRow(rowIndex);
+
+  return createJsonResponse({
+    success: true,
+    message: 'Proyek berhasil dihapus dari cloud.'
+  });
 }
 

@@ -13,6 +13,7 @@ export const STORAGE_DRAFT_KEY = 'ai_tax_project_draft_kkp';
  * Membentuk payload snapshot proyek yang lengkap dan terstruktur.
  */
 export function createProjectSnapshot({
+  projectId = null,
   clientInfo = {},
   fileMeta = {},
   glRows = [],
@@ -25,11 +26,14 @@ export function createProjectSnapshot({
   aiAnalysisSummary = null,
   uiState = {}
 }) {
+  const assignedProjectId = projectId || clientInfo.projectId || 'proj_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
   return {
+    projectId: assignedProjectId,
     version: PROJECT_SCHEMA_VERSION,
     appName: 'AI Tax Agent - KKP Zaidan Jauhari',
     savedAt: new Date().toISOString(),
     clientInfo: {
+      projectId: assignedProjectId,
       name: clientInfo.name || 'PT Wajib Pajak',
       npwp: clientInfo.npwp || '',
       taxYear: clientInfo.taxYear || String(new Date().getFullYear()),

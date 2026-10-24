@@ -262,7 +262,7 @@ CONTROL RULES:
 - Field managementResponse dan reviewerDecision WAJIB bernilai string kosong "" dari AI (akan diisi manusia di review workflow).
 `;
 
-const DEFAULT_MODEL = 'claude-sonnet-5';
+const DEFAULT_MODEL = 'claude-sonnet-5-5';
 const LOCAL_STORAGE_MODEL_KEY = 'gl_claude_model';
 
 export function getSavedModel() {
@@ -284,12 +284,16 @@ export function saveModel(model) {
 }
 
 export const HAIKU_MODELS = [
+  'claude-haiku-5-5',
+  'claude-5-5-haiku',
   'claude-haiku-4-5-20251001',
   'claude-3-5-haiku-20241022',
   'claude-3-haiku-20240307'
 ];
 
 export const SONNET_MODELS = [
+  'claude-sonnet-5-5',
+  'claude-5-5-sonnet',
   'claude-sonnet-5',
   'claude-5-sonnet',
   'claude-3-7-sonnet-20250219',
@@ -303,14 +307,16 @@ export const MODEL_PRICING_RATES = {
 };
 
 export const FALLBACK_MODELS = [
+  'claude-sonnet-5-5',
+  'claude-5-5-sonnet',
   'claude-sonnet-5',
   'claude-5-sonnet',
   'claude-3-7-sonnet-20250219',
   'claude-3-5-sonnet-20241022',
-  'claude-sonnet-4-5-20250929',
-  'claude-3-5-haiku-20241022',
+  'claude-haiku-5-5',
+  'claude-5-5-haiku',
   'claude-haiku-4-5-20251001',
-  'claude-3-haiku-20240307'
+  'claude-3-5-haiku-20241022'
 ];
 
 const AI_USAGE_KEY = 'gl_ai_usage_logs';
@@ -799,7 +805,7 @@ function extractAndParseClaudeJson(text) {
 
 /**
  * Uji koneksi ke Claude API melalui proxy server.
- * Tidak perlu API key — proxy sudah memiliki key.
+ * Tidak perlu API key â€” proxy sudah memiliki key.
  */
 export async function testClaudeConnection(model = DEFAULT_MODEL) {
   const candidateModels = [model, ...FALLBACK_MODELS.filter(m => m !== model)];
@@ -1434,10 +1440,10 @@ export function generateDeterministicFindings({ glRows = [], taxMappings = [], r
 
 
 /**
- * AI-Assisted Account Classification — Mengklasifikasi akun GL langsung via AI Claude
+ * AI-Assisted Account Classification â€” Mengklasifikasi akun GL langsung via AI Claude
  * berdasarkan analisis semantik dan substansi ekonomi transaksi (bukan sekadar nomor COA).
  */
-export async function aiClassifyAccounts(accounts, glRows = [], userId = null) {
+export async function aiClassifyAccounts(accounts, glRows = [], userId = null, clientName = null, taxYear = null) {
   if (!accounts || accounts.length === 0) return accounts;
 
   // Lewati akun yang sudah diproses oleh AI (misal dari alur tempel Excel atau pemetaan sebelumnya)
@@ -1510,14 +1516,16 @@ ${JSON.stringify(currentChunk, null, 2)}
 `;
 
     try {
-      const { data: resultData } = await callHaiku({
+      const { data: resultData } = await callSonnet({
         system: MASTER_SYSTEM_PROMPT,
         messages: [{ role: 'user', content: classificationPrompt }],
         tools: [ACCOUNT_CLASSIFICATION_TOOL],
         tool_choice: { type: 'tool', name: 'submit_account_classifications' },
         maxTokens: 4096,
         userId,
-        feature: 'tax-mapping'
+        feature: 'tax-mapping',
+        clientName,
+        taxYear
       });
 
       let parsed = null;
@@ -1805,8 +1813,8 @@ Pedoman Regulasi:
 2. PPh Pasal 23 (UU PPh jo. PMK 141/2015):
    - Imbalan jasa manajemen, teknik, konsultan, dan jasa lain yang dibayarkan kepada Wajib Pajak Badan Hukum (PT, CV, Firma, Vendor Berbadan Hukum).
    - Sewa dan penghasilan lain sehubungan dengan penggunaan harta (selain tanah/bangunan).
-3. Jika terdapat indikasi kuat ke Orang Pribadi (nama perorangan di uraian/partner) → PPH21.
-4. Jika terdapat indikasi kuat ke Vendor Badan (PT/CV di uraian/partner) → PPH23.
+3. Jika terdapat indikasi kuat ke Orang Pribadi (nama perorangan di uraian/partner) â†’ PPH21.
+4. Jika terdapat indikasi kuat ke Vendor Badan (PT/CV di uraian/partner) â†’ PPH23.
 5. Jika data belum cukup membedakan, tentukan yang paling probabel dengan confidence < 0.6 dan rekomendasikan pengecekan NPWP/status vendor.
 
 Daftar Akun:

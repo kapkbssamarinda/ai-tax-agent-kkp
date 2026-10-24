@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef, useDeferredValue, useCallback } from 'react';
 import { AlertCircle, Loader2, CheckCircle2, X, Sparkles, ClipboardPaste, FileSpreadsheet } from 'lucide-react';
 import './App.css';
-import Topbar from './components/Topbar';
+import Sidebar from './components/navigation/Sidebar';
+import AppHeader from './components/navigation/AppHeader';
 import AccountRail from './components/AccountRail';
 import Dropzone from './components/Dropzone';
 import PasteImportPanel from './components/PasteImportPanel';
@@ -12,6 +13,9 @@ import WarningsPanel from './components/WarningsPanel';
 import ClientMasterModal from './components/tax/ClientMasterModal';
 import PartnerDashboard from './components/tax/PartnerDashboard';
 import TaxReconWorkbench from './components/tax/TaxReconWorkbench';
+import ClientHub from './components/dashboard/ClientHub';
+import SyncBlockingModal from './components/common/SyncBlockingModal';
+import RunAIAnalysisModal from './components/modals/RunAIAnalysisModal';
 import LoginPage from './components/auth/LoginPage';
 import UserProfileModal from './components/auth/UserProfileModal';
 import LogoutConfirmModal from './components/auth/LogoutConfirmModal';
@@ -32,6 +36,12 @@ import {
   loadDraftFromStorage,
   clearDraftFromStorage
 } from './services/projectStateService';
+import {
+  saveProjectToCloud,
+  fetchCloudProjects,
+  loadProjectFromCloud,
+  deleteProjectFromCloud
+} from './services/gasProjectService';
 
 const ACCURATE_COLUMNS = [
   { key: 'tanggal', label: 'Tanggal' },
@@ -88,7 +98,15 @@ function App() {
   const [step, setStep] = useState('upload');
   const [uploadMethod, setUploadMethod] = useState('file'); // 'file' | 'paste'
   const [theme, setTheme] = useState(getInitialTheme);
-  const [viewMode, setViewMode] = useState('GL_CLEANER'); // 'GL_CLEANER' | 'TAX_AGENT' | 'PARTNER_DASHBOARD'
+  const [viewMode, setViewMode] = useState('CLIENT_HUB'); // 'CLIENT_HUB' | 'GL_CLEANER' | 'TAX_AGENT' | 'PARTNER_DASHBOARD'
+
+  // Cloud Projects & Multi-Client State (Google Drive via GAS)
+  const [cloudProjects, setCloudProjects] = useState([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
+  const [activeProjectId, setActiveProjectId] = useState(null);
+  const [isCloudSyncing, setIsCloudSyncing] = useState(false);
+  const [syncModalMessage, setSyncModalMessage] = useState('Menyinkronkan data proyek ke Google Drive...');
+  const [isRunAIModalOpen, setIsRunAIModalOpen] = useState(false);
 
   const [processedData, setProcessedData] = useState([]);
   const [warnings, setWarnings] = useState([]);
@@ -130,6 +148,29 @@ function App() {
   const [sideNotification, setSideNotification] = useState(null);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('ai-tax-sidebar-collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleToggleSidebarCollapse = useCallback(() => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('ai-tax-sidebar-collapsed', String(next));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }, []);
+
+  const handleOpenMobileMenu = useCallback(() => setIsMobileMenuOpen(true), []);
+  const handleCloseMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
   const prevUserIdRef = useRef(userId);
   const clientInfoRef = useRef(clientInfo);
   useEffect(() => { clientInfoRef.current = clientInfo; }, [clientInfo]);
@@ -181,12 +222,95 @@ function App() {
     }
   }, [userId]);
 
+  // Mengambil daftar proyek dari Google Drive / Google Sheets via GAS
+  const refreshCloudProjects = useCallback(async () => {
+    if (!profile && !userId) return;
+    setIsLoadingProjects(true);
+    try {
+      const userObj = profile || { email: userId, role: isAdmin ? 'admin' : 'analyst' };
+      const res = await fetchCloudProjects(userObj);
+      if (res && res.success && Array.isArray(res.projects)) {
+        setCloudProjects(res.projects);
+      }
+    } catch (err) {
+      console.warn('Gagal memuat proyek cloud:', err);
+    } finally {
+      setIsLoadingProjects(false);
+    }
+  }, [profile, userId, isAdmin]);
+
+  useEffect(() => {
+    if (userId) {
+      refreshCloudProjects();
+    }
+  }, [userId, refreshCloudProjects]);
+
+  // Sinkronisasi proyek aktif ke Google Drive & Sheets via GAS
+  const handleSyncToCloud = useCallback(async (customSnapshot = null, customMessage = null) => {
+    if (!profile && !userId) return;
+    setIsCloudSyncing(true);
+    setSyncModalMessage(customMessage || 'Menyinkronkan data proyek ke Google Drive...');
+
+    try {
+      const currentProjId = activeProjectId || clientInfo.projectId || 'proj_' + Date.now();
+      const snapshot = customSnapshot || createProjectSnapshot({
+        projectId: currentProjId,
+        clientInfo: { ...clientInfo, projectId: currentProjId },
+        fileMeta: { fileName, sourceFormat, currentColumns },
+        glRows: processedData,
+        taxMappings,
+        revenueRecon,
+        expenseRecon,
+        payrollRecon,
+        finalTaxRecon,
+        findings,
+        aiAnalysisSummary,
+        uiState: { viewMode: viewMode === 'CLIENT_HUB' ? 'TAX_AGENT' : viewMode }
+      });
+
+      const userObj = profile || { email: userId, role: isAdmin ? 'admin' : 'analyst' };
+      const res = await saveProjectToCloud(snapshot, userObj);
+
+      if (res && res.success) {
+        setActiveProjectId(currentProjId);
+        setClientInfo(prev => ({ ...prev, projectId: currentProjId }));
+        saveDraftToStorage(snapshot, userId);
+        refreshCloudProjects();
+
+        const finishTimeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        setSideNotification({
+          id: Date.now(),
+          type: 'success',
+          title: 'Tersinkron ke Google Drive',
+          message: `Proyek "${snapshot.clientInfo?.name}" berhasil disimpan di Google Drive.`,
+          timestamp: `${finishTimeStr} WIB`,
+          duration: 4000
+        });
+      } else {
+        setSideNotification({
+          id: Date.now(),
+          type: 'error',
+          title: 'Gagal Sinkron Cloud',
+          message: res?.message || 'Tidak dapat menyimpan ke Google Drive.',
+          timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+          duration: 6000
+        });
+      }
+    } catch (err) {
+      console.warn('Sync cloud error:', err);
+    } finally {
+      setIsCloudSyncing(false);
+    }
+  }, [profile, userId, isAdmin, activeProjectId, clientInfo, fileName, sourceFormat, currentColumns, processedData, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, findings, aiAnalysisSummary, viewMode, refreshCloudProjects]);
+
   // Auto-save snapshot pengerjaan ke localStorage saat data aktif berubah (debounced 1.5 detik)
   useEffect(() => {
     if (step === 'success' && processedData.length > 0 && userId) {
       const timer = setTimeout(() => {
+        const currentProjId = activeProjectId || clientInfo.projectId || 'proj_' + Date.now();
         const snapshot = createProjectSnapshot({
-          clientInfo,
+          projectId: currentProjId,
+          clientInfo: { ...clientInfo, projectId: currentProjId },
           fileMeta: { fileName, sourceFormat, currentColumns },
           glRows: processedData,
           taxMappings,
@@ -202,7 +326,7 @@ function App() {
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [step, processedData, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, findings, clientInfo, fileName, sourceFormat, currentColumns, aiAnalysisSummary, viewMode, userId]);
+  }, [step, processedData, taxMappings, revenueRecon, expenseRecon, payrollRecon, finalTaxRecon, findings, clientInfo, fileName, sourceFormat, currentColumns, aiAnalysisSummary, viewMode, userId, activeProjectId]);
 
   // Daftar akun untuk rail: nama unik + kode COA pertama + jumlah baris
   const accounts = useMemo(() => {
@@ -330,53 +454,29 @@ function App() {
           }));
         }
 
-        // Otomatis buat tax mapping awal & rekonsiliasi deterministik (instan)
+        // Otomatis buat tax mapping awal & rekonsiliasi deterministik (instan lokal, 0 token)
         const mappings = buildTaxMappingFromGL(data);
         setTaxMappings(mappings);
         recalculateTaxRecons(mappings, data);
+        setViewMode('TAX_AGENT');
 
-        // Lalu jalankan AI classification langsung (analisis semantik penuh)
-        setIsAIMappingInProgress(true);
-        const startTimeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        const assignedProjId = activeProjectId || 'proj_' + Date.now();
+        setActiveProjectId(assignedProjId);
+        setClientInfo(prev => ({
+          ...prev,
+          projectId: assignedProjId
+        }));
+
+        const finishTimeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
         setSideNotification({
           id: Date.now(),
-          type: 'loading',
-          title: 'AI Sedang Mengklasifikasi Akun',
-          message: 'Claude sedang menganalisis substansi transaksi & memo akun buku besar secara semantik...',
-          timestamp: `${startTimeStr} WIB`,
-          duration: 0
+          type: 'success',
+          title: 'Buku Besar Berhasil Diparsing',
+          message: `Berhasil mengolah ${data.length} baris transaksi. Pemetaan awal siap di Workbench.`,
+          details: 'Klik tombol "Analisis AI" kapan saja untuk analisis risiko & klasifikasi cerdas Claude Sonnet 5.5.',
+          timestamp: `${finishTimeStr} WIB`,
+          duration: 6500
         });
-
-        aiClassifyAccounts(mappings, data, userId)
-          .then(aiMappings => {
-            setTaxMappings(aiMappings);
-            recalculateTaxRecons(aiMappings, data);
-            const total = aiMappings.length;
-            const overridden = aiMappings.filter(m => m.aiOverridden).length;
-            const verified = aiMappings.filter(m => m.aiProcessed && !m.aiOverridden).length;
-            const finishTimeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-
-            setSideNotification({
-              id: Date.now(),
-              type: 'success',
-              title: 'Tax Mapping AI Selesai',
-              message: `Berhasil menganalisis & memetakan ${total} akun buku besar.`,
-              details: `✨ ${verified} Akun Terverifikasi  •  🤖 ${overridden} Akun Direklasifikasi`,
-              timestamp: `${finishTimeStr} WIB`,
-              duration: 6500
-            });
-          })
-          .catch(err => {
-            console.warn('AI mapping gagal:', err);
-            setSideNotification({
-              id: Date.now(),
-              type: 'error',
-              title: 'Klasifikasi AI Terkendala',
-              message: 'Gagal menghubungi AI. Sistem tetap menggunakan pemetaan heuristik standar.',
-              duration: 6500
-            });
-          })
-          .finally(() => setIsAIMappingInProgress(false));
       } else if (status === 'export_success') {
         setIsExporting(false);
         const isCsv = kind === 'csv';
@@ -505,7 +605,9 @@ function App() {
   };
 
   const handleApplyProjectState = (projectData) => {
-    if (projectData.clientInfo) setClientInfo(projectData.clientInfo);
+    const pId = projectData.projectId || projectData.clientInfo?.projectId || 'proj_' + Date.now();
+    setActiveProjectId(pId);
+    if (projectData.clientInfo) setClientInfo({ ...projectData.clientInfo, projectId: pId });
     if (projectData.fileMeta) {
       setFileName(projectData.fileMeta.fileName || 'Proyek_Tax.aitax');
       setSourceFormat(projectData.fileMeta.sourceFormat || 'Accurate');
@@ -523,13 +625,116 @@ function App() {
     if (projectData.finalTaxRecon) setFinalTaxRecon(projectData.finalTaxRecon);
     if (Array.isArray(projectData.findings)) setFindings(projectData.findings);
     if (projectData.aiAnalysisSummary) setAiAnalysisSummary(projectData.aiAnalysisSummary);
-    if (projectData.uiState?.viewMode) setViewMode(projectData.uiState.viewMode);
+    if (projectData.uiState?.viewMode && projectData.uiState.viewMode !== 'CLIENT_HUB') {
+      setViewMode(projectData.uiState.viewMode);
+    } else {
+      setViewMode('TAX_AGENT');
+    }
     setWarnings([]);
     setSelectedAccount(null);
     setFilters({});
     setStep('success');
     setAvailableDraft(null);
     setError(null);
+  };
+
+  // Navigasi & Aksi Client Hub (Multi-Client Dashboard)
+  const handleSelectProjectFromHub = async (projectSummary) => {
+    if (processedData && processedData.length > 0 && activeProjectId && activeProjectId !== projectSummary.project_id) {
+      await handleSyncToCloud(null, `Menyimpan data "${clientInfo?.name}" sebelum berganti klien...`);
+    }
+
+    setIsCloudSyncing(true);
+    setSyncModalMessage(`Memuat proyek "${projectSummary.client_name}" dari Google Drive...`);
+
+    try {
+      const userObj = profile || { email: userId, role: isAdmin ? 'admin' : 'analyst' };
+      const res = await loadProjectFromCloud(projectSummary.project_id, userObj, projectSummary.drive_file_id);
+
+      if (res && res.success && res.project) {
+        handleApplyProjectState(res.project);
+        setActiveProjectId(projectSummary.project_id);
+        setViewMode('TAX_AGENT');
+        setStep('success');
+
+        const finishTimeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        setSideNotification({
+          id: Date.now(),
+          type: 'success',
+          title: 'Proyek Berhasil Dibuka',
+          message: `Memuat ${res.project.glRows?.length || 0} baris transaksi klien "${projectSummary.client_name}".`,
+          timestamp: `${finishTimeStr} WIB`,
+          duration: 4000
+        });
+      } else {
+        alert(res?.message || 'Gagal memuat file proyek dari Google Drive.');
+      }
+    } catch (err) {
+      console.error('Error loading project from cloud:', err);
+      alert('Terjadi kesalahan saat memuat file dari Google Drive.');
+    } finally {
+      setIsCloudSyncing(false);
+    }
+  };
+
+  const handleBackToClientHub = async () => {
+    if (processedData && processedData.length > 0) {
+      await handleSyncToCloud(null, `Menyinkronkan data "${clientInfo?.name}" ke Google Drive...`);
+    }
+    setViewMode('CLIENT_HUB');
+    refreshCloudProjects();
+  };
+
+  const handleNewProjectFromHub = async () => {
+    if (processedData && processedData.length > 0) {
+      await handleSyncToCloud(null, `Menyinkronkan data "${clientInfo?.name}" ke Google Drive...`);
+    }
+    resetWorkflow();
+    const newProjId = 'proj_' + Date.now();
+    setActiveProjectId(newProjId);
+    setClientInfo({ ...DEFAULT_CLIENT_INFO, projectId: newProjId, name: 'Klien Baru' });
+    setStep('upload');
+    setViewMode('TAX_AGENT');
+  };
+
+  const handleDeleteProjectFromHub = async (projectId) => {
+    setIsCloudSyncing(true);
+    setSyncModalMessage('Menghapus proyek dari Google Drive...');
+    try {
+      const userObj = profile || { email: userId, role: isAdmin ? 'admin' : 'analyst' };
+      const res = await deleteProjectFromCloud(projectId, userObj);
+      if (res && res.success) {
+        if (activeProjectId === projectId) {
+          resetWorkflow();
+          setActiveProjectId(null);
+        }
+        await refreshCloudProjects();
+      } else {
+        alert(res?.message || 'Gagal menghapus proyek.');
+      }
+    } catch (err) {
+      alert('Gagal menghapus proyek: ' + err.message);
+    } finally {
+      setIsCloudSyncing(false);
+    }
+  };
+
+  const handleExportProjectFromHub = async (projectSummary) => {
+    setIsCloudSyncing(true);
+    setSyncModalMessage(`Mengambil file "${projectSummary.client_name}" dari Google Drive...`);
+    try {
+      const userObj = profile || { email: userId, role: isAdmin ? 'admin' : 'analyst' };
+      const res = await loadProjectFromCloud(projectSummary.project_id, userObj, projectSummary.drive_file_id);
+      if (res && res.success && res.project) {
+        exportProjectToFile(res.project);
+      } else {
+        alert('Gagal mengunduh file dari Drive.');
+      }
+    } catch (err) {
+      alert('Gagal ekspor: ' + err.message);
+    } finally {
+      setIsCloudSyncing(false);
+    }
   };
 
   const handleLoadProjectFile = async (file) => {
@@ -794,12 +999,43 @@ function App() {
     recalculateTaxRecons(taxMappings, processedData, null, null, null, newFinalBupot);
   };
 
-  const handleRunAIAnalysis = async () => {
+  const handleRunAIAnalysis = () => {
+    setIsRunAIModalOpen(true);
+  };
+
+  const handleConfirmRunAI = async () => {
+    setIsRunAIModalOpen(false);
     setIsAnalyzingTax(true);
+    setIsAIMappingInProgress(true);
+
+    const startTimeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    setSideNotification({
+      id: Date.now(),
+      type: 'loading',
+      title: 'Analisis AI Berjalan (Claude Sonnet 5.5)',
+      message: 'Sedang menjalankan klasifikasi semantik akun dan deteksi temuan risiko audit pajak...',
+      timestamp: `${startTimeStr} WIB`,
+      duration: 0
+    });
+
     try {
+      // 1. Jalankan klasifikasi semantik akun via Claude Sonnet 5.5
+      let updatedMappings = taxMappings;
+      try {
+        const aiMappings = await aiClassifyAccounts(taxMappings, processedData, userId, clientInfo?.name, clientInfo?.taxYear);
+        if (aiMappings && aiMappings.length > 0) {
+          updatedMappings = aiMappings;
+          setTaxMappings(aiMappings);
+          recalculateTaxRecons(aiMappings, processedData);
+        }
+      } catch (mappingErr) {
+        console.warn('AI mapping warning during full analysis:', mappingErr);
+      }
+
+      // 2. Jalankan deteksi temuan risiko pajak via Claude Sonnet 5.5
       const aiFindings = await analyzeTaxFindings({
         glRows: processedData,
-        taxMappings,
+        taxMappings: updatedMappings,
         revenueRecon,
         expenseRecon,
         payrollRecon,
@@ -810,7 +1046,7 @@ function App() {
       });
       setFindings(aiFindings);
       setError(null);
-      
+
       const now = new Date();
       const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
       setAiAnalysisSummary({
@@ -818,6 +1054,20 @@ function App() {
         findingsCount: aiFindings.length,
         aiFindingsCount: aiFindings.filter(f => f.sourceEngine === 'AI_CLAUDE').length
       });
+
+      setSideNotification({
+        id: Date.now(),
+        type: 'success',
+        title: 'Analisis AI Selesai',
+        message: `Berhasil menganalisis data & menemukan ${aiFindings.length} poin evaluasi kepatuhan pajak.`,
+        timestamp: `${timeStr} WIB`,
+        duration: 6500
+      });
+
+      // 3. Auto-sync hasil analisis ke Google Drive
+      setTimeout(() => {
+        handleSyncToCloud();
+      }, 500);
     } catch (err) {
       console.warn('AI analysis error, populating deterministic findings fallback:', err);
       const fallbackFindings = generateDeterministicFindings({
@@ -831,8 +1081,16 @@ function App() {
       });
       setFindings(fallbackFindings);
       setError(`Analisis AI gagal: ${err.message}. Sistem otomatis memuat hasil analisis deterministik lokal.`);
+      setSideNotification({
+        id: Date.now(),
+        type: 'error',
+        title: 'Analisis AI Terkendala',
+        message: 'Gagal menghubungi AI. Sistem memuat hasil analisis deterministik lokal.',
+        duration: 6500
+      });
     } finally {
       setIsAnalyzingTax(false);
+      setIsAIMappingInProgress(false);
     }
   };
 
@@ -863,7 +1121,7 @@ function App() {
         type: 'success',
         title: 'Klasifikasi Ulang AI Selesai',
         message: `Berhasil memperbarui klasifikasi ${total} akun buku besar.`,
-        details: `✨ ${verified} Akun Terverifikasi  •  🤖 ${overridden} Akun Direklasifikasi`,
+        details: `âœ¨ ${verified} Akun Terverifikasi  â€¢  ðŸ¤– ${overridden} Akun Direklasifikasi`,
         timestamp: `${finishTimeStr} WIB`,
         duration: 6500
       });
@@ -912,7 +1170,7 @@ function App() {
     );
   }
 
-  // Belum login → tampilkan halaman Login
+  // Belum login â†’ tampilkan halaman Login
   if (!isAuthenticated) {
     return <LoginPage />;
   }
@@ -929,8 +1187,8 @@ function App() {
   return (
     <div className="app-shell min-h-screen bg-background text-foreground flex flex-col transition-colors">
       <div className="sr-only" role="status" aria-live="polite">{statusMessage}</div>
-
-      <Topbar
+      {/* Navigation Sidebar */}
+      <Sidebar
         theme={theme}
         onToggleTheme={toggleTheme}
         step={step}
@@ -951,22 +1209,56 @@ function App() {
         isAdmin={isAdmin}
         onSignOut={handleRequestSignOut}
         onOpenAdmin={() => setShowAdminDashboard(true)}
+        onBackToClientHub={handleBackToClientHub}
+        projects={cloudProjects}
+        onSwitchClient={handleSelectProjectFromHub}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleSidebarCollapse}
+        isOpenMobile={isMobileMenuOpen}
+        onCloseMobile={handleCloseMobileMenu}
       />
 
-      {error && (
-        <div className="error-banner-wrap">
-          <div className="error-banner" role="alert">
-            <AlertCircle className="error-banner-icon" size={18} />
-            <div>
-              <div className="error-banner-title">Pemberitahuan Sistem</div>
-              <div className="error-banner-message">{error}</div>
+      {/* Main Viewport */}
+      <div className="app-main-viewport flex flex-1 flex-col min-w-0 h-full overflow-hidden">
+        <AppHeader
+          viewMode={viewMode}
+          clientInfo={clientInfo}
+          hasData={step === 'success'}
+          onOpenMobileMenu={handleOpenMobileMenu}
+          onSyncCloud={() => handleSyncToCloud()}
+          isSyncing={isCloudSyncing}
+          onOpenRunAI={handleRunAIAnalysis}
+        />
+
+        <div className="app-content-scroll flex-1 overflow-y-auto flex flex-col">
+{viewMode === 'CLIENT_HUB' ? (
+        <ClientHub
+          projects={cloudProjects}
+          isLoading={isLoadingProjects}
+          onRefresh={refreshCloudProjects}
+          onSelectProject={handleSelectProjectFromHub}
+          onNewProject={handleNewProjectFromHub}
+          onDeleteProject={handleDeleteProjectFromHub}
+          onExportProject={handleExportProjectFromHub}
+          userProfile={profile}
+          activeProjectId={activeProjectId}
+        />
+      ) : (
+        <>
+          {error && (
+            <div className="error-banner-wrap">
+              <div className="error-banner" role="alert">
+                <AlertCircle className="error-banner-icon" size={18} />
+                <div>
+                  <div className="error-banner-title">Pemberitahuan Sistem</div>
+                  <div className="error-banner-message">{error}</div>
+                </div>
+                <button className="error-banner-close" onClick={() => setError(null)} aria-label="Tutup pesan">
+                  <X size={16} />
+                </button>
+              </div>
             </div>
-            <button className="error-banner-close" onClick={() => setError(null)} aria-label="Tutup pesan">
-              <X size={16} />
-            </button>
-          </div>
-        </div>
-      )}
+          )}
 
       {step === 'upload' && (
         <main className="stage">
@@ -1012,7 +1304,7 @@ function App() {
 
           <header className="stage-header">
             <h1 className="stage-title">
-              AI Tax Agent Indonesia &mdash; KKP Zaidan Jauhari
+              AI-Tax-Agent &mdash; KKP Zaidan Jauhari
             </h1>
             <p className="stage-subtitle">
               Pembersihan Buku Besar (Accurate, MYOB, Krishand) + Ekualisasi Pajak (Omzet vs PPN, Biaya vs PPh 23) + KKP 13-Sheet &amp; Partner Dashboard.
@@ -1144,6 +1436,20 @@ function App() {
           )}
         </>
       )}
+    </>
+  )}
+
+          <footer className="app-footer mt-auto">
+            <p>
+              &copy; {new Date().getFullYear()} AI-Tax-Agent &mdash; Kantor Konsultan Pajak Zaidan Jauhari (KKP Zaidan Jauhari)
+            </p>
+            <p>
+              Pengembang: <span className="footer-name">Viany Ramadhany</span>
+              &bull; Powered by Anthropic Claude &amp; Deterministic Engine
+            </p>
+          </footer>
+        </div>
+      </div>
 
       {/* Modals Pajak */}
       <ClientMasterModal
@@ -1188,22 +1494,29 @@ function App() {
         onConfirm={handleConfirmSchemaMapping}
       />
 
+      {/* Blocking Cloud Sync Modal (Google Drive via GAS) */}
+      <SyncBlockingModal
+        isOpen={isCloudSyncing}
+        clientName={clientInfo?.name}
+        message={syncModalMessage}
+      />
+
+      {/* On-Demand AI Analysis Confirmation Modal */}
+      <RunAIAnalysisModal
+        isOpen={isRunAIModalOpen}
+        onClose={() => setIsRunAIModalOpen(false)}
+        onConfirm={handleConfirmRunAI}
+        isAnalyzing={isAnalyzingTax}
+        clientInfo={clientInfo}
+        totalAccountsCount={accounts.length}
+      />
+
       {/* Side Notification Mengambang (Proses & Hasil AI) */}
       <SideNotification
         notification={sideNotification}
         onClose={() => setSideNotification(null)}
       />
-
-      <footer className="app-footer">
-        <p>
-          &copy; {new Date().getFullYear()} AI Tax Agent &mdash; Kantor Konsultan Pajak Zaidan Jauhari (KKP Zaidan Jauhari)
-        </p>
-        <p>
-          Pengembang: <span className="footer-name">Viany Ramadhany</span>
-          &bull; Powered by Anthropic Claude &amp; Deterministic Engine
-        </p>
-      </footer>
-    </div>
+</div>
   );
 }
 

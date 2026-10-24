@@ -96,8 +96,8 @@ describe('Claude Service & AI Account Classification', () => {
     expect(input).toEqual({ findings: [{ findingId: 'TR-001', taxArea: 'PPh 23' }] });
   });
 
-  it('default model adalah claude-sonnet-5', () => {
-    expect(getSavedModel()).toBe('claude-sonnet-5');
+  it('default model adalah claude-sonnet-5-5', () => {
+    expect(getSavedModel()).toBe('claude-sonnet-5-5');
   });
 
   it('extractTextFromClaudeResponse mengekstrak teks dengan benar dari berbagai format payload termasuk Claude 3.7 thinking blocks', () => {
