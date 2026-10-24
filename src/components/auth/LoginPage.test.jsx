@@ -1,36 +1,48 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import LoginPage from './LoginPage';
 import * as AuthContext from '../../contexts/AuthContext';
 
 describe('LoginPage Component', () => {
-  it('merender form login dengan input email dan password', () => {
-    vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
-      signIn: vi.fn(),
-      loading: false,
-      user: null
-    });
-
-    render(<LoginPage />);
-
-    expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Masuk/i })).toBeInTheDocument();
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('menampilkan error jika submit form kosong', async () => {
+  it('renders Google sign-in container and KKP branding', () => {
     vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
-      signIn: vi.fn(),
+      signInWithGoogle: vi.fn(),
       loading: false,
       user: null
     });
 
     render(<LoginPage />);
 
-    const submitBtn = screen.getByRole('button', { name: /Masuk/i });
-    fireEvent.click(submitBtn);
+    expect(screen.getByText(/AI Tax Agent/i)).toBeInTheDocument();
+    expect(screen.getByText(/KKP Zaidan Jauhari/i)).toBeInTheDocument();
+    expect(screen.getByTestId('google-signin-container')).toBeInTheDocument();
+  });
 
-    expect(screen.getByText(/Email dan password wajib diisi/i)).toBeInTheDocument();
+  it('displays error alert when login fails / user is rejected by whitelist', async () => {
+    const mockSignInWithGoogle = vi.fn().mockRejectedValueOnce(
+      new Error('Email Anda belum terdaftar di whitelist sistem. Hubungi Administrator KKP.')
+    );
+
+    vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
+      signInWithGoogle: mockSignInWithGoogle,
+      loading: false,
+      user: null
+    });
+
+    render(<LoginPage />);
+
+    // Trigger test login button (fallback button for testing/headless)
+    const testLoginBtn = screen.getByTestId('google-signin-test-btn');
+    fireEvent.click(testLoginBtn);
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(screen.getByText(/belum terdaftar di whitelist/i)).toBeInTheDocument();
+    });
   });
 });
-
