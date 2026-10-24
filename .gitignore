@@ -34,3 +34,12 @@ Buku Besar
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Graphify cache & machine-local paths
+graphify-out/cache/
+graphify-out/.graphify_python
+graphify-out/.graphify_root
+
+# Codebase Memory MCP local database
+.codebase-memory/
+
