@@ -10,7 +10,11 @@ import {
   Mail,
   Calendar
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../../contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 
 function UserProfileModal({ isOpen, onClose, onSignOut }) {
   const { profile, user, updateProfile, signOut, isAdmin } = useAuth();
@@ -29,7 +33,6 @@ function UserProfileModal({ isOpen, onClose, onSignOut }) {
     }
   }, [isOpen, profile, user]);
 
-  // Tutup modal dengan tombol Escape
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
@@ -79,79 +82,110 @@ function UserProfileModal({ isOpen, onClose, onSignOut }) {
   const avatarUrl = profile?.picture || user?.picture;
 
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="user-profile-title">
-      <div className="modal-box user-profile-modal">
-        <div className="modal-header">
-          <div className="modal-title-wrap">
-            <div className="user-profile-avatar-header" style={{ overflow: 'hidden', borderRadius: '50%' }}>
+    <div
+      className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="user-profile-title"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
+        className="modal-box user-profile-modal w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl"
+      >
+        <div className="modal-header flex items-start justify-between pb-4 border-b border-border/60">
+          <div className="modal-title-wrap flex items-center gap-3">
+            <div className="user-profile-avatar-header h-11 w-11 rounded-full overflow-hidden border border-border/80 bg-muted flex items-center justify-center shrink-0">
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
                   alt={profile?.full_name || 'User Avatar'}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  className="h-full w-full object-cover"
                 />
               ) : (
-                <User size={20} className="text-accent" />
+                <User size={22} className="text-primary" />
               )}
             </div>
             <div>
-              <h2 id="user-profile-title" className="modal-title">Profil Pengguna</h2>
-              <p className="modal-subtitle">Akun terautentikasi Google Workspace / Gmail</p>
+              <h2 id="user-profile-title" className="modal-title text-base font-semibold text-foreground">
+                Profil Pengguna
+              </h2>
+              <p className="modal-subtitle text-xs text-muted-foreground">
+                Akun terautentikasi Google Workspace / Gmail
+              </p>
             </div>
           </div>
-          <button ref={closeButtonRef} className="btn-icon" onClick={onClose} aria-label="Tutup modal">
+          <button
+            ref={closeButtonRef}
+            className="btn-icon h-8 w-8 rounded-md inline-flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            onClick={onClose}
+            aria-label="Tutup modal"
+          >
             <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="modal-body">
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div className="modal-body space-y-4">
             {error && (
-              <div className="admin-alert is-error">
-                <AlertCircle size={16} />
+              <div className="admin-alert is-error rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive flex items-center gap-2">
+                <AlertCircle size={15} className="shrink-0" />
                 <span>{error}</span>
               </div>
             )}
             {success && (
-              <div className="admin-alert is-success">
-                <CheckCircle2 size={16} />
+              <div className="admin-alert is-success rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-400 flex items-center gap-2">
+                <CheckCircle2 size={15} className="shrink-0" />
                 <span>{success}</span>
               </div>
             )}
 
             {/* Account Info Summary Card */}
-            <div className="user-profile-info-card">
-              <div className="user-info-row">
-                <div className="user-info-label"><Mail size={14} /> Email:</div>
-                <div className="user-info-val font-medium">{profile?.email || user?.email}</div>
+            <div className="user-profile-info-card rounded-lg border border-border/60 bg-muted/30 p-3.5 space-y-2.5 text-xs">
+              <div className="user-info-row flex items-center justify-between">
+                <div className="user-info-label flex items-center gap-1.5 text-muted-foreground">
+                  <Mail size={13} /> Email:
+                </div>
+                <div className="user-info-val font-mono font-medium text-foreground">
+                  {profile?.email || user?.email}
+                </div>
               </div>
-              <div className="user-info-row">
-                <div className="user-info-label"><Shield size={14} /> Role Akses:</div>
+              <div className="user-info-row flex items-center justify-between">
+                <div className="user-info-label flex items-center gap-1.5 text-muted-foreground">
+                  <Shield size={13} /> Role Akses:
+                </div>
                 <div className="user-info-val">
-                  <span className={`badge-role ${isAdmin ? 'badge-admin' : 'badge-analyst'}`}>
-                    {isAdmin ? '🛡️ Administrator' : '📊 Tax Analyst'}
-                  </span>
+                  <Badge variant={isAdmin ? 'default' : 'secondary'} className="text-[11px]">
+                    {isAdmin ? 'Administrator' : 'Tax Analyst'}
+                  </Badge>
                 </div>
               </div>
               {profile?.created_at && (
-                <div className="user-info-row">
-                  <div className="user-info-label"><Calendar size={14} /> Terdaftar:</div>
-                  <div className="user-info-val">
-                    {new Date(profile.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                <div className="user-info-row flex items-center justify-between">
+                  <div className="user-info-label flex items-center gap-1.5 text-muted-foreground">
+                    <Calendar size={13} /> Terdaftar:
+                  </div>
+                  <div className="user-info-val text-muted-foreground">
+                    {new Date(profile.created_at).toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
                   </div>
                 </div>
               )}
             </div>
 
             {/* Form Edit Nama */}
-            <div className="form-group" style={{ marginTop: '1rem' }}>
-              <label className="form-label" htmlFor="profile-fullname">
-                Nama Lengkap <span className="text-required">*</span>
+            <div className="form-group space-y-1.5">
+              <label className="form-label text-xs font-medium text-foreground" htmlFor="profile-fullname">
+                Nama Lengkap <span className="text-destructive">*</span>
               </label>
-              <input
+              <Input
                 id="profile-fullname"
                 type="text"
-                className="form-input"
                 placeholder="Nama Anda"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
@@ -161,27 +195,34 @@ function UserProfileModal({ isOpen, onClose, onSignOut }) {
             </div>
           </div>
 
-          <div className="modal-footer" style={{ justifyContent: 'space-between' }}>
-            <button
+          <div className="modal-footer pt-4 border-t border-border/60 flex items-center justify-between">
+            <Button
               type="button"
-              className="btn btn-ghost"
+              variant="ghost"
+              size="sm"
               onClick={handleLogout}
-              style={{ color: '#f87171' }}
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive gap-1.5"
               title="Keluar dari akun"
             >
-              <LogOut size={15} /> Keluar (Logout)
-            </button>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button type="button" className="btn btn-ghost" onClick={onClose} disabled={isSaving}>
+              <LogOut size={14} /> Keluar (Logout)
+            </Button>
+            <div className="flex items-center gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSaving}>
                 Tutup
-              </button>
-              <button type="submit" className="btn btn-primary" disabled={isSaving}>
-                {isSaving ? <><Loader2 size={14} className="spinner-inline" /> Menyimpan...</> : 'Simpan Perubahan'}
-              </button>
+              </Button>
+              <Button type="submit" size="sm" disabled={isSaving}>
+                {isSaving ? (
+                  <>
+                    <Loader2 size={13} className="animate-spin mr-1.5" /> Menyimpan...
+                  </>
+                ) : (
+                  'Simpan Perubahan'
+                )}
+              </Button>
             </div>
           </div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 }
