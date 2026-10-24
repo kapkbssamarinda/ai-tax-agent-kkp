@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { motion } from 'motion/react';
 import {
   FileText,
   Upload,
@@ -19,6 +20,11 @@ import {
   Loader2,
   Layers
 } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { cn } from '../../lib/utils';
 import {
   parseSP2DKText,
   calculateSP2DKDeadline,
@@ -360,60 +366,73 @@ export default function SP2DKResponseTab({
   };
 
   return (
-    <div className="sp2dk-response-tab">
+    <div className="space-y-6">
       {/* Top Banner */}
-      <div className="sp2dk-top-header">
-        <div className="sp2dk-header-title-wrap">
-          <div className="sp2dk-title-row">
-            <FileText size={22} className="text-accent" />
-            <h3 className="sp2dk-title">SP2DK &amp; Tax Audit Response Agent</h3>
-            <span className="badge badge-purple">Phase 2 Active</span>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-xl border border-border/70 bg-card/60 backdrop-blur-xs">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary border border-primary/20">
+              <FileText size={20} />
+            </div>
+            <h3 className="text-lg font-bold tracking-tight text-foreground">
+              SP2DK &amp; Tax Audit Response Agent
+            </h3>
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30">
+              Phase 2 Active
+            </span>
           </div>
-          <p className="sp2dk-subtitle">
+          <p className="text-xs text-muted-foreground max-w-2xl">
             Analisis Komprehensif Surat Permintaan Penjelasan (SP2DK) KPP, Pemetaan Selisih ke GL/SPT, dan Generator Surat Tanggapan Formal Resmi.
           </p>
         </div>
 
         {/* Demo Presets & PDF Upload Action */}
-        <div className="sp2dk-header-actions">
+        <div className="flex items-center gap-2 shrink-0">
           <input
             type="file"
             ref={fileInputRef}
             onChange={handlePdfUpload}
             accept=".pdf"
-            style={{ display: 'none' }}
+            className="hidden"
           />
-          <button
-            className="btn btn-secondary"
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => fileInputRef.current?.click()}
             disabled={isPdfLoading}
             title="Upload file PDF SP2DK dari KPP"
+            className="gap-2 h-9 text-xs"
           >
-            {isPdfLoading ? <Loader2 size={15} className="spinner-inline" /> : <Upload size={15} />}
+            {isPdfLoading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
             Upload PDF SP2DK
-          </button>
+          </Button>
 
-          <div className="dropdown-presets" ref={presetMenuRef}>
-            <button
-              className="btn btn-ghost"
+          <div className="relative" ref={presetMenuRef}>
+            <Button
+              variant="ghost"
+              size="sm"
               title="Muat contoh kasus SP2DK siap uji"
               aria-haspopup="menu"
               aria-expanded={isPresetMenuOpen}
               onClick={() => setIsPresetMenuOpen(prev => !prev)}
+              className="gap-1.5 h-9 text-xs"
             >
-              <Layers size={15} /> Contoh Kasus Demo
-            </button>
+              <Layers size={14} /> Contoh Kasus Demo
+            </Button>
             {isPresetMenuOpen && (
-              <div className="preset-menu" role="menu">
+              <div
+                className="absolute right-0 top-full mt-1.5 w-72 rounded-lg border border-border/80 bg-popover p-1.5 shadow-xl z-50 text-popover-foreground"
+                role="menu"
+              >
                 {SP2DK_DEMO_PRESETS.map(p => (
                   <button
                     key={p.id}
                     role="menuitem"
-                    className="preset-menu-item"
+                    className="w-full text-left p-2.5 rounded-md hover:bg-muted/80 transition-colors flex flex-col gap-0.5 text-xs"
                     onClick={() => { handleSelectPreset(p.id); setIsPresetMenuOpen(false); }}
                   >
-                    <span className="preset-item-title">{p.title}</span>
-                    <span className="preset-item-desc">{p.description}</span>
+                    <span className="font-semibold text-foreground">{p.title}</span>
+                    <span className="text-[11px] text-muted-foreground line-clamp-1">{p.description}</span>
                   </button>
                 ))}
               </div>
@@ -423,195 +442,229 @@ export default function SP2DKResponseTab({
       </div>
 
       {generationError && (
-        <div className="sp2dk-alert-error">
-          <AlertTriangle size={18} />
-          <div className="alert-content">
+        <div className="p-4 rounded-lg border border-rose-500/40 bg-rose-500/10 text-rose-300 flex items-start gap-3 text-xs">
+          <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+          <div>
             <strong>Pemberitahuan Sistem:</strong> {generationError}
           </div>
         </div>
       )}
 
       {/* Grid: Left Parameter & Items, Right Letter Generator */}
-      <div className="sp2dk-grid-layout">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         {/* Left Column: Parameter & Contested Items */}
-        <div className="sp2dk-left-column">
+        <div className="xl:col-span-6 space-y-6">
           {/* Card 1: Parameter Surat SP2DK */}
-          <div className="card sp2dk-meta-card">
-            <div className="card-header">
-              <h4 className="card-title">
-                <Building size={16} /> 1. Parameter Surat Dinas KPP
-              </h4>
-              <div className={`deadline-pill ${deadlineInfo.isOverdue ? 'is-danger' : (deadlineInfo.daysLeft <= 3 ? 'is-warning' : 'is-success')}`}>
-                <Clock size={13} />
-                <span>
-                  {deadlineInfo.isOverdue
-                    ? `Lewat Waktu (${Math.abs(deadlineInfo.daysLeft)} Hari)`
-                    : `Sisa ${deadlineInfo.daysLeft} Hari (Batas: ${deadlineInfo.deadlineStr})`}
-                </span>
+          <Card className="border-border/70 shadow-xs">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <Building size={16} className="text-primary" /> 1. Parameter Surat Dinas KPP
+                </CardTitle>
+                <div
+                  className={cn(
+                    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border',
+                    deadlineInfo.isOverdue
+                      ? 'bg-rose-500/15 text-rose-300 border-rose-500/30'
+                      : deadlineInfo.daysLeft <= 3
+                      ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                      : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                  )}
+                >
+                  <Clock size={13} />
+                  <span>
+                    {deadlineInfo.isOverdue
+                      ? `Lewat Waktu (${Math.abs(deadlineInfo.daysLeft)} Hari)`
+                      : `Sisa ${deadlineInfo.daysLeft} Hari (Batas: ${deadlineInfo.deadlineStr})`}
+                  </span>
+                </div>
               </div>
-            </div>
+            </CardHeader>
 
-            <div className="meta-inputs-grid">
-              <div className="form-group">
-                <label className="form-label">Nomor Surat SP2DK</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={sp2dkMeta.nomorSurat}
-                  onChange={(e) => setSp2dkMeta({ ...sp2dkMeta, nomorSurat: e.target.value })}
-                  placeholder="Contoh: S-842/WPJ.14/KP.0403/2025"
-                />
-              </div>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Nomor Surat SP2DK</label>
+                  <Input
+                    type="text"
+                    className="h-8 text-xs font-mono"
+                    value={sp2dkMeta.nomorSurat}
+                    onChange={(e) => setSp2dkMeta({ ...sp2dkMeta, nomorSurat: e.target.value })}
+                    placeholder="Contoh: S-842/WPJ.14/KP.0403/2025"
+                  />
+                </div>
 
-              <div className="form-group">
-                <label className="form-label">Tanggal Surat SP2DK</label>
-                <input
-                  type="date"
-                  className="form-control"
-                  value={sp2dkMeta.tanggalSurat}
-                  onChange={(e) => setSp2dkMeta({ ...sp2dkMeta, tanggalSurat: e.target.value })}
-                />
-              </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Tanggal Surat SP2DK</label>
+                  <Input
+                    type="date"
+                    className="h-8 text-xs"
+                    value={sp2dkMeta.tanggalSurat}
+                    onChange={(e) => setSp2dkMeta({ ...sp2dkMeta, tanggalSurat: e.target.value })}
+                  />
+                </div>
 
-              <div className="form-group">
-                <label className="form-label">Kantor Pelayanan Pajak (KPP)</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={sp2dkMeta.kpp}
-                  onChange={(e) => setSp2dkMeta({ ...sp2dkMeta, kpp: e.target.value })}
-                  placeholder="KPP Pratama Samarinda Ilir"
-                />
-              </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Kantor Pelayanan Pajak (KPP)</label>
+                  <Input
+                    type="text"
+                    className="h-8 text-xs"
+                    value={sp2dkMeta.kpp}
+                    onChange={(e) => setSp2dkMeta({ ...sp2dkMeta, kpp: e.target.value })}
+                    placeholder="KPP Pratama Samarinda Ilir"
+                  />
+                </div>
 
-              <div className="form-group">
-                <label className="form-label">Nama Account Representative (AR)</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={sp2dkMeta.namaAR}
-                  onChange={(e) => setSp2dkMeta({ ...sp2dkMeta, namaAR: e.target.value })}
-                  placeholder="Nama Petugas AR"
-                />
-              </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Nama Account Representative (AR)</label>
+                  <Input
+                    type="text"
+                    className="h-8 text-xs"
+                    value={sp2dkMeta.namaAR}
+                    onChange={(e) => setSp2dkMeta({ ...sp2dkMeta, namaAR: e.target.value })}
+                    placeholder="Nama Petugas AR"
+                  />
+                </div>
 
-              <div className="form-group">
-                <label className="form-label">Tahun Pajak</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={sp2dkMeta.tahunPajak}
-                  onChange={(e) => setSp2dkMeta({ ...sp2dkMeta, tahunPajak: e.target.value })}
-                />
-              </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Tahun Pajak</label>
+                  <Input
+                    type="text"
+                    className="h-8 text-xs font-mono"
+                    value={sp2dkMeta.tahunPajak}
+                    onChange={(e) => setSp2dkMeta({ ...sp2dkMeta, tahunPajak: e.target.value })}
+                  />
+                </div>
 
-              <div className="form-group">
-                <label className="form-label">Masa Pajak yang Diperiksa</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={sp2dkMeta.masaPajak}
-                  onChange={(e) => setSp2dkMeta({ ...sp2dkMeta, masaPajak: e.target.value })}
-                  placeholder="Januari s.d. Desember"
-                />
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Masa Pajak yang Diperiksa</label>
+                  <Input
+                    type="text"
+                    className="h-8 text-xs"
+                    value={sp2dkMeta.masaPajak}
+                    onChange={(e) => setSp2dkMeta({ ...sp2dkMeta, masaPajak: e.target.value })}
+                    placeholder="Januari s.d. Desember"
+                  />
+                </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Card 2: Rincian Pos Selisih & Dalil Pembuktian */}
-          <div className="card sp2dk-items-card">
-            <div className="card-header">
-              <div>
-                <h4 className="card-title">
-                  <Scale size={16} /> 2. Rincian Pos Selisih yang Dipertanyakan DJP
-                </h4>
-                <p className="card-subtitle">
-                  Petakan angka yang dipersoalkan AR dengan data pembukuan Buku Besar dan alasan yuridis.
-                </p>
+          <Card className="border-border/70 shadow-xs">
+            <CardHeader className="pb-3 border-b border-border/50">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <Scale size={16} className="text-primary" /> 2. Rincian Pos Selisih yang Dipertanyakan DJP
+                  </CardTitle>
+                  <CardDescription className="text-xs mt-0.5">
+                    Petakan angka yang dipersoalkan AR dengan data pembukuan Buku Besar dan alasan yuridis.
+                  </CardDescription>
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={handleSyncFromPPN}
+                    title="Ambil data dari Ekualisasi Omzet vs PPN"
+                  >
+                    Sync PPN
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={handleSyncFromPPh23}
+                    title="Ambil data dari Ekualisasi Beban vs PPh 23"
+                  >
+                    Sync PPh 23
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="h-7 px-2.5 text-xs gap-1 font-semibold"
+                    onClick={handleAddItem}
+                  >
+                    <Plus size={13} /> Tambah Pos
+                  </Button>
+                </div>
               </div>
-              <div className="quick-sync-actions">
-                <button
-                  type="button"
-                  className="btn btn-sm btn-ghost"
-                  onClick={handleSyncFromPPN}
-                  title="Ambil data dari Ekualisasi Omzet vs PPN"
-                >
-                  Sync PPN
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-ghost"
-                  onClick={handleSyncFromPPh23}
-                  title="Ambil data dari Ekualisasi Beban vs PPh 23"
-                >
-                  Sync PPh 23
-                </button>
-                <button type="button" className="btn btn-sm btn-primary" onClick={handleAddItem}>
-                  <Plus size={14} /> Tambah Pos
-                </button>
-              </div>
-            </div>
+            </CardHeader>
 
-            <div className="items-list-container">
+            <CardContent className="pt-4 space-y-4">
               {items.map((item, idx) => (
-                <div key={item.id || idx} className="item-box">
-                  <div className="item-box-header">
-                    <span className="item-number-badge">#{idx + 1}</span>
-                    <input
+                <div key={item.id || idx} className="p-4 rounded-lg border border-border/70 bg-card/60 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border/50">
+                      #{idx + 1}
+                    </span>
+                    <Input
                       type="text"
-                      className="item-title-input"
+                      className="h-8 text-xs font-semibold flex-1"
                       value={item.judul}
                       onChange={(e) => handleUpdateItem(idx, 'judul', e.target.value)}
                       placeholder="Judul / Pokok Masalah"
                     />
                     {items.length > 1 && (
-                      <button
+                      <Button
                         type="button"
-                        className="btn-icon-subtle text-danger"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-rose-400"
                         onClick={() => handleDeleteItem(idx)}
                         title="Hapus pos ini"
                       >
-                        <Trash2 size={15} />
-                      </button>
+                        <Trash2 size={14} />
+                      </Button>
                     )}
                   </div>
 
                   {/* Numbers Grid */}
-                  <div className="item-numbers-grid">
-                    <div className="num-field">
-                      <label htmlFor={`djp-input-${idx}`}>Data Menurut SP2DK DJP</label>
-                      <input
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label htmlFor={`djp-input-${idx}`} className="text-[11px] font-medium text-muted-foreground">
+                        Data Menurut SP2DK DJP
+                      </label>
+                      <Input
                         id={`djp-input-${idx}`}
                         type="number"
-                        className="form-control"
+                        className="h-8 text-xs font-mono tabular-nums text-right"
                         value={item.nilaiDJP}
                         onChange={(e) => handleUpdateItem(idx, 'nilaiDJP', e.target.value)}
                       />
                     </div>
-                    <div className="num-field">
-                      <label htmlFor={`wp-input-${idx}`}>Data Menurut GL / SPT Kami</label>
-                      <input
+                    <div className="space-y-1">
+                      <label htmlFor={`wp-input-${idx}`} className="text-[11px] font-medium text-muted-foreground">
+                        Data Menurut GL / SPT Kami
+                      </label>
+                      <Input
                         id={`wp-input-${idx}`}
                         type="number"
-                        className="form-control"
+                        className="h-8 text-xs font-mono tabular-nums text-right"
                         value={item.nilaiWajibPajak}
                         onChange={(e) => handleUpdateItem(idx, 'nilaiWajibPajak', e.target.value)}
                       />
                     </div>
-                    <div className="num-field is-diff">
-                      <label>Selisih Terhitung</label>
-                      <div className="diff-value-display">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-medium text-muted-foreground">Selisih Terhitung</label>
+                      <div className="h-8 flex items-center justify-end px-3 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-300 font-mono text-xs font-bold tabular-nums">
                         {formatRupiah(item.selisih || 0)}
                       </div>
                     </div>
                   </div>
 
                   {/* Reason Category & Explanation */}
-                  <div className="item-inputs-details">
-                    <div className="form-group">
-                      <label className="form-label">Kategori Alasan Perbedaan (Fiskal vs Komersial)</label>
+                  <div className="space-y-2.5">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-medium text-muted-foreground">
+                        Kategori Alasan Perbedaan (Fiskal vs Komersial)
+                      </label>
                       <select
-                        className="form-control"
+                        className="w-full h-8 text-xs rounded-md border border-input bg-background px-2.5 py-1 text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         value={item.kategoriPenyebab}
                         onChange={(e) => handleUpdateItem(idx, 'kategoriPenyebab', e.target.value)}
                       >
@@ -621,33 +674,35 @@ export default function SP2DKResponseTab({
                       </select>
                     </div>
 
-                    <div className="form-group">
-                      <label className="form-label">Uraian Penjelasan &amp; Klarifikasi Pembukuan</label>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-medium text-muted-foreground">
+                        Uraian Penjelasan &amp; Klarifikasi Pembukuan
+                      </label>
                       <textarea
                         rows={3}
-                        className="form-control"
+                        className="w-full text-xs rounded-md border border-input bg-background p-2.5 text-foreground leading-relaxed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         value={item.penjelasan}
                         onChange={(e) => handleUpdateItem(idx, 'penjelasan', e.target.value)}
                         placeholder="Jelaskan alasan faktual perbedaan pencatatan secara jelas dan runtut..."
                       />
                     </div>
 
-                    <div className="form-row-2">
-                      <div className="form-group">
-                        <label className="form-label">Dasar Hukum Terkait</label>
-                        <input
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-medium text-muted-foreground">Dasar Hukum Terkait</label>
+                        <Input
                           type="text"
-                          className="form-control"
+                          className="h-8 text-xs font-mono"
                           value={item.dasarHukum}
                           onChange={(e) => handleUpdateItem(idx, 'dasarHukum', e.target.value)}
                           placeholder="Contoh: Pasal 13 UU PPN jo. UU HPP & SE-05/PJ/2022"
                         />
                       </div>
-                      <div className="form-group">
-                        <label className="form-label">Dokumen Bukti Lampiran</label>
-                        <input
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-medium text-muted-foreground">Dokumen Bukti Lampiran</label>
+                        <Input
                           type="text"
-                          className="form-control"
+                          className="h-8 text-xs"
                           value={item.buktiPendukung}
                           onChange={(e) => handleUpdateItem(idx, 'buktiPendukung', e.target.value)}
                           placeholder="Faktur Pajak, BAST, Rekening Koran"
@@ -657,143 +712,152 @@ export default function SP2DKResponseTab({
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Right Column: Formal Letter Generator & Live Preview */}
-        <div className="sp2dk-right-column">
-          <div className="card sp2dk-letter-card">
+        <div className="xl:col-span-6 space-y-4">
+          <Card className="border-border/70 shadow-xs h-full flex flex-col">
             {/* Letter Toolbar */}
-            <div className="letter-card-toolbar">
-              <div className="toolbar-left">
-                <button
-                  className="btn btn-primary"
+            <div className="p-3 border-b border-border/60 flex flex-wrap items-center justify-between gap-2 bg-muted/20">
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
                   onClick={handleGenerateAI}
                   disabled={isGeneratingAI}
                   title="Generate draf surat formal dengan penalaran hukum AI Claude"
+                  className="h-8 text-xs font-semibold gap-1.5 bg-violet-600 hover:bg-violet-700 text-white"
                 >
                   {isGeneratingAI ? (
-                    <><Loader2 size={15} className="spinner-inline" /> Menyusun Surat (Claude AI)...</>
+                    <><Loader2 size={13} className="animate-spin" /> Menyusun Surat (Claude AI)...</>
                   ) : (
-                    <><Sparkles size={15} /> ✨ Buat Draf Surat (Claude AI)</>
+                    <><Sparkles size={13} /> Buat Draf Surat (Claude AI)</>
                   )}
-                </button>
-                <button
-                  className="btn btn-secondary"
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={handleGenerateStandard}
                   title="Susun draf surat standar deterministik tanpa AI"
+                  className="h-8 text-xs gap-1.5"
                 >
-                  <RefreshCw size={14} /> Draf Standar
-                </button>
+                  <RefreshCw size={13} /> Draf Standar
+                </Button>
               </div>
 
-              <div className="toolbar-right">
-                <div className="view-mode-toggle">
+              <div className="flex items-center gap-1.5">
+                <div className="flex items-center p-0.5 rounded-lg bg-muted/60 border border-border/50">
                   <button
                     type="button"
-                    className={`mode-btn ${previewMode === 'FORMAL' ? 'is-active' : ''}`}
+                    className={cn(
+                      'px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1 transition-colors',
+                      previewMode === 'FORMAL' ? 'bg-background text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                    )}
                     onClick={() => setPreviewMode('FORMAL')}
                     title="Tampilan Pratinjau Surat Resmi"
                   >
-                    <Eye size={14} /> Pratinjau
+                    <Eye size={13} /> Pratinjau
                   </button>
                   <button
                     type="button"
-                    className={`mode-btn ${previewMode === 'EDITOR' ? 'is-active' : ''}`}
+                    className={cn(
+                      'px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1 transition-colors',
+                      previewMode === 'EDITOR' ? 'bg-background text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                    )}
                     onClick={() => setPreviewMode('EDITOR')}
                     title="Mode Editor Teks Bebas"
                   >
-                    <Edit3 size={14} /> Edit Teks
+                    <Edit3 size={13} /> Edit Teks
                   </button>
                 </div>
 
-                <button
+                <Button
                   type="button"
-                  className="btn btn-ghost"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-xs gap-1"
                   onClick={handleCopyText}
                   title="Salin naskah surat ke clipboard"
                 >
-                  {isCopied ? <Check size={15} className="text-success" /> : <Copy size={15} />}
+                  {isCopied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                   {isCopied ? 'Tersalin!' : 'Salin'}
-                </button>
+                </Button>
 
-                <button
+                <Button
                   type="button"
-                  className="btn btn-ghost"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-xs gap-1"
                   onClick={handleDownloadWord}
                   title="Unduh sebagai file dokumen Microsoft Word (.doc)"
                 >
-                  <FileDown size={15} /> Word (.doc)
-                </button>
+                  <FileDown size={14} /> Word
+                </Button>
 
-                <button
+                <Button
                   type="button"
-                  className="btn btn-ghost"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-xs gap-1"
                   onClick={handlePrint}
                   title="Cetak surat langsung / Cetak ke PDF"
                 >
-                  <Printer size={15} /> Cetak
-                </button>
+                  <Printer size={14} /> Cetak
+                </Button>
               </div>
             </div>
 
             {/* Letter Content Container */}
-            <div className="letter-container-scrollable">
+            <CardContent className="p-4 flex-1 overflow-auto max-h-[750px]">
               {previewMode === 'EDITOR' ? (
-                <div className="letter-editor-wrap">
-                  <textarea
-                    rows={26}
-                    className="letter-raw-textarea"
-                    value={editableLetter}
-                    onChange={(e) => setEditableLetter(e.target.value)}
-                    placeholder="Naskah surat tanggapan SP2DK..."
-                  />
-                </div>
+                <textarea
+                  rows={28}
+                  className="w-full text-xs font-mono rounded-lg border border-input bg-background/80 p-4 text-foreground leading-relaxed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  value={editableLetter}
+                  onChange={(e) => setEditableLetter(e.target.value)}
+                  placeholder="Naskah surat tanggapan SP2DK..."
+                />
               ) : (
-                <div className="formal-letterhead-sheet">
+                <div className="bg-card text-card-foreground p-8 rounded-lg border border-border/80 shadow-xs space-y-6 text-xs leading-relaxed max-w-3xl mx-auto">
                   {/* Kop Surat Resmi */}
-                  <div className="official-letterhead">
-                    <h2 className="letterhead-company-name">
+                  <div className="text-center pb-4 border-b-2 border-foreground/80 space-y-1">
+                    <h2 className="text-base font-bold uppercase tracking-wide text-foreground">
                       {clientInfo.name || 'PT WAJIB PAJAK CONTOH'}
                     </h2>
-                    <p className="letterhead-company-meta">
+                    <p className="text-[11px] text-muted-foreground font-mono">
                       NPWP: {clientInfo.npwp || '01.234.567.8-012.000'} &bull; Samarinda, Kalimantan Timur
                     </p>
-                    <div className="letterhead-double-line" />
                   </div>
 
                   {/* Header Nomor & Perihal */}
-                  <div className="letter-meta-header">
-                    <table className="letter-meta-table">
-                      <tbody>
-                        <tr>
-                          <td style={{ width: '110px' }}><strong>Nomor</strong></td>
-                          <td style={{ width: '15px' }}>:</td>
-                          <td>{responseResult?.nomorSuratTanggapan || '001/EXT/TAX/2025'}</td>
-                          <td style={{ textAlign: 'right' }}>
-                            Samarinda, {responseResult?.tanggalTanggapan || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td><strong>Lampiran</strong></td>
-                          <td>:</td>
-                          <td colSpan={2}>1 (Satu) Berkas KKP &amp; Dokumen Pembuktian</td>
-                        </tr>
-                        <tr>
-                          <td style={{ verticalAlign: 'top' }}><strong>Perihal</strong></td>
-                          <td style={{ verticalAlign: 'top' }}>:</td>
-                          <td colSpan={2}>
-                            <strong>Tanggapan atas Surat Permintaan Penjelasan atas Data dan/atau Keterangan (SP2DK)</strong><br />
-                            Nomor: <u>{sp2dkMeta.nomorSurat}</u> Tanggal {sp2dkMeta.tanggalSurat}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between">
+                      <div className="space-y-0.5">
+                        <div className="flex gap-2">
+                          <span className="w-16 font-semibold">Nomor</span>
+                          <span>: {responseResult?.nomorSuratTanggapan || '001/EXT/TAX/2025'}</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <span className="w-16 font-semibold">Lampiran</span>
+                          <span>: 1 (Satu) Berkas KKP &amp; Dokumen Pembuktian</span>
+                        </div>
+                      </div>
+                      <div className="text-right text-muted-foreground">
+                        Samarinda, {responseResult?.tanggalTanggapan || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </div>
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <span className="w-16 font-semibold shrink-0">Perihal</span>
+                      <div>
+                        <strong>Tanggapan atas Surat Permintaan Penjelasan atas Data dan/atau Keterangan (SP2DK)</strong>
+                        <p className="text-muted-foreground">Nomor: {sp2dkMeta.nomorSurat} Tanggal {sp2dkMeta.tanggalSurat}</p>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Tujuan Surat */}
-                  <div className="letter-recipient-section">
+                  <div className="pt-2">
                     <p>Kepada Yth.<br />
                     <strong>Kepala Kantor Pelayanan Pajak</strong><br />
                     {sp2dkMeta.kpp || 'KPP Pratama Samarinda Ilir'}<br />
@@ -802,59 +866,65 @@ export default function SP2DKResponseTab({
                   </div>
 
                   {/* Isi Surat */}
-                  <div className="letter-body-paragraphs">
+                  <div className="space-y-4 pt-1">
                     <p>Dengan hormat,</p>
                     <p>
                       Sehubungan dengan Surat Permintaan Penjelasan atas Data dan/atau Keterangan (SP2DK) Nomor: <strong>{sp2dkMeta.nomorSurat}</strong> tertanggal <strong>{sp2dkMeta.tanggalSurat}</strong> terkait penelaahan kepatuhan perpajakan Tahun Pajak <strong>{sp2dkMeta.tahunPajak || clientInfo.taxYear || '2024'}</strong>, kami yang bertanda tangan di bawah ini atas nama <strong>{clientInfo.name || 'PT Wajib Pajak'}</strong> (NPWP: {clientInfo.npwp || '-'}), menyampaikan klarifikasi dan rekonsiliasi data sebagai berikut:
                     </p>
 
-                    <h4 className="letter-subheading">I. TABEL REKONSILIASI PEMBUKTIAN FISKAL</h4>
-                    <table className="letter-table-recon">
-                      <thead>
-                        <tr>
-                          <th>No</th>
-                          <th>Pos Objek Pajak / Uraian</th>
-                          <th>Data SP2DK (KPP)</th>
-                          <th>Data GL / SPT (WP)</th>
-                          <th>Selisih Diperiksa</th>
-                          <th>Kategori Penyebab</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {items.map((itm, i) => (
-                          <tr key={itm.id || i}>
-                            <td style={{ textAlign: 'center' }}>{i + 1}</td>
-                            <td><strong>{itm.judul}</strong></td>
-                            <td style={{ textAlign: 'right' }}>{formatRupiah(itm.nilaiDJP || 0)}</td>
-                            <td style={{ textAlign: 'right' }}>{formatRupiah(itm.nilaiWajibPajak || 0)}</td>
-                            <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{formatRupiah(itm.selisih || 0)}</td>
-                            <td>{itm.kategoriPenyebab}</td>
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-primary pt-2">
+                      I. TABEL REKONSILIASI PEMBUKTIAN FISKAL
+                    </h4>
+                    <div className="overflow-x-auto rounded border border-border/70">
+                      <table className="w-full text-xs divide-y divide-border/60">
+                        <thead className="bg-muted/40 font-semibold text-muted-foreground">
+                          <tr>
+                            <th className="p-2 text-center">No</th>
+                            <th className="p-2 text-left">Pos Objek Pajak / Uraian</th>
+                            <th className="p-2 text-right">Data SP2DK (KPP)</th>
+                            <th className="p-2 text-right">Data GL / SPT (WP)</th>
+                            <th className="p-2 text-right">Selisih Diperiksa</th>
+                            <th className="p-2 text-left">Kategori Penyebab</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="divide-y divide-border/40">
+                          {items.map((itm, i) => (
+                            <tr key={itm.id || i} className="hover:bg-muted/20">
+                              <td className="p-2 text-center font-mono">{i + 1}</td>
+                              <td className="p-2 font-medium">{itm.judul}</td>
+                              <td className="p-2 text-right font-mono tabular-nums">{formatRupiah(itm.nilaiDJP || 0)}</td>
+                              <td className="p-2 text-right font-mono tabular-nums">{formatRupiah(itm.nilaiWajibPajak || 0)}</td>
+                              <td className="p-2 text-right font-mono tabular-nums font-bold text-rose-400">{formatRupiah(itm.selisih || 0)}</td>
+                              <td className="p-2 text-muted-foreground">{itm.kategoriPenyebab}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
 
-                    <h4 className="letter-subheading">II. PENJELASAN BUTIR PER BUTIR &amp; DASAR HUKUM</h4>
-                    <div className="letter-items-explanation">
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-primary pt-2">
+                      II. PENJELASAN BUTIR PER BUTIR &amp; DASAR HUKUM
+                    </h4>
+                    <div className="space-y-3">
                       {items.map((itm, i) => (
-                        <div key={itm.id || i} className="letter-item-explanation-block">
-                          <p>
-                            <strong>{i + 1}. {itm.judul} (Selisih: {formatRupiah(itm.selisih || 0)})</strong>
+                        <div key={itm.id || i} className="p-3 rounded-lg border border-border/50 bg-muted/20 space-y-1.5">
+                          <p className="font-semibold text-foreground">
+                            {i + 1}. {itm.judul} (Selisih: {formatRupiah(itm.selisih || 0)})
                           </p>
-                          <p className="letter-text-indent">
+                          <p className="text-muted-foreground leading-relaxed pl-2 border-l-2 border-primary/40">
                             {itm.penjelasan || 'Perbedaan tersebut timbul karena adanya transaksi yang telah dicatat dan dilaporkan sesuai ketentuan perpajakan yang berlaku, namun memiliki perbedaan waktu pengakuan (timing difference) antara pembukuan komersial dan SPT Masa.'}
                           </p>
-                          <p className="letter-text-indent text-muted">
-                            <em>Dasar Yuridis:</em> {itm.dasarHukum || 'SE-05/PJ/2022 jo. UU KUP'}
-                          </p>
-                          <p className="letter-text-indent text-muted">
-                            <em>Bukti Terlampir:</em> {itm.buktiPendukung || 'Kertas Kerja Pemeriksaan & Rekapitulasi Faktur'}
-                          </p>
+                          <div className="text-[11px] text-muted-foreground space-y-0.5 pt-1 pl-2 font-mono">
+                            <p><em>Dasar Yuridis:</em> <span className="text-primary">{itm.dasarHukum || 'SE-05/PJ/2022 jo. UU KUP'}</span></p>
+                            <p><em>Bukti Terlampir:</em> {itm.buktiPendukung || 'Kertas Kerja Pemeriksaan & Rekapitulasi Faktur'}</p>
+                          </div>
                         </div>
                       ))}
                     </div>
 
-                    <h4 className="letter-subheading">III. KESIMPULAN &amp; PERMOHONAN AKHIR</h4>
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-primary pt-2">
+                      III. KESIMPULAN &amp; PERMOHONAN AKHIR
+                    </h4>
                     <p>
                       Berdasarkan fakta-fakta pembukuan, rekonsiliasi angka yang terbukti, dan lampiran dokumen bukti pendukung di atas, kami berkeyakinan bahwa pemenuhan kewajiban perpajakan telah dilaksanakan sesuai dengan ketentuan perundang-undangan perpajakan yang berlaku.
                     </p>
@@ -867,19 +937,18 @@ export default function SP2DKResponseTab({
                   </div>
 
                   {/* Tanda Tangan */}
-                  <div className="letter-signature-block">
+                  <div className="pt-6 space-y-12">
                     <p>Hormat kami,<br /><strong>{clientInfo.name || 'PT Wajib Pajak'}</strong></p>
-                    <div className="signature-spacer" />
-                    <p className="signature-name">
-                      <u><strong>{clientInfo.partnerName || 'Direktur Utama'}</strong></u><br />
-                      Direktur Utama / Kuasa Wajib Pajak
-                    </p>
+                    <div>
+                      <p className="font-bold underline">{clientInfo.partnerName || 'Direktur Utama'}</p>
+                      <p className="text-muted-foreground text-[11px]">Direktur Utama / Kuasa Wajib Pajak</p>
+                    </div>
                   </div>
 
                   {/* Daftar Lampiran Dokumen */}
-                  <div className="letter-attachments-footer">
-                    <h5 className="attachments-title">Daftar Dokumen Lampiran:</h5>
-                    <ol className="attachments-list">
+                  <div className="pt-4 border-t border-border/60 space-y-2">
+                    <h5 className="font-bold text-xs text-foreground">Daftar Dokumen Lampiran:</h5>
+                    <ol className="list-decimal list-inside space-y-1 text-muted-foreground text-[11px]">
                       {responseResult?.docList && responseResult.docList.length > 0 ? (
                         responseResult.docList.map((doc, idx) => <li key={idx}>{doc}</li>)
                       ) : (
@@ -894,8 +963,8 @@ export default function SP2DKResponseTab({
                   </div>
                 </div>
               )}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
