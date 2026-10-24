@@ -823,14 +823,14 @@ function App() {
   // Admin Dashboard view
   if (showAdminDashboard) {
     return (
-      <div className="app-shell">
+      <div className="app-shell min-h-screen bg-background text-foreground flex flex-col transition-colors">
         <AdminDashboard onBack={() => setShowAdminDashboard(false)} />
       </div>
     );
   }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell min-h-screen bg-background text-foreground flex flex-col transition-colors">
       <div className="sr-only" role="status" aria-live="polite">{statusMessage}</div>
 
       <Topbar
