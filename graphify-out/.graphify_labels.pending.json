@@ -1,12 +1,13 @@
 {
+  "0": "react",
   "2": "App.jsx",
-  "4": "main.jsx",
+  "4": "ErrorBoundary",
   "12": "package.json",
-  "24": "claude.js",
-  "29": "SP2DKResponseTab.jsx",
+  "29": "pasteImportParser.js",
   "33": "scripts",
-  "38": "xlsx-js-style",
+  "38": "@playwright/test",
   "39": "vite.config.js",
   "44": "@testing-library/jest-dom",
-  "47": "Sidebar"
+  "47": "Sidebar",
+  "48": "cn"
 }

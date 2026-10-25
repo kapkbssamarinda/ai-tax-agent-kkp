@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useDeferredValue, useCallback } from 'react';
-import { AlertCircle, Loader2, CheckCircle2, X, Sparkles, ClipboardPaste, FileSpreadsheet } from 'lucide-react';
+import { AlertCircle, Loader2, CheckCircle2, X, Sparkles, ClipboardPaste, FileSpreadsheet, Activity } from 'lucide-react';
 import './App.css';
 import Sidebar from './components/navigation/Sidebar';
 import AppHeader from './components/navigation/AppHeader';
@@ -16,6 +16,7 @@ import TaxReconWorkbench from './components/tax/TaxReconWorkbench';
 import ClientHub from './components/dashboard/ClientHub';
 import SyncBlockingModal from './components/common/SyncBlockingModal';
 import RunAIAnalysisModal from './components/modals/RunAIAnalysisModal';
+import AIConnectionStatusModal from './components/modals/AIConnectionStatusModal';
 import LoginPage from './components/auth/LoginPage';
 import UserProfileModal from './components/auth/UserProfileModal';
 import LogoutConfirmModal from './components/auth/LogoutConfirmModal';
@@ -76,12 +77,6 @@ const KRISHAND_COLUMNS = [
   { key: 'balance', label: 'Saldo', isNumeric: true }
 ];
 
-// Tema sudah dipasang ke <html> oleh script anti-FOUC di index.html
-const getInitialTheme = () =>
-  typeof document !== 'undefined' && document.documentElement.classList.contains('light')
-    ? 'light'
-    : 'dark';
-
 const DEFAULT_CLIENT_INFO = {
   name: 'PT Klien Demo',
   npwp: '01.234.567.8-012.000',
@@ -97,7 +92,6 @@ function App() {
 
   const [step, setStep] = useState('upload');
   const [uploadMethod, setUploadMethod] = useState('file'); // 'file' | 'paste'
-  const [theme, setTheme] = useState(getInitialTheme);
   const [viewMode, setViewMode] = useState('CLIENT_HUB'); // 'CLIENT_HUB' | 'GL_CLEANER' | 'TAX_AGENT' | 'PARTNER_DASHBOARD'
 
   // Cloud Projects & Multi-Client State (Google Drive via GAS)
@@ -107,6 +101,7 @@ function App() {
   const [isCloudSyncing, setIsCloudSyncing] = useState(false);
   const [syncModalMessage, setSyncModalMessage] = useState('Menyinkronkan data proyek ke Google Drive...');
   const [isRunAIModalOpen, setIsRunAIModalOpen] = useState(false);
+  const [isAIConnectionModalOpen, setIsAIConnectionModalOpen] = useState(false);
 
   const [processedData, setProcessedData] = useState([]);
   const [warnings, setWarnings] = useState([]);
@@ -567,15 +562,6 @@ function App() {
       if (workerRef.current) workerRef.current.terminate();
     };
   }, [recalculateTaxRecons, userId]);
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(newTheme);
-    document.documentElement.style.colorScheme = newTheme;
-    try { localStorage.setItem('gl-theme', newTheme); } catch { /* ignore */ }
-  };
 
   const extractPdfText = async (file) => {
     const [pdfjsLib, { default: pdfjsWorkerUrl }] = await Promise.all([
@@ -1121,7 +1107,7 @@ function App() {
         type: 'success',
         title: 'Klasifikasi Ulang AI Selesai',
         message: `Berhasil memperbarui klasifikasi ${total} akun buku besar.`,
-        details: `âœ¨ ${verified} Akun Terverifikasi  â€¢  ðŸ¤– ${overridden} Akun Direklasifikasi`,
+        details: `✨ ${verified} Akun Terverifikasi  •  🤖 ${overridden} Akun Direklasifikasi`,
         timestamp: `${finishTimeStr} WIB`,
         duration: 6500
       });
@@ -1170,7 +1156,7 @@ function App() {
     );
   }
 
-  // Belum login â†’ tampilkan halaman Login
+  // Belum login → tampilkan halaman Login
   if (!isAuthenticated) {
     return <LoginPage />;
   }
@@ -1178,7 +1164,7 @@ function App() {
   // Admin Dashboard view
   if (showAdminDashboard) {
     return (
-      <div className="app-shell min-h-screen bg-background text-foreground flex flex-col transition-colors">
+      <div className="min-h-screen w-full bg-[#f4f6fa] text-slate-900 flex flex-col overflow-y-auto">
         <AdminDashboard onBack={() => setShowAdminDashboard(false)} />
       </div>
     );
@@ -1189,8 +1175,6 @@ function App() {
       <div className="sr-only" role="status" aria-live="polite">{statusMessage}</div>
       {/* Navigation Sidebar */}
       <Sidebar
-        theme={theme}
-        onToggleTheme={toggleTheme}
         step={step}
         fileName={fileName}
         sourceFormat={sourceFormat}
@@ -1228,6 +1212,7 @@ function App() {
           onSyncCloud={() => handleSyncToCloud()}
           isSyncing={isCloudSyncing}
           onOpenRunAI={handleRunAIAnalysis}
+          onCheckAIConnection={() => setIsAIConnectionModalOpen(true)}
         />
 
         <div className="app-content-scroll flex-1 overflow-y-auto flex flex-col">
@@ -1249,9 +1234,21 @@ function App() {
             <div className="error-banner-wrap">
               <div className="error-banner" role="alert">
                 <AlertCircle className="error-banner-icon" size={18} />
-                <div>
+                <div className="flex-1">
                   <div className="error-banner-title">Pemberitahuan Sistem</div>
                   <div className="error-banner-message">{error}</div>
+                  {/ai|batas kecepatan|rate limit|gagal menghubungi ai/i.test(error) && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsAIConnectionModalOpen(true)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-colors cursor-pointer"
+                      >
+                        <Activity size={12} />
+                        Cek Status Koneksi AI & Kuota
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <button className="error-banner-close" onClick={() => setError(null)} aria-label="Tutup pesan">
                   <X size={16} />
@@ -1509,6 +1506,18 @@ function App() {
         isAnalyzing={isAnalyzingTax}
         clientInfo={clientInfo}
         totalAccountsCount={accounts.length}
+        onCheckAIConnection={() => setIsAIConnectionModalOpen(true)}
+      />
+
+      {/* AI Connection Status & Diagnostics Modal */}
+      <AIConnectionStatusModal
+        isOpen={isAIConnectionModalOpen}
+        onClose={() => setIsAIConnectionModalOpen(false)}
+        userId={userId || 'anonymous'}
+        onOpenRunAI={() => {
+          setIsAIConnectionModalOpen(false);
+          setIsRunAIModalOpen(true);
+        }}
       />
 
       {/* Side Notification Mengambang (Proses & Hasil AI) */}

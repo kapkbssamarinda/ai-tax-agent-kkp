@@ -561,8 +561,8 @@ export function calculatePartnerDashboardMetrics(findings = []) {
 
   findings.forEach(f => {
     totalPrincipal += (f.principalTax || 0);
-    totalInterest += (f.interestSanction || 0);
-    totalExposure += (f.potentialExposure || (f.principalTax || 0) + (f.interestSanction || 0));
+    totalInterest += (f.interestSanction || f.interestPenalty || 0);
+    totalExposure += (f.potentialExposure || (f.principalTax || 0) + (f.interestSanction || f.interestPenalty || 0));
 
     if (f.riskLevel === 'CRITICAL') criticalCount++;
     else if (f.riskLevel === 'HIGH') highCount++;
@@ -570,7 +570,7 @@ export function calculatePartnerDashboardMetrics(findings = []) {
     else lowCount++;
 
     if (f.status !== 'RESOLVED' && f.status !== 'CONFIRMED') openFindings++;
-    if (f.evidenceMissing && f.evidenceMissing.length > 0) outstandingDocsCount++;
+    if ((f.evidenceMissing && f.evidenceMissing.length > 0) || f.status === 'REQUIRES DOCUMENT') outstandingDocsCount++;
   });
 
   // Overall Risk Score = Weighted Average (Critical: 25, High: 16, Medium: 8, Low: 3)

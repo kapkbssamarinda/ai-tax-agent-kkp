@@ -11,11 +11,11 @@ import {
   Download,
   Trash2,
   FolderOpen,
-  Cloud,
-  CheckCircle2,
-  Clock,
-  Sparkles
+  Clock
 } from 'lucide-react';
+import { Segment } from '../ui/segment';
+import { FeaturedIcon } from '../ui/featured-icon';
+import { StatusBadge } from '../ui/status-badge';
 
 /**
  * ClientHub
@@ -72,21 +72,32 @@ export default function ClientHub({
     }
   };
 
+  const CARD_COLORS = ['blue', 'emerald', 'purple'];
+
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className="min-h-screen bg-[#f4f6fa] text-slate-900 flex flex-col font-sans">
       {/* Top Banner / Workspace Header */}
-      <header className="border-b border-border bg-card/60 backdrop-blur-xs sticky top-0 z-20">
+      <header className="border-b border-border bg-white sticky top-0 z-20 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Building2 className="h-5 w-5" />
-              </div>
+            <div className="flex items-center gap-3">
+              <FeaturedIcon
+                icon={Building2}
+                color="brand"
+                size="md"
+                variant="light-square"
+                className="shrink-0"
+              />
               <div>
-                <h1 className="text-xl font-bold tracking-tight text-foreground">
-                  Daftar Proyek Klien
-                </h1>
-                <p className="text-xs text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl font-bold tracking-tight text-slate-900">
+                    Daftar Proyek Klien
+                  </h1>
+                  <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                    Client Hub
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-0.5">
                   Workspace KAP Zaidan Jauhari &bull; Google Drive Auto-Sync Aktif
                 </p>
               </div>
@@ -98,20 +109,21 @@ export default function ClientHub({
               type="button"
               onClick={onRefresh}
               disabled={isLoading}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-50"
-              title="Perbarui daftar dari Google Drive"
+              aria-label="Refresh"
+              title="Refresh"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-2xs transition-colors disabled:opacity-50"
             >
-              <RotateCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-              <span>Segarkan</span>
+              <RotateCw className={`h-3.5 w-3.5 text-slate-500 ${isLoading ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
             </button>
 
             <button
               type="button"
               onClick={onNewProject}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:via-indigo-700 hover:to-indigo-800 px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:shadow-md transition-all"
             >
               <Plus className="h-4 w-4" />
-              <span>+ Klien Baru</span>
+              <span>Tambah Klien Baru</span>
             </button>
           </div>
         </div>
@@ -120,27 +132,28 @@ export default function ClientHub({
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full flex flex-col">
         {/* Controls: Search & Filters */}
-        <div className="mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="mb-6 p-3 bg-white rounded-xl border border-border shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               type="text"
               placeholder="Cari nama klien atau NPWP..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full rounded-lg border border-border bg-card pl-9 pr-4 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-lg border border-border bg-slate-50/70 focus:bg-white pl-9 pr-4 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
 
           <div className="flex items-center gap-2 self-start sm:self-auto">
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Calendar className="h-3.5 w-3.5" />
+            <div className="flex items-center gap-1.5 text-xs font-medium text-slate-600">
+              <Calendar className="h-3.5 w-3.5 text-slate-400" />
               <span>Tahun Pajak:</span>
             </div>
             <select
+              aria-label="Filter Tahun Pajak"
               value={selectedYear}
               onChange={e => setSelectedYear(e.target.value)}
-              className="rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="rounded-lg border border-border bg-slate-50/70 focus:bg-white px-3 py-1.5 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
             >
               <option value="ALL">Semua Tahun</option>
               {availableYears.map(year => (
@@ -155,20 +168,20 @@ export default function ClientHub({
         {/* Loading State */}
         {isLoading && projects.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center py-16 text-center">
-            <RotateCw className="h-8 w-8 text-primary animate-spin mb-3" />
-            <p className="text-sm font-medium text-foreground">Menghubungkan ke Google Drive...</p>
-            <p className="text-xs text-muted-foreground mt-1">Mengambil riwayat proyek klien Anda</p>
+            <RotateCw className="h-8 w-8 text-blue-600 animate-spin mb-3" />
+            <p className="text-sm font-semibold text-slate-900">Menghubungkan ke Google Drive...</p>
+            <p className="text-xs text-slate-500 mt-1">Mengambil riwayat proyek klien Anda</p>
           </div>
         ) : filteredProjects.length === 0 ? (
           /* Empty State */
-          <div className="flex-1 flex flex-col items-center justify-center rounded-xl border border-dashed border-border/80 bg-muted/20 py-16 px-4 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground mb-3">
+          <div className="flex-1 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-white py-16 px-4 text-center shadow-xs">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400 mb-3">
               <FolderOpen className="h-6 w-6" />
             </div>
-            <h3 className="text-sm font-semibold text-foreground">
+            <h3 className="text-sm font-bold text-slate-900">
               {searchTerm ? 'Tidak ada klien yang cocok' : 'Belum ada proyek klien'}
             </h3>
-            <p className="text-xs text-muted-foreground max-w-sm mt-1 mb-5">
+            <p className="text-xs text-slate-500 max-w-sm mt-1 mb-5">
               {searchTerm
                 ? 'Coba gunakan kata kunci pencarian yang berbeda atau reset filter tahun pajak.'
                 : 'Mulai analisis kepatuhan pajak pertama Anda dengan mengunggah Buku Besar klien baru.'}
@@ -176,53 +189,79 @@ export default function ClientHub({
             <button
               type="button"
               onClick={onNewProject}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-medium text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all"
             >
               <Plus className="h-4 w-4" />
-              <span>Mulai Klien Baru</span>
+              <span>Tambah Klien Baru</span>
             </button>
           </div>
         ) : (
           /* Project Grid */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredProjects.map(project => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredProjects.map((project, idx) => {
               const isActive = activeProjectId && activeProjectId === project.project_id;
+              const cardColor = CARD_COLORS[idx % CARD_COLORS.length];
+              const isDraft = Boolean(
+                project.sync_status === 'draft' ||
+                project.sync_status === 'local_draft' ||
+                project.is_draft ||
+                project.is_local ||
+                project.cloud_synced === false
+              );
 
               return (
-                <div
+                <Segment
                   key={project.project_id}
-                  className={`group relative flex flex-col rounded-xl border bg-card p-5 transition-all hover:shadow-md ${
+                  raised
+                  color={cardColor}
+                  className={`relative flex flex-col bg-white rounded-xl border p-5 transition-all hover:shadow-lg group ${
                     isActive
-                      ? 'border-primary ring-1 ring-primary/40 bg-primary/5'
-                      : 'border-border hover:border-border/80'
+                      ? 'border-blue-500 ring-2 ring-blue-500/20'
+                      : 'border-border hover:border-slate-300'
                   }`}
                 >
                   {/* Card Header */}
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
-                          {project.tax_year || '2024'}
-                        </span>
-                        {isActive && (
-                          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                            Aktif
+                    <div className="flex items-start gap-3 min-w-0 flex-1">
+                      <FeaturedIcon
+                        icon={Building2}
+                        color="brand"
+                        size="md"
+                        variant="light-square"
+                        className="shrink-0 mt-0.5"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-mono font-bold text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
+                            {project.tax_year || '2024'}
                           </span>
-                        )}
+                          <StatusBadge
+                            status={isDraft ? 'warning' : 'success'}
+                            size="sm"
+                            dot
+                          >
+                            {isDraft ? 'Draft Lokal' : 'Tersinkron Cloud'}
+                          </StatusBadge>
+                          {isActive && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700 border border-blue-200">
+                              <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
+                              Aktif
+                            </span>
+                          )}
+                        </div>
+
+                        <h3
+                          className="mt-2 text-base font-bold text-slate-900 truncate group-hover:text-blue-600 transition-colors cursor-pointer"
+                          onClick={() => onSelectProject?.(project)}
+                          title={project.client_name}
+                        >
+                          {project.client_name || 'Klien Tanpa Nama'}
+                        </h3>
+
+                        <p className="text-xs text-slate-500 font-mono mt-0.5">
+                          {project.npwp || 'NPWP Belum Diisi'}
+                        </p>
                       </div>
-
-                      <h3
-                        className="mt-2 text-base font-semibold text-foreground truncate group-hover:text-primary transition-colors cursor-pointer"
-                        onClick={() => onSelectProject(project)}
-                        title={project.client_name}
-                      >
-                        {project.client_name || 'Klien Tanpa Nama'}
-                      </h3>
-
-                      <p className="text-xs text-muted-foreground font-mono mt-0.5">
-                        {project.npwp || 'NPWP Belum Diisi'}
-                      </p>
                     </div>
 
                     <div className="flex items-center gap-1">
@@ -230,10 +269,11 @@ export default function ClientHub({
                         <button
                           type="button"
                           onClick={() => onExportProject(project)}
-                          className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                          title="Ekspor snapshot .aitax"
+                          className="rounded-lg p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-colors"
+                          title="Unduh KKP"
+                          aria-label="Unduh KKP"
                         >
-                          <Download className="h-3.5 w-3.5" />
+                          <Download className="h-4 w-4" />
                         </button>
                       )}
 
@@ -245,47 +285,58 @@ export default function ClientHub({
                               onDeleteProject(project.project_id);
                             }
                           }}
-                          className="rounded-md p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                          title="Hapus proyek dari cloud"
+                          className="rounded-lg p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors"
+                          title="Hapus"
+                          aria-label="Hapus"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       )}
                     </div>
                   </div>
 
                   {/* Card Metadata Chips */}
-                  <div className="mt-4 pt-3.5 border-t border-border/70 flex flex-wrap items-center gap-2 text-xs">
-                    <span className="inline-flex items-center gap-1 text-muted-foreground">
-                      <FileSpreadsheet className="h-3.5 w-3.5 text-primary" />
-                      <strong className="text-foreground">{project.total_rows || 0}</strong> baris GL
+                  <div className="mt-4 pt-3.5 border-t border-slate-100 flex flex-wrap items-center gap-2.5 text-xs">
+                    <span className="inline-flex items-center gap-1.5 text-slate-600 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-200/60 font-medium">
+                      <FileSpreadsheet className="h-3.5 w-3.5 text-blue-600" />
+                      <strong className="text-slate-900 font-semibold">{project.total_rows || 0}</strong> baris GL
                     </span>
 
-                    <span className="text-border">&bull;</span>
-
-                    <span className="inline-flex items-center gap-1 text-muted-foreground">
-                      <ShieldAlert className="h-3.5 w-3.5 text-amber-500" />
-                      <strong className="text-foreground">{project.findings_count || 0}</strong> temuan
+                    <span className="inline-flex items-center gap-1.5 text-slate-600 bg-amber-50/70 px-2.5 py-1 rounded-md border border-amber-200/60 font-medium">
+                      <ShieldAlert className="h-3.5 w-3.5 text-amber-600" />
+                      <strong className="text-amber-900 font-semibold">{project.findings_count || 0}</strong> temuan
                     </span>
                   </div>
 
                   {/* Card Footer: Timestamp & Action */}
-                  <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/50">
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
                     <div className="flex items-center gap-1 truncate" title={`Diperbarui: ${formatDate(project.updated_at)}`}>
-                      <Clock className="h-3 w-3 shrink-0" />
+                      <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" />
                       <span className="truncate">{formatDate(project.updated_at)}</span>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => onSelectProject(project)}
-                      className="inline-flex items-center gap-1 font-medium text-primary hover:underline ml-2 shrink-0"
-                    >
-                      <span>Buka</span>
-                      <ArrowRight className="h-3 w-3" />
-                    </button>
+                    <div className="flex items-center gap-2 ml-2 shrink-0">
+                      {onExportProject && (
+                        <button
+                          type="button"
+                          onClick={() => onExportProject(project)}
+                          className="hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors"
+                        >
+                          <Download className="h-3 w-3" />
+                          <span>Unduh KKP</span>
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => onSelectProject?.(project)}
+                        className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-2xs transition-colors"
+                      >
+                        <span>Buka Proyek</span>
+                        <ArrowRight className="h-3 w-3" />
+                      </button>
+                    </div>
                   </div>
-                </div>
+                </Segment>
               );
             })}
           </div>
@@ -294,4 +345,3 @@ export default function ClientHub({
     </div>
   );
 }
-

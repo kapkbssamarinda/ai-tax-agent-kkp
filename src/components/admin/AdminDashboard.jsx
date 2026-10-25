@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import {
   UserPlus,
   Trash2,
   Pencil,
   Loader2,
-  AlertCircle,
-  CheckCircle2,
   ArrowLeft,
   Shield,
   Users,
   RefreshCw,
   Search,
   X,
-  Filter
+  Filter,
+  Clock,
+  UserCheck
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -22,10 +21,12 @@ import {
   updateUser,
   deleteUser
 } from '../../services/gasAuthService';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
-import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { Segment } from '../ui/segment';
+import { FeaturedIcon } from '../ui/featured-icon';
+import { StatusBadge } from '../ui/status-badge';
+import { Message, MessageHeader } from '../ui/message';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '../ui/table';
 import {
   Dialog,
@@ -245,108 +246,128 @@ export default function AdminDashboard({ onBack }) {
 
   if (!isAdmin) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center space-y-4 max-w-md mx-auto my-12 border border-border/80 bg-card/60 rounded-xl">
-        <div className="p-3 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30">
-          <Shield size={40} />
-        </div>
-        <div className="space-y-1">
-          <h2 className="text-xl font-bold text-foreground">Akses Ditolak</h2>
-          <p className="text-xs text-muted-foreground">Halaman ini hanya dapat diakses oleh akun Administrator.</p>
-        </div>
-        <Button variant="outline" size="sm" onClick={onBack} className="gap-2 text-xs">
-          <ArrowLeft size={14} /> Kembali ke Aplikasi
-        </Button>
+      <div className="min-h-screen bg-[#f4f6fa] flex items-center justify-center p-4">
+        <Segment color="rose" raised padded="lg" className="max-w-md w-full text-center space-y-4">
+          <div className="flex justify-center">
+            <FeaturedIcon icon={Shield} color="error" size="lg" variant="light-circle" />
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-xl font-bold text-slate-900">Akses Ditolak</h2>
+            <p className="text-xs text-slate-500">Halaman ini hanya dapat diakses oleh akun Administrator KKP.</p>
+          </div>
+          <div className="pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onBack}
+              className="gap-2 text-xs border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs"
+            >
+              <ArrowLeft size={14} /> Kembali ke Aplikasi
+            </Button>
+          </div>
+        </Segment>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-xl border border-border/70 bg-card/60 backdrop-blur-xs">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            title="Kembali ke Workbench Pajak"
-            className="h-8 px-2.5 text-xs gap-1.5"
-          >
-            <ArrowLeft size={14} /> Kembali
-          </Button>
-          <div className="h-4 w-px bg-border" />
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20">
-              <Shield size={18} />
+    <div className="w-full min-h-screen flex flex-col items-center bg-[#f4f6fa] text-slate-900 font-sans pb-16">
+      <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+        {/* Top Header / Executive Admin Banner */}
+        <header className="rounded-xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xs transition-all">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onBack}
+                title="Kembali ke Workbench Pajak"
+                className="h-8.5 px-3 text-xs gap-1.5 font-medium border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-2xs shrink-0 cursor-pointer"
+              >
+                <ArrowLeft size={14} /> Kembali
+              </Button>
+              <div className="h-5 w-px bg-slate-200 shrink-0 hidden sm:block" />
+              <div className="flex items-center gap-3 min-w-0">
+                <FeaturedIcon
+                  icon={Shield}
+                  color="brand"
+                  size="md"
+                  variant="light-square"
+                  className="shrink-0"
+                />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-base sm:text-lg font-bold tracking-tight text-slate-900 truncate">
+                      Kelola Pengguna Whitelist KKP
+                    </h1>
+                    <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                      Admin Console
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5 truncate">
+                    Manajemen hak akses &amp; otorisasi akun Google konsultan pajak Kantor Konsultan Pajak Zaidan Jauhari
+                  </p>
+                </div>
+              </div>
             </div>
-            <div>
-              <h2 className="text-base font-bold tracking-tight text-foreground">
-                Kelola Pengguna Whitelist KKP
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                Manajemen hak akses &amp; otorisasi akun Google konsultan pajak.
-              </p>
+
+            <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+              <button
+                type="button"
+                onClick={loadUsers}
+                disabled={loading}
+                title="Muat ulang data pengguna dari Google Apps Script"
+                aria-label="Muat Ulang"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-2xs transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                <RefreshCw size={13} className={`text-slate-500 ${loading ? 'animate-spin' : ''}`} />
+                <span>Muat Ulang</span>
+              </button>
             </div>
           </div>
-        </div>
+        </header>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={loadUsers}
-          disabled={loading}
-          title="Muat ulang data"
-          className="h-8 px-3 text-xs gap-1.5"
-        >
-          <RefreshCw size={13} className={loading ? 'animate-spin' : ''} /> Muat Ulang
-        </Button>
-      </div>
+        {/* Notifikasi Sistem: Error & Success */}
+        {error && (
+          <Message variant="error" size="sm" onDismiss={() => setError('')} className="shadow-xs">
+            <MessageHeader>Gagal Memproses Permintaan</MessageHeader>
+            <p>{error}</p>
+          </Message>
+        )}
 
-      {error && (
-        <div className="p-3.5 rounded-lg border border-rose-500/40 bg-rose-500/10 text-rose-300 flex items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2">
-            <AlertCircle size={15} className="shrink-0" />
-            <span>{error}</span>
+        {success && (
+          <Message variant="success" size="sm" onDismiss={() => setSuccess('')} className="shadow-xs">
+            <MessageHeader>Berhasil</MessageHeader>
+            <p>{success}</p>
+          </Message>
+        )}
+
+        {/* Section 1: Form Daftarkan Pengguna ke Whitelist */}
+        <Segment color="blue" raised padded="md" className="space-y-4">
+          <div className="flex items-start justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2.5">
+              <FeaturedIcon icon={UserPlus} color="brand" size="sm" variant="light-circle" />
+              <div>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Daftarkan Pengguna ke Whitelist
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Pengguna yang didaftarkan akan dapat login langsung menggunakan akun Google mereka tanpa perlu password.
+                </p>
+              </div>
+            </div>
           </div>
-          <button className="text-rose-400 hover:text-rose-200" onClick={() => setError('')}>
-            <X size={14} />
-          </button>
-        </div>
-      )}
 
-      {success && (
-        <div className="p-3.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 flex items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 size={15} className="shrink-0" />
-            <span>{success}</span>
-          </div>
-          <button className="text-emerald-400 hover:text-emerald-200" onClick={() => setSuccess('')}>
-            <X size={14} />
-          </button>
-        </div>
-      )}
-
-      {/* Section 1: Form Tambah User Baru ke Whitelist */}
-      <Card className="border-border/70 shadow-xs">
-        <CardHeader className="pb-3 border-b border-border/50">
-          <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <UserPlus size={16} className="text-primary" /> Daftarkan Pengguna ke Whitelist
-          </CardTitle>
-          <CardDescription className="text-xs">
-            Pengguna yang didaftarkan akan dapat login langsung menggunakan akun Google mereka tanpa perlu password.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-4">
           <form onSubmit={handleAddUser} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground" htmlFor="new-fullname">
-                  Nama Lengkap <span className="text-rose-400">*</span>
+                <label className="text-xs font-semibold text-slate-700 block" htmlFor="new-fullname">
+                  Nama Lengkap <span className="text-rose-500">*</span>
                 </label>
                 <Input
                   id="new-fullname"
                   type="text"
-                  className="h-8 text-xs"
+                  className="h-9 text-xs rounded-lg border-slate-200 bg-slate-50/70 focus:bg-white text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   placeholder="Contoh: Andi Pratama"
                   value={newFullName}
                   onChange={(e) => setNewFullName(e.target.value)}
@@ -356,13 +377,13 @@ export default function AdminDashboard({ onBack }) {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground" htmlFor="new-email">
-                  Email Google <span className="text-rose-400">*</span>
+                <label className="text-xs font-semibold text-slate-700 block" htmlFor="new-email">
+                  Email Google <span className="text-rose-500">*</span>
                 </label>
                 <Input
                   id="new-email"
                   type="email"
-                  className="h-8 text-xs font-mono"
+                  className="h-9 text-xs font-mono rounded-lg border-slate-200 bg-slate-50/70 focus:bg-white text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   placeholder="andi@gmail.com / andi@kantor.com"
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
@@ -371,13 +392,13 @@ export default function AdminDashboard({ onBack }) {
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground" htmlFor="new-role">
+              <div className="space-y-1.5 sm:col-span-2 lg:col-span-1">
+                <label className="text-xs font-semibold text-slate-700 block" htmlFor="new-role">
                   Role Akses
                 </label>
                 <select
                   id="new-role"
-                  className="w-full h-8 text-xs rounded-md border border-input bg-background px-2.5 py-1 text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  className="w-full h-9 text-xs font-medium rounded-lg border border-slate-200 bg-slate-50/70 focus:bg-white px-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
                   value={newRole}
                   onChange={(e) => setNewRole(e.target.value)}
                   disabled={isAdding}
@@ -389,55 +410,75 @@ export default function AdminDashboard({ onBack }) {
             </div>
 
             <div className="flex justify-end pt-1">
-              <Button type="submit" size="sm" disabled={isAdding} className="gap-1.5 h-8 text-xs font-semibold">
+              <button
+                type="submit"
+                disabled={isAdding}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:via-indigo-700 hover:to-indigo-800 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:shadow-md transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+              >
                 {isAdding ? (
-                  <><Loader2 size={13} className="animate-spin" /> Menambahkan...</>
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    <span>Menambahkan...</span>
+                  </>
                 ) : (
-                  <><UserPlus size={13} /> Tambah ke Whitelist</>
+                  <>
+                    <UserPlus size={14} />
+                    <span>Tambah ke Whitelist</span>
+                  </>
                 )}
-              </Button>
+              </button>
             </div>
           </form>
-        </CardContent>
-      </Card>
+        </Segment>
 
-      {/* Section 2: Daftar & Filter Pengguna */}
-      <Card className="border-border/70 shadow-xs">
-        <CardHeader className="pb-3 border-b border-border/50">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Users size={16} className="text-primary" /> Daftar Whitelist Pengguna ({filteredUsers.length} dari {users.length})
-            </CardTitle>
+        {/* Section 2: Daftar Whitelist Pengguna */}
+        <Segment color="indigo" raised padded="md" className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2.5">
+              <FeaturedIcon icon={Users} color="brand" size="sm" variant="light-circle" />
+              <div>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Daftar Whitelist Pengguna
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Menampilkan {filteredUsers.length} dari total {users.length} staf terdaftar
+                </p>
+              </div>
+            </div>
+
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+              {filteredUsers.length} Pengguna
+            </span>
           </div>
-        </CardHeader>
 
-        <CardContent className="pt-4 space-y-4">
-          {/* Search & Filter Bar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2 rounded-lg bg-muted/30 border border-border/50">
-            <div className="relative flex-1">
-              <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
+          {/* Search & Filter Toolbar */}
+          <div className="p-3 bg-slate-50/70 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
                 type="text"
-                className="pl-8 h-8 text-xs bg-background"
+                className="w-full rounded-lg border border-slate-200 bg-white pl-9 pr-8 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                 placeholder="Cari berdasarkan nama lengkap atau email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               {searchQuery && (
                 <button
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5"
+                  type="button"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-0.5 rounded cursor-pointer"
                   onClick={() => setSearchQuery('')}
+                  title="Hapus pencarian"
                 >
-                  <X size={12} />
+                  <X size={13} />
                 </button>
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
               <div className="flex items-center gap-1.5">
-                <Filter size={13} className="text-muted-foreground" />
+                <Filter size={13} className="text-slate-400" />
                 <select
-                  className="h-8 text-xs rounded-md border border-input bg-background px-2 py-1 text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
                   value={roleFilter}
                   onChange={(e) => setRoleFilter(e.target.value)}
                   aria-label="Filter Role"
@@ -449,7 +490,7 @@ export default function AdminDashboard({ onBack }) {
               </div>
 
               <select
-                className="h-8 text-xs rounded-md border border-input bg-background px-2 py-1 text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 aria-label="Filter Status"
@@ -462,98 +503,124 @@ export default function AdminDashboard({ onBack }) {
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center p-12 text-xs text-muted-foreground gap-2">
-              <Loader2 size={18} className="animate-spin text-primary" /> Memuat data whitelist dari Google Sheets...
+            <div className="flex flex-col items-center justify-center p-12 text-center">
+              <Loader2 size={24} className="animate-spin text-blue-600 mb-2" />
+              <p className="text-xs font-semibold text-slate-900">Memuat data whitelist dari Google Sheets...</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">Sinkronisasi status otorisasi staf konsultan</p>
             </div>
           ) : filteredUsers.length === 0 ? (
-            <div className="text-center p-8 border border-dashed border-border/70 rounded-lg text-xs text-muted-foreground">
-              Tidak ada pengguna yang sesuai dengan kriteria pencarian atau filter.
+            <div className="text-center py-12 px-4 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+              <p className="text-xs font-semibold text-slate-700">Tidak ada pengguna yang sesuai.</p>
+              <p className="text-[11px] text-slate-500 mt-1">Coba sesuaikan kata kunci pencarian atau filter role/status di atas.</p>
             </div>
           ) : (
-            <div className="rounded-lg border border-border/70 overflow-hidden">
-              <Table>
+            <div className="rounded-xl border border-slate-200 overflow-x-auto shadow-2xs bg-white">
+              <Table className="w-full min-w-[700px]">
                 <TableHeader>
-                  <TableRow className="bg-muted/40">
-                    <TableHead className="text-xs font-semibold">Nama Lengkap</TableHead>
-                    <TableHead className="text-xs font-semibold">Email</TableHead>
-                    <TableHead className="text-xs font-semibold">Role</TableHead>
-                    <TableHead className="text-xs font-semibold">Status Akun</TableHead>
-                    <TableHead className="text-xs font-semibold">Login Terakhir</TableHead>
-                    <TableHead className="text-xs font-semibold text-center">Aksi</TableHead>
+                  <TableRow className="bg-slate-50/90 border-b border-slate-200">
+                    <TableHead className="text-xs font-semibold text-slate-700 py-3 px-4">Nama Lengkap</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-700 py-3 px-4">Email Google</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-700 py-3 px-4">Role Akses</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-700 py-3 px-4">Status Akun</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-700 py-3 px-4">Login Terakhir</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-700 py-3 px-4 text-center">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredUsers.map(u => {
+                  {filteredUsers.map((u) => {
                     const isSelf = currentUser?.email === u.email;
                     const isActive = String(u.status || '').toLowerCase() === 'active';
                     return (
-                      <TableRow key={u.email} className={cn(!isActive && 'opacity-60 bg-muted/10')}>
-                        <TableCell className="text-xs font-medium">
-                          <span className="font-semibold text-foreground">{u.full_name || '-'}</span>
-                          {isSelf && (
-                            <span className="ml-1.5 text-[10px] font-semibold px-1.5 py-0.2 rounded bg-primary/10 text-primary border border-primary/20" title="Akun Anda saat ini">
-                              (Anda)
-                            </span>
+                      <TableRow
+                        key={u.email}
+                        className={cn(
+                          'border-b border-slate-100 hover:bg-slate-50/70 transition-colors',
+                          !isActive && 'opacity-65 bg-slate-50/40'
+                        )}
+                      >
+                        <TableCell className="py-3 px-4 text-xs font-medium text-slate-900">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-semibold text-slate-900">{u.full_name || '-'}</span>
+                            {isSelf && (
+                              <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-blue-50 text-blue-700 border border-blue-200" title="Akun Anda saat ini">
+                                (Anda)
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-3 px-4 text-xs font-mono text-slate-600 select-all">
+                          {u.email}
+                        </TableCell>
+                        <TableCell className="py-3 px-4 text-xs">
+                          {u.role === 'admin' ? (
+                            <StatusBadge status="warning" icon={Shield} size="sm">
+                              Admin
+                            </StatusBadge>
+                          ) : (
+                            <StatusBadge status="info" icon={Users} size="sm">
+                              Tax Analyst
+                            </StatusBadge>
                           )}
                         </TableCell>
-                        <TableCell className="text-xs font-mono text-muted-foreground">{u.email}</TableCell>
-                        <TableCell className="text-xs">
-                          <span
-                            className={cn(
-                              'inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border',
-                              u.role === 'admin'
-                                ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
-                                : 'bg-blue-500/15 text-blue-300 border-blue-500/30'
-                            )}
-                          >
-                            {u.role === 'admin' ? '🛡️ Admin' : '📊 Analyst'}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-xs">
+                        <TableCell className="py-3 px-4 text-xs">
                           <button
                             type="button"
                             className={cn(
-                              'inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full border transition-colors',
-                              isActive
-                                ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/25'
-                                : 'bg-slate-500/15 text-slate-300 border-slate-500/30 hover:bg-slate-500/25',
-                              isSelf && 'cursor-not-allowed opacity-70'
+                              'inline-flex items-center transition-all cursor-pointer',
+                              isSelf && 'cursor-not-allowed opacity-80'
                             )}
                             onClick={() => !isSelf && handleToggleActive(u.email, isActive)}
                             disabled={isSelf}
                             title={isSelf ? 'Anda tidak dapat menonaktifkan akun sendiri' : 'Klik untuk ubah status aktif/nonaktif'}
                           >
-                            {isActive ? '✅ Aktif' : '⛔ Nonaktif'}
+                            {isActive ? (
+                              <StatusBadge status="success" size="sm" dot>
+                                Aktif
+                              </StatusBadge>
+                            ) : (
+                              <StatusBadge status="neutral" size="sm" dot>
+                                Nonaktif
+                              </StatusBadge>
+                            )}
                           </button>
                         </TableCell>
-                        <TableCell className="text-xs text-muted-foreground font-mono">
-                          {u.last_login_at
-                            ? new Date(u.last_login_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-                            : 'Belum pernah login'}
+                        <TableCell className="py-3 px-4 text-xs text-slate-500">
+                          <div className="flex items-center gap-1.5">
+                            <Clock size={12} className="text-slate-400 shrink-0" />
+                            <span>
+                              {u.last_login_at
+                                ? new Date(u.last_login_at).toLocaleDateString('id-ID', {
+                                    day: 'numeric',
+                                    month: 'short',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })
+                                : 'Belum pernah login'}
+                            </span>
+                          </div>
                         </TableCell>
-                        <TableCell className="text-xs text-center">
+                        <TableCell className="py-3 px-4 text-xs text-center">
                           <div className="inline-flex items-center gap-1">
-                            <Button
+                            <button
                               type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-colors cursor-pointer"
                               onClick={() => openEditModal(u)}
                               title="Edit profil pengguna"
+                              aria-label={`Edit ${u.full_name || u.email}`}
                             >
-                              <Pencil size={13} />
-                            </Button>
+                              <Pencil size={14} />
+                            </button>
                             {!isSelf && (
-                              <Button
+                              <button
                                 type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-muted-foreground hover:text-rose-400"
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors cursor-pointer"
                                 onClick={() => handleDeleteUser(u.email)}
                                 title="Hapus dari whitelist"
+                                aria-label={`Hapus ${u.full_name || u.email}`}
                               >
-                                <Trash2 size={13} />
-                              </Button>
+                                <Trash2 size={14} />
+                              </button>
                             )}
                           </div>
                         </TableCell>
@@ -564,94 +631,116 @@ export default function AdminDashboard({ onBack }) {
               </Table>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </Segment>
 
-      {/* Modal Edit Pengguna */}
-      {editingUser && (
-        <Dialog open={true} onOpenChange={(open) => !open && closeEditModal()}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-base">
-                <Pencil size={18} className="text-primary" /> Edit Pengguna Whitelist
-              </DialogTitle>
-              <DialogDescription className="text-xs font-mono text-muted-foreground">
-                {editingUser.email}
-              </DialogDescription>
-            </DialogHeader>
-
-            <form onSubmit={handleUpdateUser} className="space-y-4 pt-2">
-              {editError && (
-                <div className="p-3 rounded-lg border border-rose-500/40 bg-rose-500/10 text-rose-300 flex items-center gap-2 text-xs">
-                  <AlertCircle size={14} className="shrink-0" />
-                  <span>{editError}</span>
+        {/* Modal Edit Pengguna */}
+        {editingUser && (
+          <Dialog open={true} onOpenChange={(open) => !open && closeEditModal()}>
+            <DialogContent className="sm:max-w-md bg-white rounded-xl border border-slate-200 shadow-lg">
+              <DialogHeader>
+                <div className="flex items-center gap-2.5">
+                  <FeaturedIcon icon={UserCheck} color="brand" size="sm" variant="light-circle" />
+                  <div>
+                    <DialogTitle className="text-base font-bold text-slate-900">
+                      Edit Akses Pengguna Whitelist
+                    </DialogTitle>
+                    <DialogDescription className="text-xs font-mono text-slate-500 mt-0.5">
+                      {editingUser.email}
+                    </DialogDescription>
+                  </div>
                 </div>
-              )}
+              </DialogHeader>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground" htmlFor="edit-fullname">
-                  Nama Lengkap <span className="text-rose-400">*</span>
-                </label>
-                <Input
-                  id="edit-fullname"
-                  type="text"
-                  className="h-8 text-xs"
-                  value={editFullName}
-                  onChange={(e) => setEditFullName(e.target.value)}
-                  disabled={isUpdating}
-                  required
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground" htmlFor="edit-role">
-                  Role Akses
-                </label>
-                <select
-                  id="edit-role"
-                  className="w-full h-8 text-xs rounded-md border border-input bg-background px-2.5 py-1 text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  value={editRole}
-                  onChange={(e) => setEditRole(e.target.value)}
-                  disabled={isUpdating || editingUser?.email === currentUser?.email}
-                >
-                  <option value="analyst">Tax Analyst (Hanya Analisis Pajak)</option>
-                  <option value="admin">Administrator (Akses Penuh &amp; Kelola User)</option>
-                </select>
-                {editingUser?.email === currentUser?.email && (
-                  <span className="text-[11px] text-muted-foreground block">
-                    Anda tidak dapat menurunkan role akun admin Anda sendiri.
-                  </span>
+              <form onSubmit={handleUpdateUser} className="space-y-4 pt-2">
+                {editError && (
+                  <Message variant="error" size="sm">
+                    <p>{editError}</p>
+                  </Message>
                 )}
-              </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground" htmlFor="edit-status">
-                  Status Akun
-                </label>
-                <select
-                  id="edit-status"
-                  className="w-full h-8 text-xs rounded-md border border-input bg-background px-2.5 py-1 text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  value={editIsActive ? 'active' : 'inactive'}
-                  onChange={(e) => setEditIsActive(e.target.value === 'active')}
-                  disabled={isUpdating || editingUser?.email === currentUser?.email}
-                >
-                  <option value="active">✅ Aktif (Bisa Login)</option>
-                  <option value="inactive">⛔ Nonaktif (Login Diblokir)</option>
-                </select>
-              </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 block" htmlFor="edit-fullname">
+                    Nama Lengkap <span className="text-rose-500">*</span>
+                  </label>
+                  <Input
+                    id="edit-fullname"
+                    type="text"
+                    className="h-9 text-xs rounded-lg border-slate-200 bg-slate-50/70 focus:bg-white text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    value={editFullName}
+                    onChange={(e) => setEditFullName(e.target.value)}
+                    disabled={isUpdating}
+                    required
+                  />
+                </div>
 
-              <DialogFooter className="pt-2">
-                <Button type="button" variant="ghost" size="sm" onClick={closeEditModal} disabled={isUpdating} className="h-8 text-xs">
-                  Batal
-                </Button>
-                <Button type="submit" size="sm" disabled={isUpdating} className="h-8 text-xs font-semibold">
-                  {isUpdating ? <><Loader2 size={13} className="animate-spin" /> Menyimpan...</> : 'Simpan Perubahan'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      )}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 block" htmlFor="edit-role">
+                    Role Akses
+                  </label>
+                  <select
+                    id="edit-role"
+                    className="w-full h-9 text-xs font-medium rounded-lg border border-slate-200 bg-slate-50/70 focus:bg-white px-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                    value={editRole}
+                    onChange={(e) => setEditRole(e.target.value)}
+                    disabled={isUpdating || editingUser?.email === currentUser?.email}
+                  >
+                    <option value="analyst">Tax Analyst (Hanya Analisis Pajak)</option>
+                    <option value="admin">Administrator (Akses Penuh &amp; Kelola Whitelist)</option>
+                  </select>
+                  {editingUser?.email === currentUser?.email && (
+                    <span className="text-[11px] text-slate-500 block">
+                      Anda tidak dapat menurunkan role akun admin Anda sendiri.
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 block" htmlFor="edit-status">
+                    Status Akun
+                  </label>
+                  <select
+                    id="edit-status"
+                    className="w-full h-9 text-xs font-medium rounded-lg border border-slate-200 bg-slate-50/70 focus:bg-white px-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                    value={editIsActive ? 'active' : 'inactive'}
+                    onChange={(e) => setEditIsActive(e.target.value === 'active')}
+                    disabled={isUpdating || editingUser?.email === currentUser?.email}
+                  >
+                    <option value="active">Aktif (Dapat Login)</option>
+                    <option value="inactive">Nonaktif (Login Diblokir)</option>
+                  </select>
+                </div>
+
+                <DialogFooter className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={closeEditModal}
+                    disabled={isUpdating}
+                    className="h-8.5 px-3 text-xs border-slate-200 text-slate-700 hover:bg-slate-50 cursor-pointer"
+                  >
+                    Batal
+                  </Button>
+                  <button
+                    type="submit"
+                    disabled={isUpdating}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:via-indigo-700 hover:to-indigo-800 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:shadow-md transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                  >
+                    {isUpdating ? (
+                      <>
+                        <Loader2 size={13} className="animate-spin" />
+                        <span>Menyimpan...</span>
+                      </>
+                    ) : (
+                      <span>Simpan Perubahan</span>
+                    )}
+                  </button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
     </div>
   );
 }

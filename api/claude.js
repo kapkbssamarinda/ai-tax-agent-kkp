@@ -13,7 +13,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // Rate limiter per user (in-memory — reset setiap cold start)
 const rateLimitMap = new Map();
-const RATE_LIMIT_MAX = 15;        // Maksimum 15 request per user per jam
+const RATE_LIMIT_MAX = 60;        // Maksimum 60 request per user per jam (cukup untuk 8-10 batch audit lengkap)
 const RATE_LIMIT_WINDOW = 3600000; // Per 1 jam (3600 detik)
 
 const PRICING_RATES = {
@@ -32,6 +32,18 @@ function calculateCost(model, inputTokens = 0, outputTokens = 0) {
   };
 }
 
+function getRateLimitStatus(userId) {
+  const now = Date.now();
+  const key = userId || 'anonymous';
+  const timestamps = (rateLimitMap.get(key) || []).filter(t => now - t < RATE_LIMIT_WINDOW);
+  if (timestamps.length >= RATE_LIMIT_MAX) {
+    const oldestTimestamp = timestamps[0];
+    const resetInMinutes = Math.ceil((RATE_LIMIT_WINDOW - (now - oldestTimestamp)) / 60000);
+    return { allowed: false, remaining: 0, resetInMinutes, max: RATE_LIMIT_MAX };
+  }
+  return { allowed: true, remaining: RATE_LIMIT_MAX - timestamps.length, resetInMinutes: 0, max: RATE_LIMIT_MAX };
+}
+
 function checkRateLimit(userId) {
   const now = Date.now();
   const key = userId || 'anonymous';
@@ -39,21 +51,51 @@ function checkRateLimit(userId) {
   if (timestamps.length >= RATE_LIMIT_MAX) {
     const oldestTimestamp = timestamps[0];
     const resetInMinutes = Math.ceil((RATE_LIMIT_WINDOW - (now - oldestTimestamp)) / 60000);
-    return { allowed: false, remaining: 0, resetInMinutes };
+    return { allowed: false, remaining: 0, resetInMinutes, max: RATE_LIMIT_MAX };
   }
   timestamps.push(now);
   rateLimitMap.set(key, timestamps);
-  return { allowed: true, remaining: RATE_LIMIT_MAX - timestamps.length, resetInMinutes: 0 };
+  return { allowed: true, remaining: RATE_LIMIT_MAX - timestamps.length, resetInMinutes: 0, max: RATE_LIMIT_MAX };
 }
 
 export default async function handler(req, res) {
-  // Hanya izinkan POST
+  // Ambil API key dari environment variables
+  const apiKey = process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY || process.env.VITE_CLAUDE_API_KEY;
+
+  // Endpoint Cek Koneksi AI (GET atau POST action: 'check_connection'/'ping') — tidak mengonsumsi kuota rate limit
+  const isConnectionCheck =
+    req.method === 'GET' ||
+    (req.method === 'POST' && (req.body?.action === 'check_connection' || req.body?.action === 'ping'));
+
+  if (isConnectionCheck) {
+    if (!apiKey) {
+      return res.status(500).json({
+        status: 'error',
+        connected: false,
+        error: 'Konfigurasi server: CLAUDE_API_KEY / ANTHROPIC_API_KEY belum diatur di Environment Variables Vercel.'
+      });
+    }
+
+    const userId = req.body?.user_id || req.query?.user_id || null;
+    const rateStatus = getRateLimitStatus(userId);
+
+    return res.status(200).json({
+      status: rateStatus.allowed ? 'ok' : 'rate_limited',
+      connected: true,
+      model: req.body?.model || 'claude-sonnet-5-5',
+      rateLimit: rateStatus,
+      message: rateStatus.allowed
+        ? 'Koneksi ke AI Claude aktif & responsif.'
+        : `Batas kecepatan tercapai (${rateStatus.remaining}/${rateStatus.max} request per jam). Reset dalam ${rateStatus.resetInMinutes} menit.`,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  // Hanya izinkan POST untuk panggilan analisis reguler
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed. Gunakan POST.' });
   }
 
-  // Ambil API key dari environment variables
-  const apiKey = process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY || process.env.VITE_CLAUDE_API_KEY;
   if (!apiKey) {
     return res.status(500).json({
       error: 'Konfigurasi server: CLAUDE_API_KEY / ANTHROPIC_API_KEY belum diatur di Environment Variables.'
@@ -111,7 +153,7 @@ export default async function handler(req, res) {
   const rateCheck = checkRateLimit(effectiveUserId);
   if (!rateCheck.allowed) {
     return res.status(429).json({
-      error: `Batas kecepatan penggunaan AI tercapai (maksimum ${RATE_LIMIT_MAX} analisis per jam). Silakan coba lagi dalam ${rateCheck.resetInMinutes} menit.`,
+      error: `Batas kecepatan penggunaan AI tercapai (maksimum ${RATE_LIMIT_MAX} request per jam). Silakan coba lagi dalam ${rateCheck.resetInMinutes} menit.`,
       remaining: 0,
       resetInMinutes: rateCheck.resetInMinutes
     });

@@ -807,6 +807,82 @@ function extractAndParseClaudeJson(text) {
  * Uji koneksi ke Claude API melalui proxy server.
  * Tidak perlu API key â€” proxy sudah memiliki key.
  */
+/**
+ * Cek status kesehatan koneksi ke proxy server AI Claude
+ * Mengirimkan action 'check_connection' tanpa mengonsumsi kuota rate limit analisis.
+ * Mengukur round-trip latency, status endpoint, sisa kuota rate limit, dan model aktif.
+ * @param {string|null} userId
+ * @param {string|null} model
+ * @returns {Promise<{ ok: boolean, latencyMs: number, status: string, message: string, rateLimit: { remaining: number, max: number, resetInMinutes: number }, model: string }>}
+ */
+export async function checkAIConnection(userId = null, model = null) {
+  const startTime = Date.now();
+  const targetModel = model || getSavedModel();
+
+  try {
+    const headers = { 'content-type': 'application/json' };
+    if (typeof supabase !== 'undefined' && supabase?.auth) {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session?.access_token) {
+          headers['authorization'] = `Bearer ${sessionData.session.access_token}`;
+        }
+        if (!userId && sessionData?.session?.user?.id) {
+          userId = sessionData.session.user.id;
+        }
+      } catch { /* ignore */ }
+    }
+
+    const response = await fetch('/api/claude', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        action: 'check_connection',
+        user_id: userId,
+        model: targetModel
+      })
+    });
+
+    const latencyMs = Date.now() - startTime;
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      const errMsg =
+        data?.error?.message ||
+        (typeof data?.error === 'string' ? data.error : '') ||
+        data?.message ||
+        `HTTP ${response.status}`;
+      return {
+        ok: false,
+        latencyMs,
+        status: response.status === 429 ? 'rate_limited' : 'error',
+        message: errMsg,
+        rateLimit: data?.rateLimit || { remaining: 0, max: 60, resetInMinutes: data?.resetInMinutes || 0 },
+        model: targetModel
+      };
+    }
+
+    return {
+      ok: data?.status === 'ok',
+      latencyMs,
+      status: data?.status || 'ok',
+      message: data?.message || 'Koneksi ke AI Claude aktif & responsif.',
+      rateLimit: data?.rateLimit || { remaining: 60, max: 60, resetInMinutes: 0 },
+      model: data?.model || targetModel
+    };
+  } catch (err) {
+    const latencyMs = Date.now() - startTime;
+    return {
+      ok: false,
+      latencyMs,
+      status: 'offline',
+      message: `Tidak dapat terhubung ke server proxy AI: ${err.message}`,
+      rateLimit: { remaining: 0, max: 60, resetInMinutes: 0 },
+      model: targetModel
+    };
+  }
+}
+
 export async function testClaudeConnection(model = DEFAULT_MODEL) {
   const candidateModels = [model, ...FALLBACK_MODELS.filter(m => m !== model)];
   let lastError = null;

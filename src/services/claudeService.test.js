@@ -18,7 +18,8 @@ import {
   HONORARIUM_DISAMBIGUATION_TOOL,
   SP2DK_RESPONSE_TOOL,
   SCHEMA_MAPPING_TOOL,
-  detectSchemaWithClaude
+  detectSchemaWithClaude,
+  checkAIConnection
 } from './claudeService';
 
 describe('Claude Service & AI Account Classification', () => {
@@ -487,6 +488,46 @@ describe('Claude Service & AI Account Classification', () => {
     expect(multiBatchFindings[1].findingId).toBe('TR-002');
     expect(multiBatchFindings[2].findingId).toBe('TR-003');
     expect(multiBatchFindings.map(f => f.taxArea)).toEqual(['PPN', 'PPh Pasal 23', 'PPh Pasal 21']);
+  });
+
+  it('checkAIConnection mengembalikan status ok dan sisa rate limit saat server merespons 200', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        status: 'ok',
+        connected: true,
+        model: 'claude-sonnet-5-5',
+        rateLimit: { allowed: true, remaining: 58, max: 60, resetInMinutes: 0 },
+        message: 'Koneksi ke AI Claude aktif & responsif.'
+      })
+    });
+    global.fetch = mockFetch;
+
+    const res = await checkAIConnection('user-123');
+    expect(res.ok).toBe(true);
+    expect(res.status).toBe('ok');
+    expect(res.rateLimit.remaining).toBe(58);
+    expect(res.rateLimit.max).toBe(60);
+    expect(res.latencyMs).toBeGreaterThanOrEqual(0);
+  });
+
+  it('checkAIConnection mendeteksi status rate_limited saat proxy mengembalikan 429', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 429,
+      json: async () => ({
+        error: 'Batas kecepatan penggunaan AI tercapai',
+        rateLimit: { remaining: 0, max: 60, resetInMinutes: 45 }
+      })
+    });
+    global.fetch = mockFetch;
+
+    const res = await checkAIConnection('user-429');
+    expect(res.ok).toBe(false);
+    expect(res.status).toBe('rate_limited');
+    expect(res.rateLimit.remaining).toBe(0);
+    expect(res.rateLimit.resetInMinutes).toBe(45);
   });
 });
 

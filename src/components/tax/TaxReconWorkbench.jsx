@@ -6,6 +6,10 @@ import { analyzeHonorariumClassification } from '../../services/claudeService';
 import TaxRiskRegister from './TaxRiskRegister';
 import KeywordScannerTab from './KeywordScannerTab';
 import { downloadKKPWorkbook } from '../../tax-engine/kkpWorkbookGenerator';
+import { AuditStepper } from '../ui/steps';
+import { Segment } from '../ui/segment';
+import { FeaturedIcon } from '../ui/featured-icon';
+import { StatusBadge } from '../ui/status-badge';
 
 // Helper deteksi nomor seri faktur pajak atau bukti potong dari teks uraian
 function extractTaxBadge(text) {
@@ -206,6 +210,23 @@ function TaxReconWorkbench({
 
   return (
     <main className="tax-recon-workbench" aria-label="AI Tax Agent &amp; KKP Workbench">
+      {/* Audit Stepper Progression Header */}
+      <Segment raised color="teal" className="mb-5 bg-white border border-border p-4 rounded-xl shadow-xs">
+        <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold tracking-wider text-slate-500 uppercase">
+              Alur Pemeriksaan Pajak & KKP
+            </span>
+            <StatusBadge status="info" size="sm" dot pulse>
+              Tahap 3: Rekonsiliasi &amp; Pemeriksaan AI Aktif
+            </StatusBadge>
+          </div>
+          <span className="text-xs text-muted-foreground font-mono">
+            {clientInfo?.name ? `${clientInfo.name} • TA ${clientInfo?.taxYear || '2024'}` : 'TA 2024'}
+          </span>
+        </div>
+        <AuditStepper currentStep={3} className="w-full" />
+      </Segment>
       {/* Top Header & AI Trigger */}
       <div className="workbench-top-banner">
         <div className="banner-left">
@@ -252,68 +273,85 @@ function TaxReconWorkbench({
 
       {/* AI Analysis Completion & Scope Insight Card */}
       {aiAnalysisSummary && (
-        <div className="ai-success-insight-card">
-          <div className="insight-card-header">
-            <div className="insight-header-left">
-              <div className="insight-icon-wrap">
-                <Sparkles size={20} className="text-purple-400" />
-              </div>
+        <Segment
+          color="teal"
+          raised
+          className="ai-success-insight-card mb-5 border border-teal-200 bg-teal-50/70 p-5 rounded-xl shadow-xs transition-all"
+        >
+          <div className="insight-card-header flex items-start justify-between gap-3">
+            <div className="insight-header-left flex items-start gap-3.5">
+              <FeaturedIcon
+                icon={Sparkles}
+                color="brand"
+                size="md"
+                variant="light-circle"
+                className="shrink-0 text-teal-600 bg-teal-100 ring-teal-50"
+              />
               <div>
-                <h4 className="insight-title">
-                  Analisis Semantik AI (Claude Haiku) Selesai!
-                </h4>
-                <p className="insight-subtitle">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="insight-title text-base font-bold text-slate-900">
+                    Analisis Semantik AI (Claude Sonnet 5.5) Selesai!
+                  </h4>
+                  <StatusBadge status="success" size="sm" dot>
+                    Terverifikasi
+                  </StatusBadge>
+                </div>
+                <p className="insight-subtitle text-xs text-slate-600 mt-1">
                   Waktu: <strong>{aiAnalysisSummary.timestamp}</strong> &bull; Total Temuan Dihasilkan: <strong>{aiAnalysisSummary.findingsCount} Temuan</strong> ({aiAnalysisSummary.aiFindingsCount} Temuan Semantik AI)
                 </p>
               </div>
             </div>
-            <button className="btn-icon-subtle" onClick={onDismissAISummary} title="Tutup pemberitahuan">
+            <button
+              className="btn-icon-subtle rounded-lg p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
+              onClick={onDismissAISummary}
+              title="Tutup pemberitahuan"
+            >
               <X size={16} />
             </button>
           </div>
 
-          <div className="insight-scope-grid">
-            <div className="scope-item">
-              <div className="scope-badge">
-                <Check size={13} /> Ekualisasi Omzet vs PPN
+          <div className="insight-scope-grid mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="scope-item p-3.5 bg-white rounded-lg border border-teal-100 shadow-2xs">
+              <div className="scope-badge font-semibold text-xs text-teal-900 flex items-center gap-1.5 mb-1.5">
+                <Check size={14} className="text-teal-600" /> Ekualisasi Omzet vs PPN
               </div>
-              <p className="scope-desc">
+              <p className="scope-desc text-xs text-slate-600 leading-relaxed">
                 Validasi peredaran usaha GL vs DPP SPT Masa PPN Jan–Des, deteksi selisih omzet, &amp; verifikasi indikasi faktur uang muka.
               </p>
             </div>
 
-            <div className="scope-item">
-              <div className="scope-badge">
-                <Check size={13} /> Ekualisasi Beban PPh 23
+            <div className="scope-item p-3.5 bg-white rounded-lg border border-teal-100 shadow-2xs">
+              <div className="scope-badge font-semibold text-xs text-teal-900 flex items-center gap-1.5 mb-1.5">
+                <Check size={14} className="text-teal-600" /> Ekualisasi Beban PPh 23
               </div>
-              <p className="scope-desc">
+              <p className="scope-desc text-xs text-slate-600 leading-relaxed">
                 Pemeriksaan seluruh beban jasa operasional GL vs e-Bupot Unifikasi dan penghitungan sanksi bunga Pasal 19 KUP.
               </p>
             </div>
 
-            <div className="scope-item">
-              <div className="scope-badge">
-                <Check size={13} /> Audit Semantik Salah Kamar
+            <div className="scope-item p-3.5 bg-white rounded-lg border border-teal-100 shadow-2xs">
+              <div className="scope-badge font-semibold text-xs text-teal-900 flex items-center gap-1.5 mb-1.5">
+                <Check size={14} className="text-teal-600" /> Audit Semantik Salah Kamar
               </div>
-              <p className="scope-desc">
+              <p className="scope-desc text-xs text-slate-600 leading-relaxed">
                 Pemindaian puluhan memo transaksi di akun penampung umum (Biaya Lain-lain, Biaya Umum, &amp; Uang Muka) mendeteksi objek jasa tersembunyi.
               </p>
             </div>
 
-            <div className="scope-item">
-              <div className="scope-badge">
-                <Check size={13} /> Dasar Hukum &amp; Bukti Pemeriksaan
+            <div className="scope-item p-3.5 bg-white rounded-lg border border-teal-100 shadow-2xs">
+              <div className="scope-badge font-semibold text-xs text-teal-900 flex items-center gap-1.5 mb-1.5">
+                <Check size={14} className="text-teal-600" /> Dasar Hukum &amp; Bukti Pemeriksaan
               </div>
-              <p className="scope-desc">
+              <p className="scope-desc text-xs text-slate-600 leading-relaxed">
                 Penetapan pasal regulasi resmi (UU HPP, PMK 141/2015, PMK 02/2010) dan penyusunan daftar permintaan dokumen ke klien.
               </p>
             </div>
           </div>
 
-          <div className="insight-card-footer">
+          <div className="insight-card-footer mt-4 pt-3.5 border-t border-teal-200/80 flex items-center justify-between">
             <button
               type="button"
-              className="btn btn-sm btn-primary"
+              className="btn btn-sm btn-primary inline-flex items-center gap-1.5 shadow-xs"
               onClick={() => {
                 setActiveTab('FINDINGS');
               }}
@@ -322,56 +360,104 @@ function TaxReconWorkbench({
             </button>
             <button
               type="button"
-              className="btn btn-sm btn-ghost"
+              className="btn btn-sm btn-ghost text-slate-600 hover:text-slate-900"
               onClick={onDismissAISummary}
             >
               Tutup
             </button>
           </div>
-        </div>
+        </Segment>
       )}
 
       {/* Navigation Tabs */}
-      <div className="tax-nav-tabs" aria-label="Menu Rekonsiliasi & Pemeriksaan Pajak">
+      <div className="tax-nav-tabs" role="tablist" aria-label="Menu Rekonsiliasi & Pemeriksaan Pajak">
         <button
           type="button"
-          className={`tax-tab-btn ${activeTab === 'REVENUE_PPN' ? 'is-active' : ''}`}
+          role="tab"
+          id="tab-REVENUE_PPN"
+          aria-selected={activeTab === 'REVENUE_PPN'}
+          aria-controls="panel-REVENUE_PPN"
+          className={`tax-tab-btn ${
+            activeTab === 'REVENUE_PPN'
+              ? 'is-active bg-teal-50 text-teal-800 border-b-2 border-teal-600 font-semibold'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
           onClick={() => { setActiveTab('REVENUE_PPN'); setSearchQuery(''); }}
         >
           <Scale size={15} className="tax-tab-icon" />
           <span className="tax-tab-label">Ekualisasi Omzet vs PPN</span>
-          <span className="tax-tab-badge">{revenueTransactions.length}</span>
+          <span className={`tax-tab-badge ${activeTab === 'REVENUE_PPN' ? 'bg-teal-100 text-teal-800' : ''}`}>
+            {revenueTransactions.length}
+          </span>
         </button>
         <button
           type="button"
-          className={`tax-tab-btn ${activeTab === 'EXPENSE_PPH23' ? 'is-active' : ''}`}
+          role="tab"
+          id="tab-EXPENSE_PPH23"
+          aria-selected={activeTab === 'EXPENSE_PPH23'}
+          aria-controls="panel-EXPENSE_PPH23"
+          className={`tax-tab-btn ${
+            activeTab === 'EXPENSE_PPH23'
+              ? 'is-active bg-blue-50 text-blue-800 border-b-2 border-blue-600 font-semibold'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
           onClick={() => { setActiveTab('EXPENSE_PPH23'); setSearchQuery(''); }}
         >
           <Calculator size={15} className="tax-tab-icon" />
           <span className="tax-tab-label">Ekualisasi Biaya vs PPh 23</span>
-          <span className="tax-tab-badge">{expenseTransactions.length}</span>
+          <span className={`tax-tab-badge ${activeTab === 'EXPENSE_PPH23' ? 'bg-blue-100 text-blue-800' : ''}`}>
+            {expenseTransactions.length}
+          </span>
         </button>
         <button
           type="button"
-          className={`tax-tab-btn ${activeTab === 'PAYROLL_PPH21' ? 'is-active' : ''}`}
+          role="tab"
+          id="tab-PAYROLL_PPH21"
+          aria-selected={activeTab === 'PAYROLL_PPH21'}
+          aria-controls="panel-PAYROLL_PPH21"
+          className={`tax-tab-btn ${
+            activeTab === 'PAYROLL_PPH21'
+              ? 'is-active bg-purple-50 text-purple-800 border-b-2 border-purple-600 font-semibold'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
           onClick={() => { setActiveTab('PAYROLL_PPH21'); setSearchQuery(''); }}
         >
           <Users size={15} className="tax-tab-icon" />
           <span className="tax-tab-label">Ekualisasi Gaji vs PPh 21</span>
-          <span className="tax-tab-badge">{payrollTransactions.length}</span>
+          <span className={`tax-tab-badge ${activeTab === 'PAYROLL_PPH21' ? 'bg-purple-100 text-purple-800' : ''}`}>
+            {payrollTransactions.length}
+          </span>
         </button>
         <button
           type="button"
-          className={`tax-tab-btn ${activeTab === 'RENT_PPH_FINAL' ? 'is-active' : ''}`}
+          role="tab"
+          id="tab-RENT_PPH_FINAL"
+          aria-selected={activeTab === 'RENT_PPH_FINAL'}
+          aria-controls="panel-RENT_PPH_FINAL"
+          className={`tax-tab-btn ${
+            activeTab === 'RENT_PPH_FINAL'
+              ? 'is-active bg-amber-50 text-amber-800 border-b-2 border-amber-600 font-semibold'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
           onClick={() => { setActiveTab('RENT_PPH_FINAL'); setSearchQuery(''); }}
         >
           <Building2 size={15} className="tax-tab-icon" />
           <span className="tax-tab-label">Ekualisasi Sewa/Konstruksi</span>
-          <span className="tax-tab-badge">{finalTaxTransactions.length}</span>
+          <span className={`tax-tab-badge ${activeTab === 'RENT_PPH_FINAL' ? 'bg-amber-100 text-amber-800' : ''}`}>
+            {finalTaxTransactions.length}
+          </span>
         </button>
         <button
           type="button"
-          className={`tax-tab-btn ${activeTab === 'IMPORT_FAKTUR' ? 'is-active' : ''}`}
+          role="tab"
+          id="tab-IMPORT_FAKTUR"
+          aria-selected={activeTab === 'IMPORT_FAKTUR'}
+          aria-controls="panel-IMPORT_FAKTUR"
+          className={`tax-tab-btn ${
+            activeTab === 'IMPORT_FAKTUR'
+              ? 'is-active bg-cyan-50 text-cyan-800 border-b-2 border-cyan-600 font-semibold'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
           onClick={() => { setActiveTab('IMPORT_FAKTUR'); setSearchQuery(''); }}
         >
           <FileUp size={15} className="tax-tab-icon" />
@@ -379,7 +465,15 @@ function TaxReconWorkbench({
         </button>
         <button
           type="button"
-          className={`tax-tab-btn ${activeTab === 'KEYWORD_SCANNER' ? 'is-active' : ''}`}
+          role="tab"
+          id="tab-KEYWORD_SCANNER"
+          aria-selected={activeTab === 'KEYWORD_SCANNER'}
+          aria-controls="panel-KEYWORD_SCANNER"
+          className={`tax-tab-btn ${
+            activeTab === 'KEYWORD_SCANNER'
+              ? 'is-active bg-indigo-50 text-indigo-800 border-b-2 border-indigo-600 font-semibold'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
           onClick={() => { setActiveTab('KEYWORD_SCANNER'); setSearchQuery(''); }}
         >
           <Search size={15} className="tax-tab-icon" />
@@ -387,25 +481,53 @@ function TaxReconWorkbench({
         </button>
         <button
           type="button"
-          className={`tax-tab-btn ${activeTab === 'TAX_MAPPING' ? 'is-active' : ''}`}
+          role="tab"
+          id="tab-TAX_MAPPING"
+          aria-selected={activeTab === 'TAX_MAPPING'}
+          aria-controls="panel-TAX_MAPPING"
+          className={`tax-tab-btn ${
+            activeTab === 'TAX_MAPPING'
+              ? 'is-active bg-emerald-50 text-emerald-800 border-b-2 border-emerald-600 font-semibold'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
           onClick={() => setActiveTab('TAX_MAPPING')}
         >
           <ShieldCheck size={15} className="tax-tab-icon" />
           <span className="tax-tab-label">Tax Mapping Akun</span>
-          <span className="tax-tab-badge">{taxMappings.length}</span>
+          <span className={`tax-tab-badge ${activeTab === 'TAX_MAPPING' ? 'bg-emerald-100 text-emerald-800' : ''}`}>
+            {taxMappings.length}
+          </span>
         </button>
         <button
           type="button"
-          className={`tax-tab-btn ${activeTab === 'FINDINGS' ? 'is-active' : ''}`}
+          role="tab"
+          id="tab-FINDINGS"
+          aria-selected={activeTab === 'FINDINGS'}
+          aria-controls="panel-FINDINGS"
+          className={`tax-tab-btn ${
+            activeTab === 'FINDINGS'
+              ? 'is-active bg-rose-50 text-rose-800 border-b-2 border-rose-600 font-semibold'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
           onClick={() => setActiveTab('FINDINGS')}
         >
           <AlertCircle size={15} className="tax-tab-icon" />
           <span className="tax-tab-label">Tax Risk Register</span>
-          <span className="tax-tab-badge">{findings.length}</span>
+          <span className={`tax-tab-badge ${activeTab === 'FINDINGS' ? 'bg-rose-100 text-rose-800 font-bold' : ''}`}>
+            {findings.length}
+          </span>
         </button>
         <button
           type="button"
-          className={`tax-tab-btn ${activeTab === 'REGULATIONS' ? 'is-active' : ''}`}
+          role="tab"
+          id="tab-REGULATIONS"
+          aria-selected={activeTab === 'REGULATIONS'}
+          aria-controls="panel-REGULATIONS"
+          className={`tax-tab-btn ${
+            activeTab === 'REGULATIONS'
+              ? 'is-active bg-slate-100 text-slate-800 border-b-2 border-slate-600 font-semibold'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
           onClick={() => setActiveTab('REGULATIONS')}
         >
           <BookOpen size={15} className="tax-tab-icon" />
@@ -415,18 +537,18 @@ function TaxReconWorkbench({
 
       {/* Tab Content 1: Ekualisasi Omzet vs PPN */}
       {activeTab === 'REVENUE_PPN' && (
-        <div className="tab-pane">
+        <div className="tab-pane" role="tabpanel" id="panel-REVENUE_PPN" aria-labelledby="tab-REVENUE_PPN">
           {/* Summary Cards */}
           <div className="recon-summary-cards">
-            <div className="recon-card">
+            <Segment raised color="teal" className="recon-card bg-white">
               <span className="recon-card-label">Total Omzet Menurut Buku Besar (GL)</span>
               <span className="recon-card-val text-primary font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(revenueRecon.glRevenueTotal || 0)}
               </span>
               <span className="recon-card-sub">Dari {revenueAccountNames.size} akun peredaran usaha</span>
-            </div>
+            </Segment>
 
-            <div className="recon-card">
+            <Segment raised color="teal" className="recon-card bg-white">
               <span className="recon-card-label">Total DPP SPT Masa PPN (Jan–Des)</span>
               <span className="recon-card-val font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(revenueRecon.sptDPPTotal || 0)}
@@ -443,9 +565,9 @@ function TaxReconWorkbench({
                   <Check size={13} /> Update
                 </button>
               </div>
-            </div>
+            </Segment>
 
-            <div className="recon-card">
+            <Segment raised color={(revenueRecon.difference || 0) !== 0 ? 'amber' : 'emerald'} className="recon-card bg-white">
               <span className="recon-card-label">Selisih Ekualisasi (Variance)</span>
               <span className={`recon-card-val font-mono tabular-nums ${(revenueRecon.difference || 0) !== 0 ? 'text-danger' : 'text-success'}`}>
                 Rp {new Intl.NumberFormat('id-ID').format(revenueRecon.difference || 0)}
@@ -453,15 +575,15 @@ function TaxReconWorkbench({
               <span className="recon-card-sub">
                 {(revenueRecon.difference || 0) > 0 ? '⚠️ Potensi Omzet Belum Diterbitkan Faktur Pajak' : '✅ Reconciled / Lebih Bayar DPP'}
               </span>
-            </div>
+            </Segment>
 
-            <div className="recon-card recon-card-highlight">
+            <Segment raised color="rose" className="recon-card recon-card-highlight bg-white">
               <span className="recon-card-label">Potensi Pokok PPN Terutang (11%)</span>
               <span className="recon-card-val text-danger font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(revenueRecon.potentialPPNExposure || 0)}
               </span>
               <span className="recon-card-sub">Dihitung otomatis oleh Deterministic Engine</span>
-            </div>
+            </Segment>
           </div>
 
           {/* Rincian Transaksi Omzet */}
@@ -551,18 +673,18 @@ function TaxReconWorkbench({
 
       {/* Tab Content 2: Ekualisasi Biaya vs PPh 23 */}
       {activeTab === 'EXPENSE_PPH23' && (
-        <div className="tab-pane">
+        <div className="tab-pane" role="tabpanel" id="panel-EXPENSE_PPH23" aria-labelledby="tab-EXPENSE_PPH23">
           {/* Summary Cards */}
           <div className="recon-summary-cards">
-            <div className="recon-card">
+            <Segment raised color="blue" className="recon-card bg-white">
               <span className="recon-card-label">Total Beban Jasa/Sewa di GL</span>
               <span className="recon-card-val text-primary font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.glExpenseTotal || 0)}
               </span>
               <span className="recon-card-sub">Dari {pph23AccountNames.size} akun beban jasa &amp; sewa</span>
-            </div>
+            </Segment>
 
-            <div className="recon-card">
+            <Segment raised color="blue" className="recon-card bg-white">
               <span className="recon-card-label">Total DPP Bukti Potong e-Bupot</span>
               <span className="recon-card-val font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.bupotDPPTotal || 0)}
@@ -579,17 +701,17 @@ function TaxReconWorkbench({
                   <Check size={13} /> Update
                 </button>
               </div>
-            </div>
+            </Segment>
 
-            <div className="recon-card">
+            <Segment raised color={(expenseRecon.unmatchedDPP || 0) > 0 ? 'amber' : 'emerald'} className="recon-card bg-white">
               <span className="recon-card-label">Beban Jasa Belum Dipotong (Unmatched)</span>
               <span className={`recon-card-val font-mono tabular-nums ${(expenseRecon.unmatchedDPP || 0) > 0 ? 'text-danger' : 'text-success'}`}>
                 Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.unmatchedDPP || 0)}
               </span>
               <span className="recon-card-sub">Objek pemotongan PPh 23 tanpa e-Bupot</span>
-            </div>
+            </Segment>
 
-            <div className="recon-card recon-card-highlight">
+            <Segment raised color="rose" className="recon-card recon-card-highlight bg-white">
               <span className="recon-card-label">Total Potential Exposure (Pokok + Bunga)</span>
               <span className="recon-card-val text-danger font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.totalExposure || 0)}
@@ -597,7 +719,7 @@ function TaxReconWorkbench({
               <span className="recon-card-sub">
                 Pokok (2%): Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.potentialTax || 0)} + Sanksi: Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.interestSanction || 0)}
               </span>
-            </div>
+            </Segment>
           </div>
 
           {/* Rincian Transaksi Beban Jasa */}
@@ -687,18 +809,18 @@ function TaxReconWorkbench({
 
       {/* Tab Content 3: Ekualisasi Gaji vs PPh 21 */}
       {activeTab === 'PAYROLL_PPH21' && (
-        <div className="tab-pane">
+        <div className="tab-pane" role="tabpanel" id="panel-PAYROLL_PPH21" aria-labelledby="tab-PAYROLL_PPH21">
           {/* Summary Cards */}
           <div className="recon-summary-cards">
-            <div className="recon-card">
+            <Segment raised color="purple" className="recon-card bg-white">
               <span className="recon-card-label">Total Beban Gaji &amp; Imbalan di GL</span>
               <span className="recon-card-val text-primary font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.glPayrollTotal || 0)}
               </span>
               <span className="recon-card-sub">Dari {pph21AccountNames.size} akun gaji, upah &amp; tunjangan</span>
-            </div>
+            </Segment>
 
-            <div className="recon-card">
+            <Segment raised color="purple" className="recon-card bg-white">
               <span className="recon-card-label">Total Bruto SPT Masa PPh 21 (Jan–Des)</span>
               <span className="recon-card-val font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.sptBrutoTotal || 0)}
@@ -715,17 +837,17 @@ function TaxReconWorkbench({
                   <Check size={13} /> Update
                 </button>
               </div>
-            </div>
+            </Segment>
 
-            <div className="recon-card">
+            <Segment raised color={(payrollRecon.unmatchedBase || 0) > 0 ? 'amber' : 'emerald'} className="recon-card bg-white">
               <span className="recon-card-label">Selisih Gaji Belum Dilapor (Unmatched)</span>
               <span className={`recon-card-val font-mono tabular-nums ${(payrollRecon.unmatchedBase || 0) > 0 ? 'text-danger' : 'text-success'}`}>
                 Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.unmatchedBase || 0)}
               </span>
               <span className="recon-card-sub">Objek PPh 21 / natura belum tercakup</span>
-            </div>
+            </Segment>
 
-            <div className="recon-card recon-card-highlight">
+            <Segment raised color="rose" className="recon-card recon-card-highlight bg-white">
               <span className="recon-card-label">Total Potential Exposure (Pokok + Bunga)</span>
               <span className="recon-card-val text-danger font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.totalExposure || 0)}
@@ -733,7 +855,7 @@ function TaxReconWorkbench({
               <span className="recon-card-sub">
                 Pokok (est 5%): Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.potentialTax || 0)} + Sanksi: Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.interestSanction || 0)}
               </span>
-            </div>
+            </Segment>
           </div>
 
           {/* Action Bar Disambiguasi Honorarium PPh 21 vs PPh 23 */}
@@ -882,18 +1004,18 @@ function TaxReconWorkbench({
 
       {/* Tab Content 4: Ekualisasi Sewa Tanah/Bangunan & Konstruksi vs PPh Final 4(2) */}
       {activeTab === 'RENT_PPH_FINAL' && (
-        <div className="tab-pane">
+        <div className="tab-pane" role="tabpanel" id="panel-RENT_PPH_FINAL" aria-labelledby="tab-RENT_PPH_FINAL">
           {/* Summary Cards */}
           <div className="recon-summary-cards">
-            <div className="recon-card">
+            <Segment raised color="amber" className="recon-card bg-white">
               <span className="recon-card-label">Total Beban Sewa &amp; Konstruksi GL</span>
               <span className="recon-card-val text-primary font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.glFinalTaxTotal || 0)}
               </span>
               <span className="recon-card-sub">Dari {finalTaxAccountNames.size} akun sewa properti &amp; renovasi</span>
-            </div>
+            </Segment>
 
-            <div className="recon-card">
+            <Segment raised color="amber" className="recon-card bg-white">
               <span className="recon-card-label">Total DPP Bukti Potong PPh Final 4(2)</span>
               <span className="recon-card-val font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.bupotDPPTotal || 0)}
@@ -910,17 +1032,17 @@ function TaxReconWorkbench({
                   <Check size={13} /> Update
                 </button>
               </div>
-            </div>
+            </Segment>
 
-            <div className="recon-card">
+            <Segment raised color={(finalTaxRecon.unmatchedBase || 0) > 0 ? 'amber' : 'emerald'} className="recon-card bg-white">
               <span className="recon-card-label">Beban Sewa/Konstruksi Belum Dipotong</span>
               <span className={`recon-card-val font-mono tabular-nums ${(finalTaxRecon.unmatchedBase || 0) > 0 ? 'text-danger' : 'text-success'}`}>
                 Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.unmatchedBase || 0)}
               </span>
               <span className="recon-card-sub">Objek PPh Final 4(2) tanpa bukti pemotongan</span>
-            </div>
+            </Segment>
 
-            <div className="recon-card recon-card-highlight">
+            <Segment raised color="rose" className="recon-card recon-card-highlight bg-white">
               <span className="recon-card-label">Total Potential Exposure (Pokok + Bunga)</span>
               <span className="recon-card-val text-danger font-mono tabular-nums">
                 Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.totalExposure || 0)}
@@ -928,7 +1050,7 @@ function TaxReconWorkbench({
               <span className="recon-card-sub">
                 Pokok (10%): Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.potentialTax || 0)} + Sanksi: Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.interestSanction || 0)}
               </span>
-            </div>
+            </Segment>
           </div>
 
           {/* Rincian Transaksi Sewa & Konstruksi */}
@@ -1018,7 +1140,7 @@ function TaxReconWorkbench({
 
       {/* Tab Content: Import Faktur Pajak */}
       {activeTab === 'IMPORT_FAKTUR' && (
-        <div className="tab-pane">
+        <div className="tab-pane" role="tabpanel" id="panel-IMPORT_FAKTUR" aria-labelledby="tab-IMPORT_FAKTUR">
           <div className="faktur-import-tab">
             <div className="empty-panel p-8 text-center" style={{ maxWidth: '680px', margin: '40px auto', padding: '40px 24px', background: 'var(--bg-surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: '50%', background: 'var(--accent-bg, rgba(59, 130, 246, 0.1))', color: 'var(--accent-base, #3b82f6)', marginBottom: '16px' }}>
@@ -1042,7 +1164,7 @@ function TaxReconWorkbench({
 
       {/* Tab Content: Keyword & Anomali Scanner */}
       {activeTab === 'KEYWORD_SCANNER' && (
-        <div className="tab-pane">
+        <div className="tab-pane" role="tabpanel" id="panel-KEYWORD_SCANNER" aria-labelledby="tab-KEYWORD_SCANNER">
           <KeywordScannerTab
             glRows={glRows}
             taxMappings={taxMappings}
@@ -1052,7 +1174,7 @@ function TaxReconWorkbench({
 
       {/* Tab Content 3: Tax Mapping Akun */}
       {activeTab === 'TAX_MAPPING' && (
-        <div className="tab-pane">
+        <div className="tab-pane" role="tabpanel" id="panel-TAX_MAPPING" aria-labelledby="tab-TAX_MAPPING">
           {/* Header Summary & Action Toolbar */}
           <div style={{
             display: 'flex',
@@ -1230,14 +1352,14 @@ function TaxReconWorkbench({
 
       {/* Tab Content 4: Tax Risk Register */}
       {activeTab === 'FINDINGS' && (
-        <div className="tab-pane">
+        <div className="tab-pane" role="tabpanel" id="panel-FINDINGS" aria-labelledby="tab-FINDINGS">
           <TaxRiskRegister findings={findings} onUpdateStatus={onUpdateFindingStatus} />
         </div>
       )}
 
       {/* Tab Content 5: Regulation Database */}
       {activeTab === 'REGULATIONS' && (
-        <div className="tab-pane">
+        <div className="tab-pane" role="tabpanel" id="panel-REGULATIONS" aria-labelledby="tab-REGULATIONS">
           <div className="regulation-cards-grid">
             {REGULATION_DATABASE.map(reg => (
               <div key={reg.id} className="reg-card">

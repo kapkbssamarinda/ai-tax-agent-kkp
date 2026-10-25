@@ -72,26 +72,22 @@ test.describe('AI Tax Agent — E2E Suite', () => {
     await expect(page.getByText(/Akses dibatasi hanya untuk staf terdaftar di whitelist/i)).toBeVisible();
   });
 
-  test('2. Topbar, user session, and theme toggle work in authenticated shell', async ({ page }) => {
+  test('2. Topbar, user session, and permanent light mode in authenticated shell', async ({ page }) => {
     await page.addInitScript(({ auth }) => {
       localStorage.setItem('aitax_auth_session', JSON.stringify(auth));
     }, { auth: SAMPLE_AUTH_ADMIN });
 
     await page.goto('/');
 
-    // Verify Shell & Topbar elements
-    await expect(page.locator('.logo-text').first()).toHaveText('AI Tax Agent');
+    // Verify Shell & Branding elements
+    await expect(page.getByText('AI-Tax-Agent').first()).toBeVisible();
     await expect(page.getByText(/Zaidan Jauhari/i).first()).toBeVisible();
     await expect(page.getByText('Admin').first()).toBeVisible();
 
-    // Test Theme Toggle (Dark <-> Light)
+    // Verify Permanent Light Mode (Dark mode toggle purged)
     const htmlEl = page.locator('html');
-    const themeToggleBtn = page.getByLabel('Toggle Mode Gelap/Terang');
-    await expect(themeToggleBtn).toBeVisible();
-
-    // Click to toggle theme
-    await themeToggleBtn.click();
-    await expect(htmlEl).toHaveClass(/light|dark/);
+    await expect(htmlEl).not.toHaveClass(/dark/);
+    await expect(page.getByLabel('Toggle Mode Gelap/Terang')).not.toBeVisible();
   });
 
   test('3. Data ingestion tabs switch between File Upload and Tempel dari Excel', async ({ page }) => {

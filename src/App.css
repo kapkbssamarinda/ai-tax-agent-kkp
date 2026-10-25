@@ -823,7 +823,7 @@
   font-size: var(--fs-xs);
   line-height: 1.6;
   color: var(--text-primary);
-  background-color: var(--bg-app, #0f172a);
+  background-color: var(--bg-app);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   resize: vertical;
@@ -1963,7 +1963,7 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
 }
 
-.tax-tab-btn.is-active {
+.tax-tab-btn.is-active:not([class*="bg-"]) {
   background: var(--accent-base);
   color: var(--accent-on, #ffffff);
   border-color: var(--accent-base);
@@ -2006,7 +2006,7 @@
   color: var(--accent-base);
 }
 
-.tax-tab-btn.is-active .tax-tab-badge {
+.tax-tab-btn.is-active .tax-tab-badge:not([class*="bg-"]) {
   background: rgba(255, 255, 255, 0.25);
   color: #ffffff;
 }
@@ -2428,6 +2428,8 @@
 .recon-table-wrap {
   max-height: 480px;
   overflow-y: auto;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .uraian-cell {
@@ -3521,13 +3523,8 @@
   overflow-y: auto;
   padding: 20px;
   /* Area scroll menggunakan token tema — formal-letterhead-sheet di dalamnya yang hardcoded putih */
-  background: var(--bg-surface);
+  background: var(--bg-rail);
   color: var(--text-primary);
-}
-
-.light .letter-container-scrollable {
-  background: #f1f5f9;
-  color: #0f172a;
 }
 
 /* Formal Letterhead Sheet */
@@ -3839,16 +3836,16 @@
   justify-content: center;
   min-height: 100vh;
   padding: 2rem;
-  background: var(--bg-app, #0a0a0f);
+  background: var(--bg-app);
 }
 .login-card {
   width: 100%;
   max-width: 420px;
   padding: 2.5rem;
   border-radius: var(--radius-xl, 16px);
-  background: var(--bg-surface, #16161e);
-  border: 1px solid var(--border-default, #2a2a3a);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-lg);
 }
 .login-header { text-align: center; margin-bottom: 2rem; }
 .login-title { font-size: 1.5rem; font-weight: 700; margin: 0.75rem 0 0.25rem; color: var(--text-primary); }
@@ -3857,8 +3854,8 @@
 .login-error {
   display: flex; align-items: center; gap: 0.5rem;
   padding: 0.75rem 1rem; border-radius: var(--radius-md, 8px);
-  background: rgba(239, 68, 68, 0.12); color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.85rem;
+  background: var(--danger-bg); color: var(--danger-text);
+  border: 1px solid var(--danger-base); font-size: 0.85rem;
 }
 .login-submit-btn { width: 100%; margin-top: 0.5rem; }
 .login-footer { text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-tertiary); }
@@ -3868,14 +3865,14 @@
 .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
 .admin-header-left { display: flex; align-items: center; gap: 0.75rem; }
 .admin-title { font-size: 1.3rem; font-weight: 700; margin: 0; color: var(--text-primary); }
-.admin-section { margin-bottom: 2rem; padding: 1.5rem; border-radius: var(--radius-lg, 12px); background: var(--bg-surface, #16161e); border: 1px solid var(--border-default, #2a2a3a); }
+.admin-section { margin-bottom: 2rem; padding: 1.5rem; border-radius: var(--radius-lg, 12px); background: var(--bg-surface); border: 1px solid var(--border-default); }
 .admin-section-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
 .admin-section-title { display: flex; align-items: center; gap: 0.5rem; font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary); }
 .admin-form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
 .admin-add-form .form-label { font-size: 0.82rem; font-weight: 600; margin-bottom: 0.25rem; color: var(--text-secondary); }
 .admin-alert { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem; border-radius: var(--radius-md, 8px); margin-bottom: 1rem; font-size: 0.85rem; }
-.admin-alert.is-error { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-.admin-alert.is-success { background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.admin-alert.is-error { background: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger-base); }
+.admin-alert.is-success { background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-base); }
 .admin-loading { text-align: center; padding: 2rem; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
 .admin-empty { text-align: center; padding: 2.5rem; color: var(--text-tertiary); font-size: 0.9rem; }
 .admin-denied { text-align: center; padding: 4rem 2rem; color: var(--text-secondary); }
@@ -3936,7 +3933,7 @@
 
 .btn-icon-edit {
   background: none;
-  border: 1px solid var(--border-default, #2a2a3a);
+  border: 1px solid var(--border-default);
   cursor: pointer;
   color: var(--text-secondary);
   padding: 0.35rem;
@@ -3954,7 +3951,7 @@
 
 .btn-icon-danger {
   background: none;
-  border: 1px solid var(--border-default, #2a2a3a);
+  border: 1px solid var(--border-default);
   cursor: pointer;
   color: #f87171;
   padding: 0.35rem;
@@ -3978,8 +3975,8 @@
   margin-top: 1rem;
   padding: 1rem;
   border-radius: var(--radius-md, 8px);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed var(--border-default, #2a2a3a);
+  background: var(--bg-surface-hover);
+  border: 1px dashed var(--border-default);
 }
 
 /* === AI Account Mapping Badge === */
@@ -4014,8 +4011,8 @@
   gap: 0.5rem;
   padding: 0.3rem 0.65rem;
   border-radius: var(--radius-full, 9999px);
-  background: var(--bg-surface, #16161e);
-  border: 1px solid var(--border-default, #2a2a3a);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
   cursor: pointer;
   color: var(--text-primary);
   transition: all 0.15s ease;
@@ -4089,8 +4086,8 @@
 .user-profile-info-card {
   padding: 0.85rem 1rem;
   border-radius: var(--radius-md, 8px);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border-default, #2a2a3a);
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border-default);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -4118,8 +4115,8 @@
   margin-top: 1.25rem;
   padding: 1rem;
   border-radius: var(--radius-md, 8px);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed var(--border-default, #2a2a3a);
+  background: var(--bg-surface-hover);
+  border: 1px dashed var(--border-default);
 }
 
 .user-password-title {

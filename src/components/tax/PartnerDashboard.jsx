@@ -1,13 +1,23 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ShieldAlert, AlertTriangle, FileSpreadsheet, CheckCircle, TrendingUp, HelpCircle, ArrowUpRight } from 'lucide-react';
+import {
+  ShieldAlert,
+  AlertTriangle,
+  FileSpreadsheet,
+  CheckCircle,
+  TrendingUp,
+  HelpCircle,
+  ArrowUpRight,
+} from 'lucide-react';
 import { calculatePartnerDashboardMetrics } from '../../tax-engine/deterministicCalc';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
-import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '../ui/table';
+import { Segment } from '../ui/segment';
+import { Statistic, StatisticValue, StatisticLabel, TrendBadge } from '../ui/statistic';
+import { StatusBadge } from '../ui/status-badge';
+import { FeaturedIcon } from '../ui/featured-icon';
+import { Message, MessageHeader } from '../ui/message';
 import { cn } from '../../lib/utils';
-import { fmtRupiah as formatRupiah } from '../../utils/formatters';
 
 export default function PartnerDashboard({
   findings = [],
@@ -16,25 +26,12 @@ export default function PartnerDashboard({
   payrollRecon = {},
   finalTaxRecon = {},
   clientInfo = {},
-  glRows = [],
-  taxMappings = [],
-  onDownloadKKP
+  glRows: _glRows = [],
+  taxMappings: _taxMappings = [],
+  onDownloadKKP,
 }) {
   const metrics = calculatePartnerDashboardMetrics(findings);
   const handleDownloadKKP = onDownloadKKP || (() => {});
-
-  const getRiskBadgeVariant = (level) => {
-    switch (level?.toUpperCase()) {
-      case 'CRITICAL':
-        return 'bg-rose-500/15 text-rose-300 border-rose-500/30';
-      case 'HIGH':
-        return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
-      case 'MEDIUM':
-        return 'bg-blue-500/15 text-blue-300 border-blue-500/30';
-      default:
-        return 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
-    }
-  };
 
   return (
     <main className="space-y-6" aria-label="Partner Dashboard Ringkasan Pajak">
@@ -43,17 +40,18 @@ export default function PartnerDashboard({
         initial={{ opacity: 0, y: -4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.18 }}
-        className="p-6 rounded-xl border border-border/80 bg-card/60 backdrop-blur-xs flex flex-col md:flex-row md:items-center justify-between gap-6"
+        className="bg-white/95 rounded-xl border border-slate-200/90 shadow-xs p-6 flex flex-col md:flex-row md:items-center justify-between gap-6"
       >
         <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/80">
             <ShieldAlert size={13} /> Partner Executive Summary &amp; Risk Dashboard
           </div>
-          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-foreground">
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900">
             {clientInfo.name || 'PT Wajib Pajak'} &mdash; Tahun Pajak {clientInfo.taxYear || '2024'}
           </h2>
-          <p className="text-xs text-muted-foreground">
-            Kantor Konsultan Pajak Zaidan Jauhari &bull; Managing Partner: <strong className="text-foreground">{clientInfo.partnerName || 'Zaidan Jauhari, BKP'}</strong>
+          <p className="text-xs text-slate-500">
+            Kantor Konsultan Pajak Zaidan Jauhari • Managing Partner:{' '}
+            <strong className="text-slate-900">{clientInfo.partnerName || 'Zaidan Jauhari, BKP'}</strong>
           </p>
         </div>
 
@@ -61,7 +59,7 @@ export default function PartnerDashboard({
           <Button
             size="lg"
             onClick={handleDownloadKKP}
-            className="gap-2 font-semibold shadow-sm h-10 px-5 text-xs"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold gap-2 shadow-sm h-10 px-5 text-xs rounded-lg transition-all active:scale-[0.98]"
           >
             <FileSpreadsheet size={16} /> Download KKP 13-Sheet (.xlsx)
           </Button>
@@ -70,232 +68,297 @@ export default function PartnerDashboard({
 
       {/* Top 4 KPI Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/70 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-rose-500/60" />
-          <CardContent className="p-5 space-y-2">
-            <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-              <span>Total Potential Tax Exposure</span>
-              <TrendingUp size={16} className="text-rose-400" />
-            </div>
-            <div className="text-2xl font-bold font-mono tabular-nums text-rose-400 tracking-tight">
-              Rp {new Intl.NumberFormat('id-ID').format(metrics.totalExposure)}
-            </div>
-            <div className="text-[11px] text-muted-foreground font-mono tabular-nums pt-1 border-t border-border/50">
-              Pokok: Rp {new Intl.NumberFormat('id-ID').format(metrics.totalPrincipal)} &bull; Sanksi Bunga: Rp {new Intl.NumberFormat('id-ID').format(metrics.totalInterest)}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Metric 1: Total Potential Tax Exposure */}
+        <Segment color="rose" raised padded="md" className="space-y-2 bg-white/95 border-slate-200/90">
+          <div className="flex items-center justify-between">
+            <StatisticLabel className="text-xs font-semibold text-slate-600">
+              Total Potential Tax Exposure
+            </StatisticLabel>
+            <FeaturedIcon icon={TrendingUp} color="error" variant="light-circle" size="sm" />
+          </div>
+          <StatisticValue className="text-2xl font-bold font-mono tabular-nums text-rose-600 tracking-tight">
+            Rp {new Intl.NumberFormat('id-ID').format(metrics.totalExposure)}
+          </StatisticValue>
+          <div className="text-[11px] text-slate-500 font-mono tabular-nums pt-1 border-t border-slate-100">
+            Pokok: Rp {new Intl.NumberFormat('id-ID').format(metrics.totalPrincipal)} • Sanksi Bunga: Rp {new Intl.NumberFormat('id-ID').format(metrics.totalInterest)}
+          </div>
+        </Segment>
 
-        <Card className="border-border/70 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-amber-500/60" />
-          <CardContent className="p-5 space-y-2">
-            <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-              <span>Critical &amp; High Risk Findings</span>
-              <AlertTriangle size={16} className="text-amber-400" />
-            </div>
-            <div className="text-2xl font-bold font-mono tabular-nums text-amber-400 tracking-tight">
-              {metrics.criticalCount + metrics.highCount} <span className="text-xs font-sans font-normal text-muted-foreground">Temuan</span>
-            </div>
-            <div className="text-[11px] text-muted-foreground pt-1 border-t border-border/50">
-              {metrics.criticalCount} Critical &bull; {metrics.highCount} High &bull; {metrics.mediumCount} Medium
-            </div>
-          </CardContent>
-        </Card>
+        {/* Metric 2: Critical & High Risk Findings */}
+        <Segment color="amber" raised padded="md" className="space-y-2 bg-white/95 border-slate-200/90">
+          <div className="flex items-center justify-between">
+            <StatisticLabel className="text-xs font-semibold text-slate-600">
+              Critical &amp; High Risk Findings
+            </StatisticLabel>
+            <FeaturedIcon icon={AlertTriangle} color="warning" variant="light-circle" size="sm" />
+          </div>
+          <StatisticValue className="text-2xl font-bold font-mono tabular-nums text-amber-600 tracking-tight">
+            {metrics.criticalCount + metrics.highCount}{' '}
+            <span className="text-xs font-sans font-normal text-slate-500">Temuan</span>
+          </StatisticValue>
+          <div className="text-[11px] text-slate-500 pt-1 border-t border-slate-100">
+            {metrics.criticalCount} Critical • {metrics.highCount} High • {metrics.mediumCount} Medium
+          </div>
+        </Segment>
 
-        <Card className="border-border/70 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-primary/60" />
-          <CardContent className="p-5 space-y-2">
-            <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-              <span>Overall Tax Risk Level</span>
-              <ShieldAlert size={16} className="text-primary" />
-            </div>
-            <div className="pt-0.5">
-              <span className={cn('inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full border', getRiskBadgeVariant(metrics.overallLevel))}>
-                {metrics.overallLevel}
-              </span>
-            </div>
-            <div className="text-[11px] text-muted-foreground font-mono pt-1 border-t border-border/50">
-              Weighted Score: {metrics.overallRiskScore} / 25
-            </div>
-          </CardContent>
-        </Card>
+        {/* Metric 3: Overall Tax Risk Level */}
+        <Segment color="purple" raised padded="md" className="space-y-2 bg-white/95 border-slate-200/90">
+          <div className="flex items-center justify-between">
+            <StatisticLabel className="text-xs font-semibold text-slate-600">
+              Overall Tax Risk Level
+            </StatisticLabel>
+            <FeaturedIcon icon={ShieldAlert} color="purple" variant="light-circle" size="sm" />
+          </div>
+          <div className="pt-0.5">
+            <StatusBadge
+              status={
+                metrics.overallLevel === 'CRITICAL'
+                  ? 'error'
+                  : metrics.overallLevel === 'HIGH'
+                  ? 'warning'
+                  : 'info'
+              }
+              label={metrics.overallLevel}
+              size="md"
+              pulse={metrics.overallLevel === 'CRITICAL'}
+            />
+          </div>
+          <div className="text-[11px] text-slate-500 font-mono pt-1 border-t border-slate-100">
+            Weighted Score: {metrics.overallRiskScore} / 25
+          </div>
+        </Segment>
 
-        <Card className="border-border/70 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-sky-500/60" />
-          <CardContent className="p-5 space-y-2">
-            <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-              <span>Outstanding Documents</span>
-              <HelpCircle size={16} className="text-sky-400" />
-            </div>
-            <div className="text-2xl font-bold font-mono tabular-nums text-sky-400 tracking-tight">
-              {metrics.outstandingDocsCount} <span className="text-xs font-sans font-normal text-muted-foreground">Pending</span>
-            </div>
-            <div className="text-[11px] text-muted-foreground pt-1 border-t border-border/50">
-              Dokumen pendukung yang masih dibutuhkan dari klien
-            </div>
-          </CardContent>
-        </Card>
+        {/* Metric 4: Outstanding Documents */}
+        <Segment color="blue" raised padded="md" className="space-y-2 bg-white/95 border-slate-200/90">
+          <div className="flex items-center justify-between">
+            <StatisticLabel className="text-xs font-semibold text-slate-600">
+              Outstanding Documents
+            </StatisticLabel>
+            <FeaturedIcon icon={HelpCircle} color="brand" variant="light-circle" size="sm" />
+          </div>
+          <StatisticValue className="text-2xl font-bold font-mono tabular-nums text-blue-600 tracking-tight">
+            {metrics.outstandingDocsCount}{' '}
+            <span className="text-xs font-sans font-normal text-slate-500">Pending</span>
+          </StatisticValue>
+          <div className="text-[11px] text-slate-500 pt-1 border-t border-slate-100">
+            Dokumen pendukung yang masih dibutuhkan dari klien
+          </div>
+        </Segment>
       </div>
 
       {/* Top 5 Matters Requiring Partner Attention & Quick Recon Status */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top 5 Attention Matters */}
-        <Card className="border-border/70 shadow-xs flex flex-col">
-          <CardHeader className="pb-3 border-b border-border/50">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <ArrowUpRight size={16} className="text-primary" /> Top 5 Matters Requiring Partner Attention
-            </CardTitle>
-            <CardDescription className="text-xs">
+        <Segment color="slate" raised padded="none" className="bg-white/95 border-slate-200/90 flex flex-col overflow-hidden">
+          <div className="p-5 pb-3 border-b border-slate-100">
+            <h3 className="text-sm font-semibold flex items-center gap-2 text-slate-900">
+              <ArrowUpRight size={16} className="text-slate-600" /> Top 5 Matters Requiring Partner Attention
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
               Isu fiskal paling berdampak material yang membutuhkan konfirmasi teknis Partner KAP.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-5 flex-1 space-y-3">
+            </p>
+          </div>
+          <div className="p-5 flex-1 space-y-3">
             <ul className="space-y-3">
-              <li className="p-3.5 rounded-lg border border-border/60 bg-muted/20 flex gap-3">
-                <div className="h-6 w-6 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-mono text-xs font-bold shrink-0 mt-0.5">
+              <li className="p-3.5 rounded-lg border border-slate-200/70 bg-slate-50/70 flex gap-3">
+                <div className="h-6 w-6 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 flex items-center justify-center font-mono text-xs font-bold shrink-0 mt-0.5">
                   1
                 </div>
                 <div className="space-y-1 text-xs">
-                  <strong className="text-foreground font-semibold">Validasi Ekualisasi Peredaran Usaha vs PPN:</strong>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Selisih sebesar <span className="font-mono font-semibold text-foreground">Rp {new Intl.NumberFormat('id-ID').format(Math.abs(revenueRecon.difference || 0))}</span> antara GL dan SPT Masa PPN memerlukan konfirmasi timing difference uang muka penjualan.
+                  <strong className="text-slate-900 font-semibold">Validasi Ekualisasi Peredaran Usaha vs PPN:</strong>
+                  <p className="text-slate-600 leading-relaxed">
+                    Selisih sebesar{' '}
+                    <span className="font-mono font-semibold text-slate-900">
+                      Rp {new Intl.NumberFormat('id-ID').format(Math.abs(revenueRecon.difference || 0))}
+                    </span>{' '}
+                    antara GL dan SPT Masa PPN memerlukan konfirmasi timing difference uang muka penjualan.
                   </p>
                 </div>
               </li>
 
-              <li className="p-3.5 rounded-lg border border-border/60 bg-muted/20 flex gap-3">
-                <div className="h-6 w-6 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-mono text-xs font-bold shrink-0 mt-0.5">
+              <li className="p-3.5 rounded-lg border border-slate-200/70 bg-slate-50/70 flex gap-3">
+                <div className="h-6 w-6 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 flex items-center justify-center font-mono text-xs font-bold shrink-0 mt-0.5">
                   2
                 </div>
                 <div className="space-y-1 text-xs">
-                  <strong className="text-foreground font-semibold">Potensi Kurang Potong PPh Pasal 23 Jasa:</strong>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Beban operasional sebesar <span className="font-mono font-semibold text-foreground">Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.unmatchedDPP || 0)}</span> belum didukung bukti pemotongan e-Bupot Unifikasi.
+                  <strong className="text-slate-900 font-semibold">Potensi Kurang Potong PPh Pasal 23 Jasa:</strong>
+                  <p className="text-slate-600 leading-relaxed">
+                    Beban operasional sebesar{' '}
+                    <span className="font-mono font-semibold text-slate-900">
+                      Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.unmatchedDPP || 0)}
+                    </span>{' '}
+                    belum didukung bukti pemotongan e-Bupot Unifikasi.
                   </p>
                 </div>
               </li>
 
-              <li className="p-3.5 rounded-lg border border-border/60 bg-muted/20 flex gap-3">
-                <div className="h-6 w-6 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-mono text-xs font-bold shrink-0 mt-0.5">
+              <li className="p-3.5 rounded-lg border border-slate-200/70 bg-slate-50/70 flex gap-3">
+                <div className="h-6 w-6 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 flex items-center justify-center font-mono text-xs font-bold shrink-0 mt-0.5">
                   3
                 </div>
                 <div className="space-y-1 text-xs">
-                  <strong className="text-foreground font-semibold">Ekualisasi Gaji &amp; Objek PPh 21 (PMK 168/2023):</strong>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Selisih beban gaji GL vs SPT PPh 21 sebesar <span className="font-mono font-semibold text-foreground">Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.unmatchedBase || 0)}</span> perlu dipastikan bukan honor lepas atau natura kena pajak.
+                  <strong className="text-slate-900 font-semibold">Ekualisasi Gaji &amp; Objek PPh 21 (PMK 168/2023):</strong>
+                  <p className="text-slate-600 leading-relaxed">
+                    Selisih beban gaji GL vs SPT PPh 21 sebesar{' '}
+                    <span className="font-mono font-semibold text-slate-900">
+                      Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.unmatchedBase || 0)}
+                    </span>{' '}
+                    perlu dipastikan bukan honor lepas atau natura kena pajak.
                   </p>
                 </div>
               </li>
 
-              <li className="p-3.5 rounded-lg border border-border/60 bg-muted/20 flex gap-3">
-                <div className="h-6 w-6 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-mono text-xs font-bold shrink-0 mt-0.5">
+              <li className="p-3.5 rounded-lg border border-slate-200/70 bg-slate-50/70 flex gap-3">
+                <div className="h-6 w-6 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 flex items-center justify-center font-mono text-xs font-bold shrink-0 mt-0.5">
                   4
                 </div>
                 <div className="space-y-1 text-xs">
-                  <strong className="text-foreground font-semibold">Ekualisasi Sewa Bangunan &amp; Jasa Konstruksi (PPh Final 4(2)):</strong>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Beban sewa/renovasi sebesar <span className="font-mono font-semibold text-foreground">Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.unmatchedBase || 0)}</span> wajib diverifikasi kelengkapan bukti potong PPh Final 10%.
+                  <strong className="text-slate-900 font-semibold">Ekualisasi Sewa Bangunan &amp; Jasa Konstruksi (PPh Final 4(2)):</strong>
+                  <p className="text-slate-600 leading-relaxed">
+                    Beban sewa/renovasi sebesar{' '}
+                    <span className="font-mono font-semibold text-slate-900">
+                      Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.unmatchedBase || 0)}
+                    </span>{' '}
+                    wajib diverifikasi kelengkapan bukti potong PPh Final 10%.
                   </p>
                 </div>
               </li>
 
-              <li className="p-3.5 rounded-lg border border-border/60 bg-muted/20 flex gap-3">
-                <div className="h-6 w-6 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-mono text-xs font-bold shrink-0 mt-0.5">
+              <li className="p-3.5 rounded-lg border border-slate-200/70 bg-slate-50/70 flex gap-3">
+                <div className="h-6 w-6 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 flex items-center justify-center font-mono text-xs font-bold shrink-0 mt-0.5">
                   5
                 </div>
                 <div className="space-y-1 text-xs">
-                  <strong className="text-foreground font-semibold">Uji Kelengkapan Dokumen Non-Deductible Expense (NDE):</strong>
-                  <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-slate-900 font-semibold">Uji Kelengkapan Dokumen Non-Deductible Expense (NDE):</strong>
+                  <p className="text-slate-600 leading-relaxed">
                     Biaya jamuan, promosi, dan natura wajib dipastikan memiliki Daftar Nominatif sah sebelum pelaporan SPT Tahunan.
                   </p>
                 </div>
               </li>
             </ul>
-          </CardContent>
-        </Card>
+          </div>
+        </Segment>
 
         {/* Ringkasan Rekonsiliasi Fiskal Utama */}
-        <Card className="border-border/70 shadow-xs flex flex-col">
-          <CardHeader className="pb-3 border-b border-border/50">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <CheckCircle size={16} className="text-emerald-400" /> Ringkasan Rekonsiliasi Fiskal Utama
-            </CardTitle>
-            <CardDescription className="text-xs">
+        <Segment color="teal" raised padded="none" className="bg-white/95 border-slate-200/90 flex flex-col justify-between overflow-hidden">
+          <div className="p-5 pb-3 border-b border-slate-100">
+            <h3 className="text-sm font-semibold flex items-center gap-2 text-slate-900">
+              <CheckCircle size={16} className="text-teal-600" /> Ringkasan Rekonsiliasi Fiskal Utama
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
               Perbandingan deterministik antara saldo pembukuan GL dan pelaporan SPT Wajib Pajak.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-5 flex-1 flex flex-col justify-between space-y-4">
-            <div className="rounded-lg border border-border/70 overflow-hidden">
+            </p>
+          </div>
+          <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+            <div className="rounded-lg border border-slate-200 overflow-hidden bg-white">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-muted/30">
-                    <TableHead className="text-xs font-semibold">Area Rekonsiliasi</TableHead>
-                    <TableHead className="text-xs font-semibold text-right">Nilai GL</TableHead>
-                    <TableHead className="text-xs font-semibold text-right">Nilai Teridentifikasi</TableHead>
-                    <TableHead className="text-xs font-semibold text-right">Selisih (Variance)</TableHead>
+                  <TableRow className="bg-slate-50/80 hover:bg-slate-50/80">
+                    <TableHead className="text-xs font-semibold text-slate-700">Area Rekonsiliasi</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-700 text-right">Nilai GL</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-700 text-right">Nilai Teridentifikasi</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-700 text-right">Selisih (Variance)</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell className="text-xs font-medium">Revenue vs PPN</TableCell>
-                    <TableCell className="text-xs font-mono tabular-nums text-right">
+                  <TableRow className="hover:bg-slate-50/50">
+                    <TableCell className="text-xs font-medium text-slate-800">Revenue vs PPN</TableCell>
+                    <TableCell className="text-xs font-mono tabular-nums text-right text-slate-700">
                       Rp {new Intl.NumberFormat('id-ID').format(revenueRecon.glRevenueTotal || 0)}
                     </TableCell>
-                    <TableCell className="text-xs font-mono tabular-nums text-right">
+                    <TableCell className="text-xs font-mono tabular-nums text-right text-slate-700">
                       Rp {new Intl.NumberFormat('id-ID').format(revenueRecon.sptDPPTotal || 0)}
                     </TableCell>
-                    <TableCell className={cn('text-xs font-mono tabular-nums text-right font-semibold', (revenueRecon.difference || 0) !== 0 ? 'text-rose-400' : 'text-emerald-400')}>
-                      Rp {new Intl.NumberFormat('id-ID').format(revenueRecon.difference || 0)}
+                    <TableCell className="text-xs font-mono tabular-nums text-right">
+                      <span
+                        className={cn(
+                          'inline-block px-2 py-0.5 rounded font-semibold',
+                          (revenueRecon.difference || 0) !== 0
+                            ? 'text-rose-600 font-semibold bg-rose-50/50'
+                            : 'text-emerald-700 font-semibold bg-emerald-50/50'
+                        )}
+                      >
+                        Rp {new Intl.NumberFormat('id-ID').format(revenueRecon.difference || 0)}
+                      </span>
                     </TableCell>
                   </TableRow>
 
-                  <TableRow>
-                    <TableCell className="text-xs font-medium">Biaya Jasa vs PPh 23</TableCell>
-                    <TableCell className="text-xs font-mono tabular-nums text-right">
+                  <TableRow className="hover:bg-slate-50/50">
+                    <TableCell className="text-xs font-medium text-slate-800">Biaya Jasa vs PPh 23</TableCell>
+                    <TableCell className="text-xs font-mono tabular-nums text-right text-slate-700">
                       Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.glExpenseTotal || 0)}
                     </TableCell>
-                    <TableCell className="text-xs font-mono tabular-nums text-right">
+                    <TableCell className="text-xs font-mono tabular-nums text-right text-slate-700">
                       Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.bupotDPPTotal || 0)}
                     </TableCell>
-                    <TableCell className={cn('text-xs font-mono tabular-nums text-right font-semibold', (expenseRecon.unmatchedDPP || 0) > 0 ? 'text-rose-400' : 'text-emerald-400')}>
-                      Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.unmatchedDPP || 0)}
+                    <TableCell className="text-xs font-mono tabular-nums text-right">
+                      <span
+                        className={cn(
+                          'inline-block px-2 py-0.5 rounded font-semibold',
+                          (expenseRecon.unmatchedDPP || 0) > 0
+                            ? 'text-rose-600 font-semibold bg-rose-50/50'
+                            : 'text-emerald-700 font-semibold bg-emerald-50/50'
+                        )}
+                      >
+                        Rp {new Intl.NumberFormat('id-ID').format(expenseRecon.unmatchedDPP || 0)}
+                      </span>
                     </TableCell>
                   </TableRow>
 
-                  <TableRow>
-                    <TableCell className="text-xs font-medium">Beban Gaji vs PPh 21</TableCell>
-                    <TableCell className="text-xs font-mono tabular-nums text-right">
+                  <TableRow className="hover:bg-slate-50/50">
+                    <TableCell className="text-xs font-medium text-slate-800">Beban Gaji vs PPh 21</TableCell>
+                    <TableCell className="text-xs font-mono tabular-nums text-right text-slate-700">
                       Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.glPayrollTotal || 0)}
                     </TableCell>
-                    <TableCell className="text-xs font-mono tabular-nums text-right">
+                    <TableCell className="text-xs font-mono tabular-nums text-right text-slate-700">
                       Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.sptBrutoTotal || 0)}
                     </TableCell>
-                    <TableCell className={cn('text-xs font-mono tabular-nums text-right font-semibold', (payrollRecon.unmatchedBase || 0) > 0 ? 'text-rose-400' : 'text-emerald-400')}>
-                      Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.unmatchedBase || 0)}
+                    <TableCell className="text-xs font-mono tabular-nums text-right">
+                      <span
+                        className={cn(
+                          'inline-block px-2 py-0.5 rounded font-semibold',
+                          (payrollRecon.unmatchedBase || 0) > 0
+                            ? 'text-rose-600 font-semibold bg-rose-50/50'
+                            : 'text-emerald-700 font-semibold bg-emerald-50/50'
+                        )}
+                      >
+                        Rp {new Intl.NumberFormat('id-ID').format(payrollRecon.unmatchedBase || 0)}
+                      </span>
                     </TableCell>
                   </TableRow>
 
-                  <TableRow>
-                    <TableCell className="text-xs font-medium">Sewa &amp; Konstruksi vs PPh Final 4(2)</TableCell>
-                    <TableCell className="text-xs font-mono tabular-nums text-right">
+                  <TableRow className="hover:bg-slate-50/50">
+                    <TableCell className="text-xs font-medium text-slate-800">
+                      Sewa &amp; Konstruksi vs PPh Final 4(2)
+                    </TableCell>
+                    <TableCell className="text-xs font-mono tabular-nums text-right text-slate-700">
                       Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.glFinalTaxTotal || 0)}
                     </TableCell>
-                    <TableCell className="text-xs font-mono tabular-nums text-right">
+                    <TableCell className="text-xs font-mono tabular-nums text-right text-slate-700">
                       Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.bupotDPPTotal || 0)}
                     </TableCell>
-                    <TableCell className={cn('text-xs font-mono tabular-nums text-right font-semibold', (finalTaxRecon.unmatchedBase || 0) > 0 ? 'text-rose-400' : 'text-emerald-400')}>
-                      Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.unmatchedBase || 0)}
+                    <TableCell className="text-xs font-mono tabular-nums text-right">
+                      <span
+                        className={cn(
+                          'inline-block px-2 py-0.5 rounded font-semibold',
+                          (finalTaxRecon.unmatchedBase || 0) > 0
+                            ? 'text-rose-600 font-semibold bg-rose-50/50'
+                            : 'text-emerald-700 font-semibold bg-emerald-50/50'
+                        )}
+                      >
+                        Rp {new Intl.NumberFormat('id-ID').format(finalTaxRecon.unmatchedBase || 0)}
+                      </span>
                     </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
             </div>
 
-            <div className="p-3 bg-muted/30 border border-border/50 rounded-lg text-xs text-muted-foreground leading-relaxed">
-              <em>Catatan: Angka-angka di atas dihitung secara deterministik matematis. Klik tab "AI Tax Workbench" untuk melihat rincian per baris transaksi dan menjalankan analisis Claude.</em>
-            </div>
-          </CardContent>
-        </Card>
+            <Message type="info" size="sm" className="mt-4">
+              Angka-angka di atas dihitung secara deterministik matematis. Klik tab &quot;AI Tax Workbench&quot; untuk melihat rincian per baris transaksi dan menjalankan analisis Claude.
+            </Message>
+          </div>
+        </Segment>
       </div>
     </main>
   );

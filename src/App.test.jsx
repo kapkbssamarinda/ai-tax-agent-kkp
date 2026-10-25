@@ -37,7 +37,7 @@ describe('AI Analysis Notification & Reset Lifecycle', () => {
       />
     );
 
-    expect(screen.getByText(/Analisis Semantik AI \(Claude Haiku\) Selesai!/i)).toBeInTheDocument();
+    expect(screen.getByText(/Analisis Semantik AI \(Claude Sonnet 5\.5\) Selesai!/i)).toBeInTheDocument();
     expect(screen.getByText(/14:30:00 WIB/i)).toBeInTheDocument();
     expect(screen.getAllByText(/5 Temuan/i).length).toBeGreaterThanOrEqual(1);
   });
@@ -85,8 +85,8 @@ describe('AI Analysis Notification & Reset Lifecycle', () => {
     );
 
     // Tombol Tab PPh 21 dan PPh Final ada
-    const payrollTab = screen.getByRole('button', { name: /Ekualisasi Gaji vs PPh 21/i });
-    const finalTaxTab = screen.getByRole('button', { name: /Ekualisasi Sewa\/Konstruksi/i });
+    const payrollTab = screen.getByRole('tab', { name: /Ekualisasi Gaji vs PPh 21/i });
+    const finalTaxTab = screen.getByRole('tab', { name: /Ekualisasi Sewa\/Konstruksi/i });
     expect(payrollTab).toBeInTheDocument();
     expect(finalTaxTab).toBeInTheDocument();
 

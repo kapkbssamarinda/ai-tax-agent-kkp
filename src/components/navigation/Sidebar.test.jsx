@@ -5,25 +5,27 @@ import Sidebar from './Sidebar';
 
 describe('Sidebar Component', () => {
   const defaultProps = {
-    theme: 'dark',
-    onToggleTheme: vi.fn(),
     step: 'success',
     viewMode: 'TAX_AGENT',
     onSelectViewMode: vi.fn(),
     onBackToClientHub: vi.fn(),
-    clientInfo: { name: 'PT Klien Utama', taxYear: '2024' },
+    clientInfo: { name: 'PT Klien Utama', taxYear: '2024', projectId: 'p1' },
     userProfile: { full_name: 'Budi Auditor', email: 'budi@kkp.com' },
     isAdmin: false,
     onSignOut: vi.fn(),
     onOpenUserProfile: vi.fn(),
     isCollapsed: false,
     onToggleCollapse: vi.fn(),
-    projects: [{ project_id: 'p1', client_name: 'PT Klien Utama', tax_year: '2024' }],
+    projects: [
+      { project_id: 'p1', client_name: 'PT Klien Utama', tax_year: '2024' },
+      { project_id: 'p2', client_name: 'PT Klien Sekunder', tax_year: '2024', total_rows: 150 },
+    ],
   };
 
-  it('renders branding header with AI-Tax-Agent and KAP Zaidan Jauhari', () => {
+  it('renders branding header with AI-Tax-Agent, KKP badge, and KAP Zaidan Jauhari', () => {
     render(<Sidebar {...defaultProps} />);
     expect(screen.getByText('AI-Tax-Agent')).toBeInTheDocument();
+    expect(screen.getByText('KKP')).toBeInTheDocument();
     expect(screen.getByText(/Zaidan Jauhari/i)).toBeInTheDocument();
   });
 
@@ -33,6 +35,9 @@ describe('Sidebar Component', () => {
     expect(screen.getByText('Buku Besar')).toBeInTheDocument();
     expect(screen.getByText('AI Tax & KKP')).toBeInTheDocument();
     expect(screen.getByText('Partner Dashboard')).toBeInTheDocument();
+
+    // Check project count badge on Daftar Klien
+    expect(screen.getByText('2')).toBeInTheDocument();
   });
 
   it('calls onSelectViewMode when a navigation tab is clicked', () => {
@@ -53,15 +58,13 @@ describe('Sidebar Component', () => {
     expect(onBackToClientHub).toHaveBeenCalled();
   });
 
-  it('renders user profile card with user name, role, theme toggle, and logout button', () => {
-    const onToggleTheme = vi.fn();
+  it('renders user profile card with user name, role, and logout button', () => {
     const onSignOut = vi.fn();
     const onOpenUserProfile = vi.fn();
 
     render(
       <Sidebar
         {...defaultProps}
-        onToggleTheme={onToggleTheme}
         onSignOut={onSignOut}
         onOpenUserProfile={onOpenUserProfile}
       />
@@ -70,13 +73,13 @@ describe('Sidebar Component', () => {
     expect(screen.getByText('Budi Auditor')).toBeInTheDocument();
     expect(screen.getByText('Analyst')).toBeInTheDocument();
 
-    const themeBtn = screen.getByLabelText(/Toggle Mode Gelap\/Terang/i);
-    fireEvent.click(themeBtn);
-    expect(onToggleTheme).toHaveBeenCalledTimes(1);
-
     const logoutBtn = screen.getByLabelText(/Keluar \(Logout\)/i);
     fireEvent.click(logoutBtn);
     expect(onSignOut).toHaveBeenCalledTimes(1);
+
+    const profileCardBtn = screen.getByText('Budi Auditor').closest('button');
+    fireEvent.click(profileCardBtn);
+    expect(onOpenUserProfile).toHaveBeenCalledTimes(1);
   });
 
   it('renders Admin menu when isAdmin is true and calls onOpenAdmin', () => {
@@ -96,5 +99,57 @@ describe('Sidebar Component', () => {
     const collapseBtn = screen.getByLabelText(/Ciutkan sidebar|Perluas sidebar/i);
     fireEvent.click(collapseBtn);
     expect(onToggleCollapse).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders collapsed header with stacked logo and expand button when isCollapsed is true', () => {
+    const onToggleCollapse = vi.fn();
+    render(<Sidebar {...defaultProps} isCollapsed={true} onToggleCollapse={onToggleCollapse} />);
+
+    const expandBtn = screen.getByLabelText(/Perluas sidebar/i);
+    expect(expandBtn).toBeInTheDocument();
+    fireEvent.click(expandBtn);
+    expect(onToggleCollapse).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens client switcher and selects client', () => {
+    const onSwitchClient = vi.fn();
+    render(<Sidebar {...defaultProps} onSwitchClient={onSwitchClient} />);
+
+    const switcherBtn = screen.getByLabelText(/Ganti Klien/i);
+    fireEvent.click(switcherBtn);
+
+    expect(screen.getByText(/Beralih Klien \(2\)/i)).toBeInTheDocument();
+    expect(screen.getByText('PT Klien Sekunder')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('PT Klien Sekunder'));
+    expect(onSwitchClient).toHaveBeenCalledWith(
+      expect.objectContaining({ project_id: 'p2', client_name: 'PT Klien Sekunder' })
+    );
+  });
+
+  it('opens export menu and triggers excel export', () => {
+    const onExportXLSX = vi.fn();
+    render(<Sidebar {...defaultProps} onExportXLSX={onExportXLSX} />);
+
+    const exportBtn = screen.getByLabelText(/Ekspor Data Buku Besar/i);
+    fireEvent.click(exportBtn);
+
+    const excelItem = screen.getByText(/Ekspor Excel \(\.xlsx\)/i);
+    expect(excelItem).toBeInTheDocument();
+    fireEvent.click(excelItem);
+    expect(onExportXLSX).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens project menu and triggers save project', () => {
+    const onSaveProject = vi.fn();
+    render(<Sidebar {...defaultProps} onSaveProject={onSaveProject} />);
+
+    const projectMenuBtn = screen.getByLabelText(/Kelola File Proyek \(\.aitax\)/i);
+    fireEvent.click(projectMenuBtn);
+
+    const saveItem = screen.getByText(/Simpan Proyek \(\.aitax\)/i);
+    expect(saveItem).toBeInTheDocument();
+    fireEvent.click(saveItem);
+    expect(onSaveProject).toHaveBeenCalledTimes(1);
   });
 });

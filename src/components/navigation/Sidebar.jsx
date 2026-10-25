@@ -8,8 +8,6 @@ import {
   ChevronDown,
   PanelLeftClose,
   PanelLeftOpen,
-  Sun,
-  Moon,
   LogOut,
   Shield,
   User,
@@ -26,7 +24,6 @@ import {
 import { motion } from 'motion/react';
 import logoImage from '../../assets/logo2-mark.png';
 import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
 import {
   Tooltip,
   TooltipContent,
@@ -35,8 +32,6 @@ import {
 } from '../ui/tooltip';
 
 export default function Sidebar({
-  theme = 'dark',
-  onToggleTheme,
   step,
   sourceFormat,
   onReset,
@@ -183,25 +178,30 @@ export default function Sidebar({
           isCollapsed ? 'justify-center px-0' : 'justify-start'
         } ${
           item.isActive
-            ? 'bg-primary/10 text-primary font-semibold'
-            : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+            ? 'bg-blue-50 text-blue-700 font-semibold'
+            : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
         }`}
       >
         {item.isActive && (
           <motion.div
             layoutId="activeSidebarIndicator"
-            className="absolute left-0 top-1 bottom-1 w-1 rounded-r-md bg-primary"
+            className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-md bg-blue-600"
             transition={{ type: 'spring', bounce: 0.15, duration: 0.25 }}
           />
         )}
-        <Icon size={18} className={`shrink-0 ${item.isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} />
+        <Icon
+          size={18}
+          className={`shrink-0 transition-colors ${
+            item.isActive ? 'text-blue-600' : 'text-slate-500 group-hover:text-slate-900'
+          }`}
+        />
         {!isCollapsed && (
           <>
             <span className="truncate flex-1 text-left">{item.label}</span>
             {item.badge !== null && item.badge !== undefined && (
-              <Badge variant="secondary" className="text-[10px] h-4.5 px-1.5 font-normal">
+              <span className="bg-slate-100 text-slate-700 font-mono text-[11px] px-2 py-0.5 rounded-full border border-slate-200/60 shrink-0">
                 {item.badge}
-              </Badge>
+              </span>
             )}
           </>
         )}
@@ -228,57 +228,88 @@ export default function Sidebar({
       {/* ===== BAGIAN ATAS: Branding, Workspace Context & Nav Items ===== */}
       <div className="flex flex-col gap-3 p-3 overflow-y-auto">
         {/* Branding Area */}
-        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-1 py-1`}>
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-              <img src={logoImage} alt="Logo KAP" className="h-5 w-5 object-contain" />
+        {isCollapsed ? (
+          <div className="flex flex-col items-center gap-2 py-1">
+            <div
+              className="h-9 w-9 rounded-lg bg-white border border-slate-200 shadow-2xs flex items-center justify-center shrink-0 p-1"
+              title="AI-Tax-Agent — KAP Zaidan Jauhari"
+            >
+              <img src={logoImage} alt="Logo KAP" className="h-6 w-6 object-contain" />
             </div>
-            {!isCollapsed && (
+            {onToggleCollapse && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hidden lg:flex h-7 w-7 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md"
+                    onClick={onToggleCollapse}
+                    aria-label="Perluas sidebar"
+                    title="Perluas sidebar"
+                  >
+                    <PanelLeftOpen size={16} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Perluas sidebar</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center justify-between px-1 py-1">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="h-8 w-8 rounded-lg bg-white border border-slate-200 shadow-2xs flex items-center justify-center shrink-0 p-1">
+                <img src={logoImage} alt="Logo KAP" className="h-5 w-5 object-contain" />
+              </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-sm font-bold tracking-tight text-foreground leading-tight truncate">
-                  AI-Tax-Agent
-                </span>
-                <span className="text-[10px] font-medium text-muted-foreground leading-tight truncate">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-bold tracking-tight text-slate-900 leading-tight truncate">
+                    AI-Tax-Agent
+                  </span>
+                  <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-2xs">
+                    KKP
+                  </span>
+                </div>
+                <span className="text-[10px] font-medium text-slate-500 leading-tight truncate">
                   KAP Zaidan Jauhari
                 </span>
               </div>
+            </div>
+
+            {/* Desktop Collapse Button */}
+            {onToggleCollapse && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hidden lg:flex h-7 w-7 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md"
+                onClick={onToggleCollapse}
+                aria-label="Ciutkan sidebar"
+                title="Ciutkan sidebar"
+              >
+                <PanelLeftClose size={16} />
+              </Button>
+            )}
+
+            {/* Mobile Close Button */}
+            {onCloseMobile && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="flex lg:hidden h-7 w-7 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md"
+                onClick={onCloseMobile}
+                aria-label="Tutup menu navigasi"
+                title="Tutup menu navigasi"
+              >
+                <X size={16} />
+              </Button>
             )}
           </div>
+        )}
 
-          {/* Desktop Collapse Button */}
-          {onToggleCollapse && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hidden lg:flex h-7 w-7 text-muted-foreground hover:text-foreground rounded-md"
-              onClick={onToggleCollapse}
-              aria-label={isCollapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
-              title={isCollapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
-            >
-              {isCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
-            </Button>
-          )}
-
-          {/* Mobile Close Button */}
-          {onCloseMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="flex lg:hidden h-7 w-7 text-muted-foreground hover:text-foreground rounded-md"
-              onClick={onCloseMobile}
-              aria-label="Tutup menu navigasi"
-              title="Tutup menu navigasi"
-            >
-              <X size={16} />
-            </Button>
-          )}
-        </div>
-
-        {/* Untitled UI Workspace Selector Card (When in Client Context) */}
+        {/* Workspace Selector Card (When in Client Context) */}
         {hasData && (
           <div className="relative mt-1" ref={clientSwitcherRef}>
             {!isCollapsed ? (
-              <div className="flex flex-col rounded-lg border border-border bg-muted/30 p-2 transition-colors hover:bg-muted/60">
+              <div className="flex flex-col rounded-lg border border-slate-200 bg-slate-50/70 p-2 shadow-2xs transition-all hover:bg-slate-100/80 hover:border-slate-300">
                 <div className="flex items-center justify-between gap-1.5">
                   <button
                     type="button"
@@ -286,14 +317,14 @@ export default function Sidebar({
                     className="flex items-center gap-2 min-w-0 flex-1 text-left cursor-pointer group"
                     title={`Klien: ${clientInfo?.name || 'PT Wajib Pajak'} (Klik untuk buka master data)`}
                   >
-                    <div className="h-7 w-7 rounded-md bg-background border border-border flex items-center justify-center shrink-0 text-primary">
+                    <div className="h-7 w-7 rounded-md bg-white border border-slate-200 flex items-center justify-center shrink-0 text-blue-600 shadow-2xs">
                       <Building2 size={14} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                      <div className="text-xs font-semibold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
                         {clientInfo?.name || 'PT Wajib Pajak'}
                       </div>
-                      <div className="text-[10px] text-muted-foreground font-mono">
+                      <div className="text-[10px] text-slate-500 font-mono">
                         Tahun {clientInfo?.taxYear || '2024'} {sourceFormat ? `• ${sourceFormat}` : ''}
                       </div>
                     </div>
@@ -303,7 +334,7 @@ export default function Sidebar({
                     <button
                       type="button"
                       onClick={() => setIsClientSwitcherOpen((prev) => !prev)}
-                      className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer shrink-0 transition-colors"
+                      className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 cursor-pointer shrink-0 transition-colors"
                       title="Ganti Klien"
                       aria-label="Ganti Klien"
                       aria-expanded={isClientSwitcherOpen}
@@ -322,7 +353,7 @@ export default function Sidebar({
                   <button
                     type="button"
                     onClick={onOpenClientMaster}
-                    className="flex h-10 w-full items-center justify-center rounded-lg border border-border bg-muted/40 text-primary hover:bg-muted"
+                    className="flex h-10 w-full items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-blue-600 hover:bg-slate-100 shadow-2xs"
                     aria-label={`Klien: ${clientInfo?.name || 'PT Wajib Pajak'}`}
                   >
                     <Building2 size={16} />
@@ -336,8 +367,8 @@ export default function Sidebar({
 
             {/* Client Switcher Dropdown */}
             {isClientSwitcherOpen && (
-              <div className="absolute left-0 top-full mt-1.5 w-64 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-xl z-50 animate-in fade-in-0 zoom-in-95">
-                <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <div className="absolute left-0 top-full mt-1.5 w-64 rounded-xl border border-slate-200 bg-white p-1.5 text-slate-800 shadow-xl z-50 animate-in fade-in-0 zoom-in-95">
+                <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                   Beralih Klien ({projects.length})
                 </div>
                 <div className="max-h-56 overflow-y-auto mt-1 space-y-0.5">
@@ -349,8 +380,8 @@ export default function Sidebar({
                       <button
                         key={proj.project_id}
                         type="button"
-                        className={`w-full flex items-center justify-between rounded-md px-2.5 py-1.5 text-xs text-left transition-colors ${
-                          isCurrent ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-accent text-foreground'
+                        className={`w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs text-left transition-colors ${
+                          isCurrent ? 'bg-blue-50 text-blue-700 font-medium' : 'hover:bg-slate-50 text-slate-700'
                         }`}
                         onClick={() => {
                           setIsClientSwitcherOpen(false);
@@ -359,11 +390,11 @@ export default function Sidebar({
                       >
                         <div className="min-w-0 flex-1 pr-2">
                           <div className="truncate font-medium">{proj.client_name}</div>
-                          <div className="text-[10px] text-muted-foreground font-mono">
+                          <div className="text-[10px] text-slate-400 font-mono">
                             Tahun {proj.tax_year || '2024'} &bull; {proj.total_rows || 0} baris
                           </div>
                         </div>
-                        {isCurrent && <Check size={14} className="text-primary shrink-0" />}
+                        {isCurrent && <Check size={14} className="text-blue-600 shrink-0" />}
                       </button>
                     );
                   })}
@@ -374,12 +405,12 @@ export default function Sidebar({
         )}
 
         {/* Separator */}
-        <div className="h-px bg-border/60 my-0.5" aria-hidden="true" />
+        <div className="h-px bg-slate-200/70 my-0.5" aria-hidden="true" />
 
         {/* Navigation Section */}
         <div className="flex flex-col gap-1">
           {!isCollapsed && (
-            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
               Navigasi Utama
             </div>
           )}
@@ -390,7 +421,7 @@ export default function Sidebar({
         {hasData ? (
           <div className="flex flex-col gap-1 mt-2">
             {!isCollapsed && (
-              <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                 Arsip &amp; Ekspor
               </div>
             )}
@@ -403,7 +434,7 @@ export default function Sidebar({
                   setIsProjectMenuOpen((prev) => !prev);
                   setIsExportMenuOpen(false);
                 }}
-                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors ${
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 transition-colors ${
                   isCollapsed ? 'justify-center px-0' : 'justify-between'
                 }`}
                 title="Kelola File Proyek (.aitax)"
@@ -411,7 +442,7 @@ export default function Sidebar({
                 aria-expanded={isProjectMenuOpen}
               >
                 <div className="flex items-center gap-3">
-                  <Save size={18} className="text-emerald-500 shrink-0" />
+                  <Save size={18} className="text-emerald-600 shrink-0" />
                   {!isCollapsed && <span>Proyek (.aitax)</span>}
                 </div>
                 {!isCollapsed && (
@@ -423,30 +454,30 @@ export default function Sidebar({
               </button>
 
               {isProjectMenuOpen && (
-                <div className="absolute left-full top-0 ml-2 w-56 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-xl z-50 animate-in fade-in-0 zoom-in-95">
+                <div className="absolute left-full top-0 ml-2 w-56 rounded-xl border border-slate-200 bg-white p-1 text-slate-800 shadow-xl z-50 animate-in fade-in-0 zoom-in-95">
                   {onSaveProject && (
                     <button
                       type="button"
-                      className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-xs text-foreground hover:bg-accent text-left transition-colors"
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 text-left transition-colors"
                       onClick={() => {
                         setIsProjectMenuOpen(false);
                         onSaveProject();
                       }}
                     >
-                      <Save size={14} className="text-emerald-500 shrink-0" />
+                      <Save size={14} className="text-emerald-600 shrink-0" />
                       <span>Simpan Proyek (.aitax)</span>
                     </button>
                   )}
                   {onLoadProject && (
                     <button
                       type="button"
-                      className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-xs text-foreground hover:bg-accent text-left transition-colors"
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 text-left transition-colors"
                       onClick={() => {
                         setIsProjectMenuOpen(false);
                         onLoadProject();
                       }}
                     >
-                      <FolderOpen size={14} className="text-primary shrink-0" />
+                      <FolderOpen size={14} className="text-blue-600 shrink-0" />
                       <span>Buka Proyek (.aitax)</span>
                     </button>
                   )}
@@ -463,7 +494,7 @@ export default function Sidebar({
                   setIsProjectMenuOpen(false);
                 }}
                 disabled={isExporting}
-                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors ${
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 transition-colors ${
                   isCollapsed ? 'justify-center px-0' : 'justify-between'
                 }`}
                 title="Ekspor Data Buku Besar"
@@ -472,9 +503,9 @@ export default function Sidebar({
               >
                 <div className="flex items-center gap-3">
                   {isExporting ? (
-                    <Loader2 size={18} className="animate-spin text-primary shrink-0" />
+                    <Loader2 size={18} className="animate-spin text-blue-600 shrink-0" />
                   ) : (
-                    <Download size={18} className="text-primary shrink-0" />
+                    <Download size={18} className="text-blue-600 shrink-0" />
                   )}
                   {!isCollapsed && <span>Ekspor Data</span>}
                 </div>
@@ -487,30 +518,30 @@ export default function Sidebar({
               </button>
 
               {isExportMenuOpen && (
-                <div className="absolute left-full top-0 ml-2 w-56 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-xl z-50 animate-in fade-in-0 zoom-in-95">
+                <div className="absolute left-full top-0 ml-2 w-56 rounded-xl border border-slate-200 bg-white p-1 text-slate-800 shadow-xl z-50 animate-in fade-in-0 zoom-in-95">
                   {onExportXLSX && (
                     <button
                       type="button"
-                      className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-xs text-foreground hover:bg-accent text-left transition-colors"
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 text-left transition-colors"
                       onClick={() => {
                         setIsExportMenuOpen(false);
                         onExportXLSX();
                       }}
                     >
-                      <FileSpreadsheet size={14} className="text-emerald-500 shrink-0" />
+                      <FileSpreadsheet size={14} className="text-emerald-600 shrink-0" />
                       <span>Ekspor Excel (.xlsx)</span>
                     </button>
                   )}
                   {onExportCSV && (
                     <button
                       type="button"
-                      className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-xs text-foreground hover:bg-accent text-left transition-colors"
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 text-left transition-colors"
                       onClick={() => {
                         setIsExportMenuOpen(false);
                         onExportCSV();
                       }}
                     >
-                      <FileText size={14} className="text-primary shrink-0" />
+                      <FileText size={14} className="text-blue-600 shrink-0" />
                       <span>Ekspor CSV (.csv)</span>
                     </button>
                   )}
@@ -523,13 +554,13 @@ export default function Sidebar({
               <button
                 type="button"
                 onClick={onReset}
-                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors ${
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 transition-colors ${
                   isCollapsed ? 'justify-center px-0' : 'justify-start'
                 }`}
                 title="Buka File Baru / Reset"
                 aria-label="Buka File Baru / Reset"
               >
-                <RotateCcw size={18} className="shrink-0" />
+                <RotateCcw size={18} className="text-slate-500 shrink-0" />
                 {!isCollapsed && <span>File Baru / Reset</span>}
               </button>
             )}
@@ -540,13 +571,13 @@ export default function Sidebar({
               <button
                 type="button"
                 onClick={onLoadProject}
-                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors ${
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 transition-colors ${
                   isCollapsed ? 'justify-center px-0' : 'justify-start'
                 }`}
                 title="Buka Proyek (.aitax)"
                 aria-label="Buka Proyek (.aitax)"
               >
-                <FolderOpen size={18} className="text-primary shrink-0" />
+                <FolderOpen size={18} className="text-blue-600 shrink-0" />
                 {!isCollapsed && <span>Buka Proyek (.aitax)</span>}
               </button>
             </div>
@@ -555,50 +586,44 @@ export default function Sidebar({
       </div>
 
       {/* ===== BAGIAN BAWAH: Untitled UI User Account Card ===== */}
-      <div className="border-t border-border/80 p-3 bg-muted/20">
+      <div className="border-t border-slate-200/80 p-3 bg-slate-50/50">
         {!isCollapsed ? (
           <div className="flex items-center justify-between gap-2">
             {/* User Avatar + Name + Role */}
             <button
               type="button"
               onClick={onOpenUserProfile}
-              className="flex items-center gap-2.5 min-w-0 flex-1 text-left cursor-pointer group rounded-lg p-1 hover:bg-muted/60 transition-colors"
+              className="flex items-center gap-2.5 min-w-0 flex-1 text-left cursor-pointer group rounded-lg p-1 hover:bg-slate-100/70 transition-colors"
               title={`Akun: ${userProfile?.full_name || userProfile?.email || 'User'} (${isAdmin ? 'Admin' : 'Analyst'})`}
             >
-              <div className="h-8 w-8 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-bold text-xs shrink-0">
+              <div className="h-8 w-8 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
                 {userProfile?.full_name?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || <User size={14} />}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                <div className="text-xs font-semibold text-slate-800 truncate group-hover:text-blue-600 transition-colors">
                   {userProfile?.full_name || userProfile?.email || 'Pengguna'}
                 </div>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <Badge variant={isAdmin ? 'default' : 'secondary'} className="text-[9px] h-4 px-1 py-0 font-normal">
+                  <span
+                    className={`inline-flex items-center px-1.5 py-0.2 rounded-md text-[10px] font-medium border ${
+                      isAdmin
+                        ? 'bg-amber-50 text-amber-700 border-amber-200/80'
+                        : 'bg-slate-100 text-slate-600 border-slate-200/80'
+                    }`}
+                  >
                     {isAdmin ? 'Admin' : 'Analyst'}
-                  </Badge>
+                  </span>
                 </div>
               </div>
             </button>
 
-            {/* Quick Actions: Theme Toggle & Logout */}
+            {/* Quick Actions: Logout */}
             <div className="flex items-center gap-0.5 shrink-0">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-lg"
-                onClick={onToggleTheme}
-                aria-label="Toggle Mode Gelap/Terang"
-                aria-pressed={theme === 'dark'}
-                title={theme === 'dark' ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'}
-              >
-                {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
-              </Button>
-
               {onSignOut && (
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
+                  className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                   onClick={onSignOut}
                   aria-label="Keluar (Logout)"
                   title="Keluar (Logout)"
@@ -615,7 +640,7 @@ export default function Sidebar({
                 <button
                   type="button"
                   onClick={onOpenUserProfile}
-                  className="h-8 w-8 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-bold text-xs cursor-pointer hover:ring-2 hover:ring-primary/40"
+                  className="h-8 w-8 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 flex items-center justify-center font-bold text-xs cursor-pointer hover:ring-2 hover:ring-blue-400/40 shadow-2xs"
                   aria-label={`Akun: ${userProfile?.full_name || userProfile?.email || 'User'}`}
                 >
                   {userProfile?.full_name?.charAt(0)?.toUpperCase() || <User size={14} />}
@@ -626,30 +651,13 @@ export default function Sidebar({
               </TooltipContent>
             </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-lg"
-                  onClick={onToggleTheme}
-                  aria-label="Toggle Mode Gelap/Terang"
-                >
-                  {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                {theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
-              </TooltipContent>
-            </Tooltip>
-
             {onSignOut && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
+                    className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                     onClick={onSignOut}
                     aria-label="Keluar (Logout)"
                   >

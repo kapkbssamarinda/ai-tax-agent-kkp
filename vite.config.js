@@ -60,6 +60,22 @@ export default defineConfig(({ mode, command }) => {
         '@': path.resolve(__dirname, './src'),
       },
     },
+    build: {
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('xlsx')) return 'vendor-xlsx';
+              if (id.includes('pdfjs-dist')) return 'vendor-pdf';
+              if (id.includes('motion')) return 'vendor-motion';
+              if (id.includes('@tanstack')) return 'vendor-tanstack';
+              if (id.includes('lucide-react')) return 'vendor-icons';
+            }
+          }
+        }
+      }
+    },
     test: {
       environment: 'jsdom',
       globals: true,

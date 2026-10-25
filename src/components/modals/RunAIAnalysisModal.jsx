@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, BrainCircuit, ShieldAlert, CheckCircle2, X, Loader2 } from 'lucide-react';
+import { Sparkles, BrainCircuit, ShieldAlert, X, Loader2, Activity } from 'lucide-react';
 
 /**
  * RunAIAnalysisModal
@@ -12,8 +12,9 @@ export default function RunAIAnalysisModal({
   onConfirm,
   isAnalyzing = false,
   clientInfo = {},
-  unmappedAccountsCount = 0,
-  totalAccountsCount = 0
+  unmappedAccountsCount: _unmappedAccountsCount = 0,
+  totalAccountsCount = 0,
+  onCheckAIConnection = null,
 }) {
   if (!isOpen) return null;
 
@@ -100,21 +101,36 @@ export default function RunAIAnalysisModal({
         </div>
 
         {/* Actions */}
-        <div className="mt-6 flex items-center justify-end gap-2.5">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isAnalyzing}
-            className="rounded-lg border border-border px-4 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-50"
-          >
-            Batal
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            disabled={isAnalyzing}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
-          >
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-2.5">
+          <div>
+            {onCheckAIConnection && (
+              <button
+                type="button"
+                onClick={onCheckAIConnection}
+                disabled={isAnalyzing}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-50 cursor-pointer"
+                title="Periksa konektivitas & kuota AI"
+              >
+                <Activity className="h-3.5 w-3.5 text-primary" />
+                <span>Cek Koneksi AI</span>
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-2.5 ml-auto">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isAnalyzing}
+              className="rounded-lg border border-border px-4 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              onClick={onConfirm}
+              disabled={isAnalyzing}
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground shadow-xs hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer"
+            >
             {isAnalyzing ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -130,6 +146,7 @@ export default function RunAIAnalysisModal({
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
 

@@ -98,4 +98,40 @@ describe('AdminDashboard Component', () => {
     const statusBtn = screen.getByTitle(/Anda tidak dapat menonaktifkan akun sendiri/i);
     expect(statusBtn).toBeDisabled();
   });
+
+  it('dapat mengirimkan form untuk mendaftarkan pengguna baru ke whitelist', async () => {
+    vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
+      isAdmin: true,
+      user: { id: 'admin@kkp.com', email: 'admin@kkp.com' }
+    });
+
+    gasAuthService.fetchUsers.mockResolvedValue({
+      success: true,
+      users: []
+    });
+    gasAuthService.addUser.mockResolvedValueOnce({
+      success: true,
+      message: 'Berhasil'
+    });
+
+    render(<AdminDashboard onBack={vi.fn()} />);
+
+    fireEvent.change(screen.getByPlaceholderText(/Contoh: Andi Pratama/i), {
+      target: { value: 'Dewi Lestari' }
+    });
+    fireEvent.change(screen.getByPlaceholderText(/andi@gmail.com/i), {
+      target: { value: 'dewi@kkp.com' }
+    });
+
+    const submitBtn = screen.getByRole('button', { name: /Tambah ke Whitelist/i });
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(gasAuthService.addUser).toHaveBeenCalledWith('admin@kkp.com', {
+        email: 'dewi@kkp.com',
+        fullName: 'Dewi Lestari',
+        role: 'analyst'
+      });
+    });
+  });
 });

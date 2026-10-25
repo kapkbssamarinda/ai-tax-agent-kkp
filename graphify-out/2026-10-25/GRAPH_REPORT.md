@@ -1,22 +1,22 @@
 # Graph Report - ai-tax-agent  (2026-10-25)
 
 ## Corpus Check
-- 169 files · ~138,018 words
+- 186 files · ~150,492 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 5 file(s) not represented in the graph (top: .css 2, .example 1, (none) 1)
 
 ## Summary
-- 747 nodes · 1701 edges · 47 communities (37 shown, 10 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 26 edges (avg confidence: 0.88)
+- 814 nodes · 1907 edges · 50 communities (39 shown, 11 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 34 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f58dca7a`
+- Built from commit: `ea2cd564`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- UI Components & Radix Primitives
+- react
 - Accurate & MYOB Excel Parsers
 - App.jsx
 - AI Tax Services & Analysis
@@ -54,7 +54,7 @@
 - AI Usage & Token Cost Tracking
 - Migration Planning Skill
 - Initial Tax Agent Architecture Spec
-- xlsx-js-style
+- @playwright/test
 - vite.config.js
 - Favicon & Static Brand Assets
 - Vercel Deployment Routing
@@ -62,30 +62,33 @@
 - @testing-library/jest-dom
 - SVG Icon Sprites
 - Brand Logo Mark Asset
+- Sidebar
+- cn
+- @supabase/supabase-js
 
 ## God Nodes (most connected - your core abstractions)
-1. `cn()` - 62 edges
-2. `react` - 48 edges
-3. `App()` - 46 edges
-4. `vitest` - 34 edges
-5. `AdminDashboard()` - 34 edges
-6. `Button` - 28 edges
-7. `lucide-react` - 27 edges
-8. `Badge()` - 20 edges
-9. `PartnerDashboard()` - 18 edges
-10. `SP2DKResponseTab()` - 17 edges
+1. `cn()` - 81 edges
+2. `react` - 62 edges
+3. `App()` - 47 edges
+4. `vitest` - 40 edges
+5. `lucide-react` - 34 edges
+6. `AdminDashboard()` - 34 edges
+7. `Button` - 34 edges
+8. `@testing-library/react` - 22 edges
+9. `PartnerDashboard()` - 19 edges
+10. `Badge()` - 19 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `Task 4: Integrate `Sidebar` and `AppHeader` into `App.jsx` Shell` --references--> `Topbar()`  [INFERRED]
+  docs/superpowers/plans/2026-10-25-navigation-sidebar-redesign.md → src/components/Topbar.jsx
+- `Task 2: Build `AppHeader` Component with Tests` --references--> `AppHeader()`  [INFERRED]
+  docs/superpowers/plans/2026-10-25-navigation-sidebar-redesign.md → src/components/navigation/AppHeader.jsx
+- `Task 3: Build `Sidebar` Component (Untitled UI Standard) with Tests` --references--> `Sidebar()`  [INFERRED]
+  docs/superpowers/plans/2026-10-25-navigation-sidebar-redesign.md → src/components/navigation/Sidebar.jsx
 - `Panduan Penggunaan AI Tax Agent KKP PDF Guide` --semantically_similar_to--> `Buku Panduan Praktis Staff Tax Analyst KKP`  [INFERRED] [semantically similar]
   md/PANDUAN_PENGGUNAAN_AI_TAX_AGENT_KKP.pdf → md/AI_TAX_AND_PARTNER_DASHBOARD_GUIDE.md
-- `SOP Panduan Penggunaan AI Tax Agent PDF Guide` --semantically_similar_to--> `Panduan Alur Input Data Staff Tax Analyst SOP`  [INFERRED] [semantically similar]
-  md/SOP_Panduan_Penggunaan_AI_Tax_Agent.pdf → md/PANDUAN_ALUR_INPUT_TAX_ANALYST.md
-- `SOP Panduan Penggunaan AI Tax Agent PDF Guide` --references--> `Buku Panduan Praktis Staff Tax Analyst KKP`  [INFERRED]
-  md/SOP_Panduan_Penggunaan_AI_Tax_Agent.pdf → md/AI_TAX_AND_PARTNER_DASHBOARD_GUIDE.md
-- `Panduan Penggunaan AI Tax Agent KKP PDF Guide` --references--> `AI Tax Agent & KKP Partner Platform Overview`  [INFERRED]
-  md/PANDUAN_PENGGUNAAN_AI_TAX_AGENT_KKP.pdf → md/README.md
-- `SDD Progress Ledger (UI Redesign shadcn Motion)` --conceptually_related_to--> `Playwright Tests CI Workflow Job`  [INFERRED]
-  .superpowers/sdd/2026-10-24-ui-redesign-shadcn-motion/progress.md → .github/workflows/playwright.yml
+- `Global Constraints` --references--> `AppHeader()`  [INFERRED]
+  docs/superpowers/plans/2026-10-25-navigation-sidebar-redesign.md → src/components/navigation/AppHeader.jsx
 
 ## Import Cycles
 - None detected.
@@ -100,27 +103,27 @@
 - **Caveman Auto-Clarity Safeguards** — _agents_skills_cavecrew_skill_auto_clarity, _agents_skills_caveman_commit_skill_auto_clarity, _agents_skills_caveman_review_skill_auto_clarity [INFERRED 0.85]
 - **Caveman Cloud Lifecycle Pipeline** — _agents_skills_caveman_setup_skill_setup, _agents_skills_caveman_discover_skill_discover, _agents_skills_caveman_evidence_review_skill_evidence_review, _agents_skills_caveman_manage_skill_manage [INFERRED 0.85]
 
-## Communities (47 total, 10 thin omitted)
+## Communities (50 total, 11 thin omitted)
 
-### Community 0 - "UI Components & Radix Primitives"
+### Community 0 - "react"
 Cohesion: 0.08
-Nodes (67): class-variance-authority, lucide-react, motion, @radix-ui/react-dropdown-menu, @radix-ui/react-tabs, @radix-ui/react-tooltip, react, AdminDashboard() (+59 more)
+Nodes (38): class-variance-authority, lucide-react, motion, react, @testing-library/react, vitest, LoginPage(), LogoutConfirmModal() (+30 more)
 
 ### Community 1 - "Accurate & MYOB Excel Parsers"
-Cohesion: 0.11
-Nodes (24): @xmldom/xmldom, parseAccurateExcelRows(), parseAccurateXMLSS(), commonSuffixLength(), isBoilerplate(), parseAccuratePdfJournalText(), ACCOUNT_TYPES, isBoilerplate() (+16 more)
+Cohesion: 0.09
+Nodes (28): xlsx-js-style, @xmldom/xmldom, parseAccurateExcelRows(), parseAccurateXMLSS(), commonSuffixLength(), isBoilerplate(), parseAccuratePdfJournalText(), ACCOUNT_TYPES (+20 more)
 
 ### Community 2 - "App.jsx"
-Cohesion: 0.07
-Nodes (46): ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, getInitialTheme(), KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail(), LogoutConfirmModal() (+38 more)
+Cohesion: 0.09
+Nodes (43): ACCURATE_COLUMNS, App(), DEFAULT_CLIENT_INFO, KRISHAND_COLUMNS, MYOB_COLUMNS, AccountRail(), SideNotification(), SyncBlockingModal() (+35 more)
 
 ### Community 3 - "AI Tax Services & Analysis"
-Cohesion: 0.11
-Nodes (39): AISettingsModal(), ACCOUNT_CLASSIFICATION_TOOL, aiClassifyAccounts(), analyzeHonorariumClassification(), analyzeTaxFindings(), callClaudeProxy(), callClaudeTaxAnalysis(), callHaiku() (+31 more)
+Cohesion: 0.10
+Nodes (42): AISettingsModal(), PRESET_MODELS, Input, ACCOUNT_CLASSIFICATION_TOOL, aiClassifyAccounts(), analyzeHonorariumClassification(), analyzeTaxFindings(), callClaudeProxy() (+34 more)
 
 ### Community 4 - "vitest"
-Cohesion: 0.08
-Nodes (23): react-dom, @testing-library/react, vitest, closeEditModal(), handleAddUser(), handleDeleteUser(), handleToggleActive(), handleUpdateUser() (+15 more)
+Cohesion: 0.10
+Nodes (28): react-dom, AdminDashboard(), closeEditModal(), handleAddUser(), handleDeleteUser(), handleToggleActive(), handleUpdateUser(), ErrorBoundary (+20 more)
 
 ### Community 5 - "Caveman Compression Scripts"
 Cohesion: 0.12
@@ -139,8 +142,8 @@ Cohesion: 0.08
 Nodes (23): Cavecrew Overview, Cavecrew Model Overrides, Cavecrew Skill, Cavecrew Chaining Patterns, Cavecrew Builder Subagent, Cavecrew Investigator Subagent, Cavecrew Reviewer Subagent, Caveman Commit Overview (+15 more)
 
 ### Community 9 - "Tax Reconciliation & Keyword Scanner"
-Cohesion: 0.15
-Nodes (21): KEYWORD_PRESETS, KeywordScannerTab(), extractTaxBadge(), TaxReconWorkbench(), REGULATION_DATABASE, calculatePartnerDashboardMetrics(), ALIGN, BORDERS (+13 more)
+Cohesion: 0.20
+Nodes (16): REGULATION_DATABASE, calculatePartnerDashboardMetrics(), ALIGN, BORDERS, colLetter(), COLORS, FONTS, generateKKPWorkbook() (+8 more)
 
 ### Community 10 - "Caveman CLI & File Backups"
 Cohesion: 0.15
@@ -195,8 +198,8 @@ Cohesion: 0.24
 Nodes (10): gasAuthService Client Interface & Unit Tests, Google Login & GAS Whitelist Implementation Plan, Client Session Persistence via localStorage, Bootstrap Super Admin Initial Setup Mechanism, GAS Web App API Endpoints Protocol, Design Specification: Google Login & GAS Whitelist, Google Spreadsheet Users & LoginLogs Data Model, GAS Web App Deployment SOP (+2 more)
 
 ### Community 24 - "claude.js"
-Cohesion: 0.28
-Nodes (6): calculateCost(), checkRateLimit(), handler(), PRICING_RATES, rateLimitMap, @supabase/supabase-js
+Cohesion: 0.43
+Nodes (6): calculateCost(), checkRateLimit(), getRateLimitStatus(), handler(), PRICING_RATES, rateLimitMap
 
 ### Community 25 - "Lean Build & Safe Refactor Agents"
 Cohesion: 0.22
@@ -242,33 +245,41 @@ Nodes (3): AI Usage Monitoring Plan (Backup Duplicate), Haiku 4.5 vs Sonnet 5 Mo
 Cohesion: 0.67
 Nodes (3): Initial AI Tax Agent Architecture Specification, Master System Prompt for Indonesian Tax Compliance, Multi-Agent Tax Team Archetype Framework
 
-### Community 38 - "xlsx-js-style"
-Cohesion: 0.33
-Nodes (4): @playwright/test, xlsx-js-style, SAMPLE_AUTH_ADMIN, SAMPLE_PROJECT_DRAFT
+### Community 38 - "@playwright/test"
+Cohesion: 0.40
+Nodes (3): @playwright/test, SAMPLE_AUTH_ADMIN, SAMPLE_PROJECT_DRAFT
 
 ### Community 39 - "vite.config.js"
-Cohesion: 0.40
+Cohesion: 0.33
 Nodes (3): @tailwindcss/vite, vite, @vitejs/plugin-react
+
+### Community 47 - "Sidebar"
+Cohesion: 0.26
+Nodes (11): File Structure, Global Constraints, Redesign Navigation Sidebar & Web-App Title Implementation Plan, Review Focus, Task 1: Update Web-App Title and Branding Metadata, Task 2: Build `AppHeader` Component with Tests, Task 3: Build `Sidebar` Component (Untitled UI Standard) with Tests, Task 4: Integrate `Sidebar` and `AppHeader` into `App.jsx` Shell (+3 more)
+
+### Community 48 - "cn"
+Cohesion: 0.07
+Nodes (60): @radix-ui/react-dropdown-menu, @radix-ui/react-tabs, @radix-ui/react-tooltip, ClientHub(), KEYWORD_PRESETS, KeywordScannerTab(), PartnerDashboard(), extractTaxBadge() (+52 more)
 
 ## Knowledge Gaps
 - **81 isolated node(s):** `@emnapi/core`, `@emnapi/runtime`, `@types/node`, `@types/react`, `@types/react-dom` (+76 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 258 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **10 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 283 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `vitest` connect `vitest` to `UI Components & Radix Primitives`, `Accurate & MYOB Excel Parsers`, `App.jsx`, `AI Tax Services & Analysis`, `Vercel Serverless API Endpoints`, `Tax Reconciliation & Keyword Scanner`, `package.json`, `pasteImportParser.js`?**
-  _High betweenness centrality (0.073) - this node is a cross-community bridge._
+- **Why does `vitest` connect `react` to `Accurate & MYOB Excel Parsers`, `App.jsx`, `AI Tax Services & Analysis`, `vitest`, `Vercel Serverless API Endpoints`, `Tax Reconciliation & Keyword Scanner`, `package.json`, `cn`, `pasteImportParser.js`?**
+  _High betweenness centrality (0.077) - this node is a cross-community bridge._
 - **What connects `@emnapi/core`, `@emnapi/runtime`, `@types/node` to the rest of the system?**
   _81 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `UI Components & Radix Primitives` be split into smaller, more focused modules?**
-  _Cohesion score 0.08033504664001523 - nodes in this community are weakly interconnected._
-- **Why does `react` connect `UI Components & Radix Primitives` to `App.jsx`, `vitest`, `Vercel Serverless API Endpoints`, `Tax Reconciliation & Keyword Scanner`, `package.json`?**
-  _High betweenness centrality (0.046) - this node is a cross-community bridge._
+- **Should `react` be split into smaller, more focused modules?**
+  _Cohesion score 0.08487394957983194 - nodes in this community are weakly interconnected._
+- **Why does `react` connect `react` to `App.jsx`, `AI Tax Services & Analysis`, `vitest`, `Vercel Serverless API Endpoints`, `package.json`, `cn`?**
+  _High betweenness centrality (0.060) - this node is a cross-community bridge._
 - **Should `Accurate & MYOB Excel Parsers` be split into smaller, more focused modules?**
-  _Cohesion score 0.10782241014799154 - nodes in this community are weakly interconnected._
-- **Why does `dependencies` connect `Frontend Runtime Dependencies` to `package.json`?**
-  _High betweenness centrality (0.029) - this node is a cross-community bridge._
+  _Cohesion score 0.09183673469387756 - nodes in this community are weakly interconnected._
+- **Why does `cn()` connect `cn` to `react`, `App.jsx`, `AI Tax Services & Analysis`, `vitest`?**
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._
 - **Should `App.jsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.07490079365079365 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08831168831168831 - nodes in this community are weakly interconnected._
