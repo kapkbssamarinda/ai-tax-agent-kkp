@@ -35,9 +35,9 @@ export default function LogoutConfirmModal({ isOpen, onClose, onConfirm, userNam
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="modal-box w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl space-y-4"
+        className="modal-box w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl space-y-4 text-slate-900"
       >
-        <div className="modal-header flex items-start justify-between pb-3 border-b border-border/60">
+        <div className="modal-header flex items-start justify-between pb-3 border-b border-slate-200">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive flex items-center justify-center shrink-0">
               <LogOut size={18} />
@@ -73,7 +73,7 @@ export default function LogoutConfirmModal({ isOpen, onClose, onConfirm, userNam
           </div>
         </div>
 
-        <div className="modal-footer pt-3 border-t border-border/60 flex items-center justify-end gap-2">
+        <div className="modal-footer pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
           <Button
             ref={cancelBtnRef}
             type="button"

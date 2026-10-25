@@ -1472,11 +1472,21 @@
   animation: fadeIn 0.15s ease-out;
 }
 
+/* Enforce 100% solid white opaque background for all modal boxes & dialogs */
+.modal-box,
+[role="dialog"] > div,
+[role="alertdialog"] > div,
+[data-radix-dialog-content] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
 .modal-box {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  background: #ffffff !important;
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 580px;
   max-height: 90vh;

@@ -1,5 +1,27 @@
 @import "tailwindcss";
 
+@theme {
+  --color-background: #f4f6fa;
+  --color-foreground: #0f172a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0f172a;
+  --color-primary: #2563eb;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f1f5f9;
+  --color-secondary-foreground: #0f172a;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+  --color-accent: #eef2f6;
+  --color-accent-foreground: #1e40af;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #e2e8f0;
+  --color-input: #e2e8f0;
+  --color-ring: #2563eb;
+}
+
 /* Font dimuat via <link> di index.html (preconnect + stylesheet), bukan @import CSS */
 
 :root {

@@ -63,7 +63,7 @@ export default function AIConnectionStatusModal({
       aria-modal="true"
       aria-labelledby="ai-conn-title"
     >
-      <div className="relative w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+      <div className="modal-box relative w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-150 text-slate-900">
         {/* Tombol Tutup */}
         <button
           type="button"
@@ -159,7 +159,7 @@ export default function AIConnectionStatusModal({
 
               {/* Metrics Grid */}
               <div className="grid grid-cols-2 gap-2.5 text-xs">
-                <div className="rounded-lg border border-border bg-muted/20 p-2.5">
+                <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5">
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     <Zap className="h-3.5 w-3.5 text-amber-500" />
                     <span>Latensi Server</span>
@@ -169,7 +169,7 @@ export default function AIConnectionStatusModal({
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-border bg-muted/20 p-2.5">
+                <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5">
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     <Clock className="h-3.5 w-3.5 text-primary" />
                     <span>Sisa Kuota Jam Ini</span>
@@ -179,7 +179,7 @@ export default function AIConnectionStatusModal({
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-border bg-muted/20 p-2.5">
+                <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5">
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     <Server className="h-3.5 w-3.5 text-emerald-500" />
                     <span>Proxy Endpoint</span>
@@ -189,7 +189,7 @@ export default function AIConnectionStatusModal({
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-border bg-muted/20 p-2.5">
+                <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-2.5">
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     <Sparkles className="h-3.5 w-3.5 text-primary" />
                     <span>Model Default</span>

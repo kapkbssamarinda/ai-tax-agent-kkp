@@ -21,7 +21,7 @@ export default function SyncBlockingModal({
       aria-labelledby="sync-modal-title"
       aria-describedby="sync-modal-desc"
     >
-      <div className="relative mx-4 flex w-full max-w-md flex-col items-center rounded-xl border border-border bg-card p-6 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+      <div className="modal-box relative mx-4 flex w-full max-w-md flex-col items-center rounded-xl border border-slate-200 bg-white p-6 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-150 text-slate-900">
         <div className="relative mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
           <CloudUpload className="h-8 w-8 animate-pulse text-primary" />
           <Loader2 className="absolute h-14 w-14 animate-spin text-primary/30" />

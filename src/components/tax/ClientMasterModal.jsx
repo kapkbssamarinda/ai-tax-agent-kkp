@@ -61,9 +61,9 @@ function ClientMasterModal({ isOpen, onClose, clientInfo, onSave }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="modal-box client-master-box w-full max-w-2xl rounded-xl border border-border bg-card p-6 shadow-2xl space-y-4"
+        className="modal-box client-master-box w-full max-w-2xl rounded-xl border border-slate-200 bg-white p-6 shadow-2xl space-y-4 text-slate-900"
       >
-        <div className="modal-header flex items-start justify-between pb-3 border-b border-border/60">
+        <div className="modal-header flex items-start justify-between pb-3 border-b border-slate-200">
           <div className="modal-title-wrap flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
               <Building2 className="modal-icon" size={20} />
@@ -160,7 +160,7 @@ function ClientMasterModal({ isOpen, onClose, clientInfo, onSave }) {
             </div>
           </div>
 
-          <div className="modal-footer pt-3 border-t border-border/60 flex items-center justify-end gap-2">
+          <div className="modal-footer pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Batal
             </Button>

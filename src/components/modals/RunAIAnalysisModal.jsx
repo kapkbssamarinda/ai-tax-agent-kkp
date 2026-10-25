@@ -25,7 +25,7 @@ export default function RunAIAnalysisModal({
       aria-modal="true"
       aria-labelledby="run-ai-title"
     >
-      <div className="relative w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+      <div className="modal-box relative w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-150 text-slate-900">
         {/* Tombol Tutup */}
         <button
           type="button"
@@ -54,7 +54,7 @@ export default function RunAIAnalysisModal({
 
         {/* Content Box */}
         <div className="mt-5 space-y-3.5 text-sm">
-          <div className="rounded-lg border border-border/80 bg-muted/40 p-3.5">
+          <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3.5">
             <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Cakupan Analisis (Claude Sonnet 5.5)
             </div>

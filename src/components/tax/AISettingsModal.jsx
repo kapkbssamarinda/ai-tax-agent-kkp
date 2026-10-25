@@ -95,9 +95,9 @@ function AISettingsModal({ isOpen, onClose }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="modal-box ai-settings-box w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-2xl space-y-4"
+        className="modal-box ai-settings-box w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-2xl space-y-4 text-slate-900"
       >
-        <div className="modal-header flex items-start justify-between pb-3 border-b border-border/60">
+        <div className="modal-header flex items-start justify-between pb-3 border-b border-slate-200">
           <div className="modal-title-wrap flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
               <Bot className="modal-icon" size={20} />
@@ -138,7 +138,7 @@ function AISettingsModal({ isOpen, onClose }) {
             </label>
             <select
               id="model-select"
-              className="form-select h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="form-select h-9 w-full rounded-md border border-slate-300 bg-white px-3 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
               value={selectedPreset}
               onChange={(e) => setSelectedPreset(e.target.value)}
             >
@@ -194,7 +194,7 @@ function AISettingsModal({ isOpen, onClose }) {
           )}
         </div>
 
-        <div className="modal-footer pt-3 border-t border-border/60 flex items-center justify-end gap-2">
+        <div className="modal-footer pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
           <Button
             type="button"
             variant="outline"

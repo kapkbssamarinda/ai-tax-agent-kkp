@@ -93,9 +93,9 @@ function UserProfileModal({ isOpen, onClose, onSignOut }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="modal-box user-profile-modal w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl"
+        className="modal-box user-profile-modal w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl text-slate-900"
       >
-        <div className="modal-header flex items-start justify-between pb-4 border-b border-border/60">
+        <div className="modal-header flex items-start justify-between pb-4 border-b border-slate-200">
           <div className="modal-title-wrap flex items-center gap-3">
             <div className="user-profile-avatar-header h-11 w-11 rounded-full overflow-hidden border border-border/80 bg-muted flex items-center justify-center shrink-0">
               {avatarUrl ? (
@@ -143,7 +143,7 @@ function UserProfileModal({ isOpen, onClose, onSignOut }) {
             )}
 
             {/* Account Info Summary Card */}
-            <div className="user-profile-info-card rounded-lg border border-border/60 bg-muted/30 p-3.5 space-y-2.5 text-xs">
+            <div className="user-profile-info-card rounded-lg border border-slate-200 bg-slate-50/70 p-3.5 space-y-2.5 text-xs">
               <div className="user-info-row flex items-center justify-between">
                 <div className="user-info-label flex items-center gap-1.5 text-muted-foreground">
                   <Mail size={13} /> Email:
@@ -195,7 +195,7 @@ function UserProfileModal({ isOpen, onClose, onSignOut }) {
             </div>
           </div>
 
-          <div className="modal-footer pt-4 border-t border-border/60 flex items-center justify-between">
+          <div className="modal-footer pt-4 border-t border-slate-200 flex items-center justify-between">
             <Button
               type="button"
               variant="ghost"

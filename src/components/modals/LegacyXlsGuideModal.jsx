@@ -36,10 +36,10 @@ export default function LegacyXlsGuideModal({ isOpen, fileName, onClose, onSwitc
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-2xl space-y-5"
+        className="modal-box w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-2xl space-y-5 text-slate-900"
       >
         {/* Header */}
-        <div className="flex items-start justify-between pb-3 border-b border-border/60">
+        <div className="flex items-start justify-between pb-3 border-b border-slate-200">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
               <AlertTriangle className="h-5 w-5" />
@@ -70,7 +70,7 @@ export default function LegacyXlsGuideModal({ isOpen, fileName, onClose, onSwitc
           </p>
 
           {/* Solution 1: Save As .xlsx */}
-          <div className="rounded-lg border border-border/80 bg-muted/30 p-3.5 space-y-2">
+          <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3.5 space-y-2">
             <div className="flex items-center gap-2 font-medium text-foreground">
               <FileSpreadsheet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               <span>Opsi 1: Simpan Sebagai .xlsx (Sangat Disarankan)</span>
@@ -96,7 +96,7 @@ export default function LegacyXlsGuideModal({ isOpen, fileName, onClose, onSwitc
         </div>
 
         {/* Footer */}
-        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t border-border/60">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t border-slate-200">
           <Button
             type="button"
             variant="outline"

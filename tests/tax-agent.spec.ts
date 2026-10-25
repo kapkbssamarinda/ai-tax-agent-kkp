@@ -135,8 +135,8 @@ test.describe('AI Tax Agent — E2E Suite', () => {
     // Click Pulihkan Sesi
     await restoreBtn.click();
 
-    // Topbar secondary row should now display navigation tabs
-    await expect(page.getByRole('button', { name: /Buku Besar/i })).toBeVisible();
+    // Topbar / Sidebar should now display navigation tabs
+    await expect(page.getByRole('button', { name: 'Buku Besar', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: /AI Tax & KKP/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /Partner Dashboard/i })).toBeVisible();
 
@@ -146,7 +146,7 @@ test.describe('AI Tax Agent — E2E Suite', () => {
     await expect(page.getByText(/Top 5 Matters Requiring Partner Attention/i)).toBeVisible();
 
     // Switch to Buku Besar (GL)
-    await page.getByRole('button', { name: /Buku Besar/i }).click();
+    await page.getByRole('button', { name: 'Buku Besar', exact: true }).click();
     await expect(page.getByText(/Penjualan Barang Jadi/i).first()).toBeVisible();
 
     // Switch back to AI Tax & KKP
@@ -161,8 +161,8 @@ test.describe('AI Tax Agent — E2E Suite', () => {
 
     await page.goto('/');
 
-    // Click Admin button in Topbar
-    const adminBtn = page.getByRole('button', { name: 'Admin', exact: true });
+    // Click Admin button in Sidebar
+    const adminBtn = page.getByRole('button', { name: /Admin Dashboard/i });
     await expect(adminBtn).toBeVisible();
     await adminBtn.click();
 
@@ -173,7 +173,7 @@ test.describe('AI Tax Agent — E2E Suite', () => {
     // Back button returns to main workbench
     const backBtn = page.getByRole('button', { name: /Kembali/i }).first();
     await backBtn.click();
-    await expect(page.getByText(/AI Tax Agent Indonesia/i)).toBeVisible();
+    await expect(page.getByText(/AI-Tax-Agent/i).first()).toBeVisible();
   });
 
   test('6. Unrecognized legacy .xls file triggers LegacyXlsGuideModal and switching to paste tab', async ({ page }) => {
@@ -281,8 +281,9 @@ test.describe('AI Tax Agent — E2E Suite', () => {
     await expect(applyBtn).toBeEnabled();
     await applyBtn.click();
 
-    // Modal harus tertutup dan data hasil parsing generic excel muncul di tabel
+    // Modal harus tertutup dan data hasil parsing generic excel muncul di tabel Buku Besar
     await expect(page.getByText(/Verifikasi Pemetaan Kolom AI/i)).not.toBeVisible();
+    await page.getByRole('button', { name: 'Buku Besar', exact: true }).click();
     await expect(page.getByText(/Penerimaan Kas Klien/i).first()).toBeVisible({ timeout: 10000 });
   });
 });

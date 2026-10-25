@@ -108,10 +108,10 @@ export default function SchemaMappingConfirmModal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.97 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="w-full max-w-4xl max-h-[90vh] flex flex-col rounded-xl border border-border bg-card shadow-2xl overflow-hidden"
+        className="modal-box w-full max-w-4xl max-h-[90vh] flex flex-col rounded-xl border border-slate-200 bg-white text-slate-900 shadow-2xl overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-start justify-between p-5 border-b border-border/60 shrink-0">
+        <div className="flex items-start justify-between p-5 border-b border-slate-200 bg-white shrink-0">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
               <Sparkles className="h-5 w-5" />
@@ -146,11 +146,11 @@ export default function SchemaMappingConfirmModal({
         </div>
 
         {/* Scrollable Content */}
-        <div className="p-5 space-y-5 overflow-y-auto flex-1 text-xs">
+        <div className="p-5 space-y-5 overflow-y-auto flex-1 text-xs bg-white text-slate-800">
           {/* AI Reasoning Notice */}
           {mapping.reasoning && (
-            <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 text-muted-foreground flex items-start gap-2.5 leading-relaxed">
-              <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+            <div className="p-3 rounded-lg border border-blue-200 bg-blue-50/70 text-slate-700 flex items-start gap-2.5 leading-relaxed">
+              <Sparkles className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
               <span>{mapping.reasoning}</span>
             </div>
           )}
@@ -158,14 +158,14 @@ export default function SchemaMappingConfirmModal({
           {/* Sample Rows Table */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-foreground">Pratinjau Sampel Baris File (10 Baris Pertama)</span>
-              <span className="text-muted-foreground text-[11px]">Periksa kecocokan kolom di bawah</span>
+              <span className="font-semibold text-slate-900">Pratinjau Sampel Baris File (10 Baris Pertama)</span>
+              <span className="text-slate-500 text-[11px]">Periksa kecocokan kolom di bawah</span>
             </div>
-            <div className="rounded-lg border border-border overflow-x-auto max-h-48 bg-muted/10">
+            <div className="rounded-lg border border-slate-200 overflow-x-auto max-h-48 bg-slate-50/50">
               <table className="w-full text-left border-collapse text-[11px]">
                 <thead>
-                  <tr className="bg-muted/40 border-b border-border font-medium text-muted-foreground">
-                    <th className="p-2 border-r border-border/40 w-12 text-center">Row</th>
+                  <tr className="bg-slate-100 border-b border-slate-200 font-medium text-slate-700">
+                    <th className="p-2 border-r border-slate-200 w-12 text-center">Row</th>
                     {Array.from({ length: maxCols }).map((_, colIdx) => {
                       const colLetter = String.fromCharCode(65 + (colIdx % 26));
                       const isMapped =
@@ -177,8 +177,8 @@ export default function SchemaMappingConfirmModal({
                       return (
                         <th
                           key={colIdx}
-                          className={`p-2 border-r border-border/40 whitespace-nowrap ${
-                            isMapped ? 'bg-primary/10 text-primary font-semibold' : ''
+                          className={`p-2 border-r border-slate-200 whitespace-nowrap ${
+                            isMapped ? 'bg-blue-100/70 text-blue-800 font-semibold' : ''
                           }`}
                         >
                           Kolom {colLetter}
@@ -194,21 +194,21 @@ export default function SchemaMappingConfirmModal({
                     return (
                       <tr
                         key={rIdx}
-                        className={`border-b border-border/30 hover:bg-muted/20 ${
+                        className={`border-b border-slate-200 hover:bg-slate-50 ${
                           isHeader
-                            ? 'bg-amber-500/5 font-semibold text-foreground'
+                            ? 'bg-amber-50 font-semibold text-slate-900'
                             : isDataStart
-                            ? 'bg-emerald-500/5'
-                            : ''
+                            ? 'bg-emerald-50'
+                            : 'bg-white'
                         }`}
                       >
-                        <td className="p-2 border-r border-border/40 text-center font-mono text-muted-foreground">
+                        <td className="p-2 border-r border-slate-200 text-center font-mono text-slate-500">
                           {rIdx}
                         </td>
                         {Array.from({ length: maxCols }).map((_, cIdx) => (
                           <td
                             key={cIdx}
-                            className="p-2 border-r border-border/40 max-w-[200px] truncate font-mono"
+                            className="p-2 border-r border-slate-200 max-w-[200px] truncate font-mono text-slate-800"
                           >
                             {row?.[cIdx] !== undefined && row?.[cIdx] !== null ? String(row[cIdx]) : ''}
                           </td>
@@ -233,7 +233,7 @@ export default function SchemaMappingConfirmModal({
                 <select
                   id="dateColumnSelect"
                   aria-label="Kolom Tanggal"
-                  className="w-full h-8 rounded-md border border-input bg-background px-2 text-xs focus:ring-1 focus:ring-ring"
+                  className="w-full h-8 rounded-md border border-slate-300 bg-white text-slate-800 px-2 text-xs focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
                   value={mapping.dateColumnIndex}
                   onChange={(e) => handleChange('dateColumnIndex', e.target.value)}
                 >
@@ -253,7 +253,7 @@ export default function SchemaMappingConfirmModal({
                 <select
                   id="descColumnSelect"
                   aria-label="Kolom Keterangan"
-                  className="w-full h-8 rounded-md border border-input bg-background px-2 text-xs focus:ring-1 focus:ring-ring"
+                  className="w-full h-8 rounded-md border border-slate-300 bg-white text-slate-800 px-2 text-xs focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
                   value={mapping.descriptionColumnIndex}
                   onChange={(e) => handleChange('descriptionColumnIndex', e.target.value)}
                 >
@@ -273,7 +273,7 @@ export default function SchemaMappingConfirmModal({
                 <select
                   id="voucherColumnSelect"
                   aria-label="Kolom No. Bukti"
-                  className="w-full h-8 rounded-md border border-input bg-background px-2 text-xs focus:ring-1 focus:ring-ring"
+                  className="w-full h-8 rounded-md border border-slate-300 bg-white text-slate-800 px-2 text-xs focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
                   value={mapping.voucherNoColumnIndex}
                   onChange={(e) => handleChange('voucherNoColumnIndex', e.target.value)}
                 >
@@ -293,7 +293,7 @@ export default function SchemaMappingConfirmModal({
                 <select
                   id="debitColumnSelect"
                   aria-label="Kolom Debit"
-                  className="w-full h-8 rounded-md border border-input bg-background px-2 text-xs focus:ring-1 focus:ring-ring"
+                  className="w-full h-8 rounded-md border border-slate-300 bg-white text-slate-800 px-2 text-xs focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
                   value={mapping.debitColumnIndex}
                   onChange={(e) => handleChange('debitColumnIndex', e.target.value)}
                 >
@@ -313,7 +313,7 @@ export default function SchemaMappingConfirmModal({
                 <select
                   id="creditColumnSelect"
                   aria-label="Kolom Kredit"
-                  className="w-full h-8 rounded-md border border-input bg-background px-2 text-xs focus:ring-1 focus:ring-ring"
+                  className="w-full h-8 rounded-md border border-slate-300 bg-white text-slate-800 px-2 text-xs focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
                   value={mapping.creditColumnIndex}
                   onChange={(e) => handleChange('creditColumnIndex', e.target.value)}
                 >
@@ -333,7 +333,7 @@ export default function SchemaMappingConfirmModal({
                 <select
                   id="balanceColumnSelect"
                   aria-label="Kolom Saldo"
-                  className="w-full h-8 rounded-md border border-input bg-background px-2 text-xs focus:ring-1 focus:ring-ring"
+                  className="w-full h-8 rounded-md border border-slate-300 bg-white text-slate-800 px-2 text-xs focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
                   value={mapping.balanceColumnIndex}
                   onChange={(e) => handleChange('balanceColumnIndex', e.target.value)}
                 >
@@ -353,7 +353,7 @@ export default function SchemaMappingConfirmModal({
                 <select
                   id="coaColumnSelect"
                   aria-label="Kolom Kode Akun"
-                  className="w-full h-8 rounded-md border border-input bg-background px-2 text-xs focus:ring-1 focus:ring-ring"
+                  className="w-full h-8 rounded-md border border-slate-300 bg-white text-slate-800 px-2 text-xs focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
                   value={mapping.coaColumnIndex}
                   onChange={(e) => handleChange('coaColumnIndex', e.target.value)}
                 >
@@ -373,7 +373,7 @@ export default function SchemaMappingConfirmModal({
                 <select
                   id="accountNameColumnSelect"
                   aria-label="Kolom Nama Akun"
-                  className="w-full h-8 rounded-md border border-input bg-background px-2 text-xs focus:ring-1 focus:ring-ring"
+                  className="w-full h-8 rounded-md border border-slate-300 bg-white text-slate-800 px-2 text-xs focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
                   value={mapping.accountNameColumnIndex}
                   onChange={(e) => handleChange('accountNameColumnIndex', e.target.value)}
                 >
@@ -393,7 +393,7 @@ export default function SchemaMappingConfirmModal({
                 <select
                   id="startRowSelect"
                   aria-label="Mulai Baris Data"
-                  className="w-full h-8 rounded-md border border-input bg-background px-2 text-xs focus:ring-1 focus:ring-ring"
+                  className="w-full h-8 rounded-md border border-slate-300 bg-white text-slate-800 px-2 text-xs focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
                   value={mapping.dataStartRowIndex}
                   onChange={(e) => handleChange('dataStartRowIndex', e.target.value)}
                 >
@@ -419,7 +419,7 @@ export default function SchemaMappingConfirmModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2.5 p-4 border-t border-border/60 bg-muted/20 shrink-0">
+        <div className="flex items-center justify-end gap-2.5 p-4 border-t border-slate-200 bg-slate-50 shrink-0">
           <Button type="button" variant="outline" onClick={onClose} className="text-xs">
             Batal
           </Button>
