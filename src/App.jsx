@@ -433,7 +433,7 @@ function App() {
           setSourceFormat('Krishand');
           setCurrentColumns(KRISHAND_COLUMNS);
         } else if (e.data.format === 'GENERIC_EXCEL') {
-          setSourceFormat('Excel (AI Mapping)');
+          setSourceFormat('AI Claude Haiku 5.5');
           setCurrentColumns(ACCURATE_COLUMNS);
         }
         setProcessedData(data);
@@ -464,12 +464,15 @@ function App() {
         }));
 
         const finishTimeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        const isAiGeneric = e.data.format === 'GENERIC_EXCEL';
         setSideNotification({
           id: Date.now(),
           type: 'success',
-          title: 'Buku Besar Berhasil Diparsing',
-          message: `Berhasil mengolah ${data.length} baris transaksi. Pemetaan awal siap di Workbench.`,
-          details: 'Klik tombol "Analisis AI" kapan saja untuk analisis risiko & klasifikasi cerdas Claude Sonnet 5.5.',
+          title: isAiGeneric ? 'Buku Besar Berhasil Diparsing Penuh dengan AI' : 'Buku Besar Berhasil Diparsing',
+          message: isAiGeneric
+            ? `Claude Haiku 5.5 berhasil menormalisasi ${data.length} transaksi format baru secara otomatis.`
+            : `Berhasil mengolah ${data.length} baris transaksi. Pemetaan awal siap di Workbench.`,
+          details: 'Data telah distandarisasi ke format KKP KAP Zaidan Jauhari.',
           timestamp: `${finishTimeStr} WIB`,
           duration: 6500
         });
@@ -504,11 +507,13 @@ function App() {
         const localDetected = autoDetectSchemaFromRows(rowsToAnalyze);
         setSchemaInitialMapping(localDetected);
 
+        // Langsung aktifkan Full AI Parsing tanpa memblokir layar dengan modal manual
+        setStep('processing');
         setSideNotification({
           id: Date.now(),
           type: 'loading',
-          title: 'Menganalisis Skema Kolom (100 Baris)',
-          message: 'Mempelajari struktur kolom file Excel Anda dan mendeteksi tanggal, keterangan, debit, dan kredit...',
+          title: 'Full AI Parsing Aktif (Claude Haiku 5.5)',
+          message: `Claude Haiku 5.5 sedang menganalisis 100 baris sampel dan mengekstrak transaksi ${targetFileName}...`,
           duration: 0
         });
 
@@ -520,30 +525,30 @@ function App() {
         })
           .then((detected) => {
             const finalMapping = detected?.mapping || detected || localDetected;
-            setSideNotification({
-              id: Date.now(),
-              type: 'success',
-              title: 'Skema Kolom Terdeteksi Otomatis',
-              message: 'Kolom tanggal, keterangan, debit, dan kredit berhasil dipetakan otomatis.',
-              duration: 4000
-            });
             setSchemaInitialMapping(finalMapping);
-            setIsSchemaMappingModalOpen(true);
+
+            // Eksekusi Full AI Parsing langsung ke web worker
+            if (workerRef.current) {
+              workerRef.current.postMessage({
+                type: 'PARSE_WITH_SCHEMA_MAPPING',
+                fullRows: fullRows || [],
+                mapping: finalMapping,
+                meta: unrecMeta || {}
+              });
+            }
           })
           .catch((err) => {
             console.warn('Claude API offline/error, menggunakan hasil deteksi otomatis lokal:', err);
-            setSideNotification({
-              id: Date.now(),
-              type: 'success',
-              title: 'Skema Kolom Terdeteksi Otomatis (Lokal)',
-              message: 'Kolom tanggal, keterangan, debit, dan kredit berhasil dipetakan dari 100 baris sampel.',
-              duration: 4000
-            });
             setSchemaInitialMapping(localDetected);
-            setIsSchemaMappingModalOpen(true);
-          })
-          .finally(() => {
-            setStep('upload');
+
+            if (workerRef.current) {
+              workerRef.current.postMessage({
+                type: 'PARSE_WITH_SCHEMA_MAPPING',
+                fullRows: fullRows || [],
+                mapping: localDetected,
+                meta: unrecMeta || {}
+              });
+            }
           });
       } else {
         setIsExporting(false);

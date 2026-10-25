@@ -216,7 +216,7 @@ test.describe('AI Tax Agent — E2E Suite', () => {
     await expect(page.getByText(/Tempel Transaksi dari Excel/i)).toBeVisible();
   });
 
-  test('7. Unrecognized .xlsx triggers AI Schema Mapping, opens confirm modal and parses full rows', async ({ page }) => {
+  test('7. Unrecognized .xlsx triggers Full AI Parsing with Claude Haiku 5.5 and directly parses full rows', async ({ page }) => {
     await page.addInitScript(({ auth }) => {
       localStorage.setItem('aitax_auth_session', JSON.stringify(auth));
     }, { auth: SAMPLE_AUTH_ADMIN });
@@ -268,22 +268,11 @@ test.describe('AI Tax Agent — E2E Suite', () => {
       buffer: xlsxBuf
     });
 
-    // Modal Verifikasi Pemetaan Kolom AI harus muncul
-    await expect(page.getByText(/Verifikasi Pemetaan Kolom AI/i)).toBeVisible({ timeout: 15000 });
-    await expect(page.getByText(/laporan_custom\.xlsx/i)).toBeVisible();
-    await expect(page.getByText(/Keyakinan AI: 95%/i)).toBeVisible();
+    // Sistem otomatis menjalankan Full AI Parsing tanpa memblokir layar dengan modal manual
+    await expect(page.getByText(/Full AI Parsing|Buku Besar Berhasil/i).first()).toBeVisible({ timeout: 15000 });
 
-    // Verifikasi pratinjau tabel ada di modal
-    await expect(page.getByText(/Penerimaan Kas Klien/i)).toBeVisible();
-
-    // Klik tombol Terapkan & Proses Data
-    const applyBtn = page.getByRole('button', { name: /Terapkan & Proses Data/i });
-    await expect(applyBtn).toBeEnabled();
-    await applyBtn.click();
-
-    // Modal harus tertutup dan data hasil parsing generic excel muncul di tabel Buku Besar
-    await expect(page.getByText(/Verifikasi Pemetaan Kolom AI/i)).not.toBeVisible();
+    // Data hasil parsing Claude Haiku 5.5 langsung siap di Buku Besar
     await page.getByRole('button', { name: 'Buku Besar', exact: true }).click();
-    await expect(page.getByText(/Penerimaan Kas Klien/i).first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/Penerimaan Kas Klien/i).first()).toBeVisible({ timeout: 15000 });
   });
 });

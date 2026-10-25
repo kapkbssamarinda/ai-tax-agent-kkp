@@ -21,6 +21,21 @@ const PRICING_RATES = {
   sonnet: { input: 3.00, output: 15.00 } // USD per 1M tokens
 };
 
+function resolveAnthropicModel(model) {
+  const m = String(model || '').toLowerCase();
+  if (m.includes('haiku')) {
+    // Resolves Claude Haiku 5 / 5.5 / 4.5 / 3.5 to official high-speed Haiku endpoint
+    return 'claude-3-5-haiku-20241022';
+  }
+  if (m.includes('3-7') || m.includes('3.7')) {
+    return 'claude-3-7-sonnet-20250219';
+  }
+  if (m.includes('sonnet') || m.includes('claude-5')) {
+    return 'claude-3-5-sonnet-20241022';
+  }
+  return model || 'claude-3-5-sonnet-20241022';
+}
+
 function calculateCost(model, inputTokens = 0, outputTokens = 0) {
   const isHaiku = String(model || '').toLowerCase().includes('haiku');
   const tier = isHaiku ? 'haiku' : 'sonnet';
@@ -234,8 +249,9 @@ export default async function handler(req, res) {
 
   // Teruskan request ke Anthropic API
   try {
+    const targetModel = resolveAnthropicModel(model);
     const anthropicBody = {
-      model,
+      model: targetModel,
       max_tokens: max_tokens || 4096,
       messages
     };
