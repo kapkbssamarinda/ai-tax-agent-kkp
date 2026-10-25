@@ -1,9 +1,12 @@
 import { parsePastedAmount } from './pasteImportParser.js';
+import { autoDetectSchemaFromRows } from './schemaDetector.js';
+
+export { autoDetectSchemaFromRows };
 
 /**
  * Normalisasi format tanggal input Excel (serial number atau format string) ke DD/MM/YYYY.
  */
-function normalizeDate(cell) {
+export function normalizeDate(cell) {
   if (cell == null) return '';
   const num = typeof cell === 'number' ? cell : Number(cell);
   if (!isNaN(num) && num >= 20000 && num <= 90000) {
@@ -61,6 +64,9 @@ export function parseGenericExcelRows(rows = [], mapping = {}) {
   let runningBalance = 0;
   let rowId = 1;
 
+  let inheritedCoa = '';
+  let inheritedAccountName = '';
+
   for (let i = dataStartRowIndex; i < rows.length; i++) {
     const row = rows[i];
     if (!row || !Array.isArray(row) || row.length === 0) continue;
@@ -77,11 +83,43 @@ export function parseGenericExcelRows(rows = [], mapping = {}) {
 
     const tanggal = normalizeDate(rawDate);
     const keterangan = String(rawDesc || '').trim();
-    const debit = parsePastedAmount(rawDebit);
-    const kredit = parsePastedAmount(rawCredit);
+
+    // Hitung debit dan kredit (mendukung kolom debit/kredit terpisah maupun kolom nominal tunggal)
+    let debit = 0;
+    let kredit = 0;
+
+    if (debitIdx >= 0 && creditIdx >= 0) {
+      debit = parsePastedAmount(rawDebit);
+      kredit = parsePastedAmount(rawCredit);
+    } else if (debitIdx >= 0 && creditIdx < 0) {
+      const nominal = parsePastedAmount(rawDebit);
+      if (nominal > 0) {
+        debit = nominal;
+        kredit = 0;
+      } else if (nominal < 0) {
+        debit = 0;
+        kredit = Math.abs(nominal);
+      }
+    } else if (creditIdx >= 0 && debitIdx < 0) {
+      const nominal = parsePastedAmount(rawCredit);
+      if (nominal > 0) {
+        debit = 0;
+        kredit = nominal;
+      } else if (nominal < 0) {
+        debit = Math.abs(nominal);
+        kredit = 0;
+      }
+    }
 
     // Filter baris kosong: harus ada tanggal atau keterangan dan salah satu nominal
     if (!tanggal && !keterangan && debit === 0 && kredit === 0) {
+      // Cek apakah baris ini berisi header akun untuk baris-baris berikutnya
+      const possibleCoa = String(rawCoa || rawDesc || '').trim();
+      const coaMatch = possibleCoa.match(/^([1-9]\d{0,3}[-.]\d{1,4}(?:[-.]\d{1,4})*|\d{4,8})\s*[-:]?\s*(.*)$/);
+      if (coaMatch) {
+        inheritedCoa = coaMatch[1];
+        if (coaMatch[2]) inheritedAccountName = coaMatch[2].trim();
+      }
       continue;
     }
 
@@ -91,8 +129,26 @@ export function parseGenericExcelRows(rows = [], mapping = {}) {
       continue;
     }
 
-    const coa = String(rawCoa || '').trim() || (rawAccount ? 'GL-AUTO' : '-');
-    const namaAkun = String(rawAccount || '').trim() || (rawCoa ? `Akun ${rawCoa}` : 'Umum / Tanpa Akun');
+    // Tentukan COA dan Nama Akun
+    let coa = String(rawCoa || '').trim();
+    let namaAkun = String(rawAccount || '').trim();
+
+    if (coa) {
+      inheritedCoa = coa;
+    } else if (inheritedCoa) {
+      coa = inheritedCoa;
+    } else {
+      coa = namaAkun ? 'GL-AUTO' : '-';
+    }
+
+    if (namaAkun) {
+      inheritedAccountName = namaAkun;
+    } else if (inheritedAccountName) {
+      namaAkun = inheritedAccountName;
+    } else {
+      namaAkun = coa && coa !== '-' ? `Akun ${coa}` : 'Umum / Tanpa Akun';
+    }
+
     const noBukti = String(rawVoucher || '-').trim() || '-';
 
     let balance = 0;

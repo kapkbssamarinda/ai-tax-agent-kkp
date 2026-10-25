@@ -158,10 +158,10 @@ export default function SchemaMappingConfirmModal({
           {/* Sample Rows Table */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-slate-900">Pratinjau Sampel Baris File (10 Baris Pertama)</span>
-              <span className="text-slate-500 text-[11px]">Periksa kecocokan kolom di bawah</span>
+              <span className="font-semibold text-slate-900">Pratinjau Sampel Baris File (Hingga 100 Baris Pertama)</span>
+              <span className="text-slate-500 text-[11px]">Memuat {sampleRows.length} baris sampel untuk analisis kolom</span>
             </div>
-            <div className="rounded-lg border border-slate-200 overflow-x-auto max-h-48 bg-slate-50/50">
+            <div className="rounded-lg border border-slate-200 overflow-x-auto max-h-56 bg-slate-50/50">
               <table className="w-full text-left border-collapse text-[11px]">
                 <thead>
                   <tr className="bg-slate-100 border-b border-slate-200 font-medium text-slate-700">
@@ -188,7 +188,7 @@ export default function SchemaMappingConfirmModal({
                   </tr>
                 </thead>
                 <tbody>
-                  {sampleRows.slice(0, 10).map((row, rIdx) => {
+                  {sampleRows.slice(0, 100).map((row, rIdx) => {
                     const isHeader = rIdx === mapping.headerRowIndex;
                     const isDataStart = rIdx === mapping.dataStartRowIndex;
                     return (
@@ -397,7 +397,7 @@ export default function SchemaMappingConfirmModal({
                   value={mapping.dataStartRowIndex}
                   onChange={(e) => handleChange('dataStartRowIndex', e.target.value)}
                 >
-                  {sampleRows.slice(0, 10).map((_, idx) => (
+                  {sampleRows.slice(0, Math.min(30, sampleRows.length)).map((_, idx) => (
                     <option key={idx} value={idx}>
                       Baris {idx} {idx === mapping.dataStartRowIndex ? '(Rekomendasi AI)' : ''}
                     </option>

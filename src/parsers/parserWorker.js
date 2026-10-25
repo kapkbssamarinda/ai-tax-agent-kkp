@@ -108,7 +108,7 @@ self.onmessage = async (e) => {
                } else {
                    // Pola belum terdaftar! Cek ekstensi file
                    const isXls = typeof fileName === 'string' && fileName.toLowerCase().endsWith('.xls');
-                   const sampleRows = rows.slice(0, 15);
+                   const sampleRows = rows.slice(0, 100);
                    if (isXls) {
                      self.postMessage({
                        status: 'unrecognized_legacy_xls',

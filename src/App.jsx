@@ -26,6 +26,7 @@ import { useAuth } from './contexts/AuthContext';
 import { buildTaxMappingFromGL } from './tax-engine/taxMapping';
 import { reconcileRevenueVsPPN, reconcileExpenseVsPPh23, reconcilePayrollVsPPh21, reconcileRentVsPPhFinal } from './tax-engine/deterministicCalc';
 import { analyzeTaxFindings, generateDeterministicFindings, aiClassifyAccounts, clearAIUsageLogs, detectSchemaWithClaude } from './services/claudeService';
+import { autoDetectSchemaFromRows } from './parsers/schemaDetector';
 import LegacyXlsGuideModal from './components/modals/LegacyXlsGuideModal';
 import SchemaMappingConfirmModal from './components/modals/SchemaMappingConfirmModal';
 import { downloadKKPWorkbook } from './tax-engine/kkpWorkbookGenerator';
@@ -493,59 +494,52 @@ function App() {
       } else if (status === 'unrecognized_xlsx') {
         const { fileName: unrecFileName, sampleRows, fullRows, meta: unrecMeta } = e.data;
         const targetFileName = unrecFileName || fileNameRef.current || 'Dokumen .xlsx';
+        const rowsToAnalyze = sampleRows || [];
         setSchemaMappingFileName(targetFileName);
-        setSchemaSampleRows(sampleRows || []);
+        setSchemaSampleRows(rowsToAnalyze);
         setSchemaFullRows(fullRows || []);
         setPendingSchemaMeta(unrecMeta || {});
+
+        // Deteksi otomatis kolom secara instan dari 100 baris sampel
+        const localDetected = autoDetectSchemaFromRows(rowsToAnalyze);
+        setSchemaInitialMapping(localDetected);
 
         setSideNotification({
           id: Date.now(),
           type: 'loading',
-          title: 'Menganalisis Skema Kolom Baru',
-          message: 'Claude Haiku sedang mempelajari struktur kolom file Excel Anda...',
+          title: 'Menganalisis Skema Kolom (100 Baris)',
+          message: 'Mempelajari struktur kolom file Excel Anda dan mendeteksi tanggal, keterangan, debit, dan kredit...',
           duration: 0
         });
 
         detectSchemaWithClaude({
-          sampleRows,
+          sampleRows: rowsToAnalyze,
           userId,
           clientName: clientInfoRef.current?.name,
           taxYear: clientInfoRef.current?.taxYear
         })
           .then((detected) => {
+            const finalMapping = detected?.mapping || detected || localDetected;
             setSideNotification({
               id: Date.now(),
               type: 'success',
-              title: 'Skema Kolom Terdeteksi',
-              message: 'Silakan tinjau dan konfirmasi pemetaan kolom sebelum data diproses.',
+              title: 'Skema Kolom Terdeteksi Otomatis',
+              message: 'Kolom tanggal, keterangan, debit, dan kredit berhasil dipetakan otomatis.',
               duration: 4000
             });
-            setSchemaInitialMapping(detected?.mapping || detected);
+            setSchemaInitialMapping(finalMapping);
             setIsSchemaMappingModalOpen(true);
           })
           .catch((err) => {
-            console.warn('Gagal mendeteksi skema otomatis dengan Claude:', err);
+            console.warn('Claude API offline/error, menggunakan hasil deteksi otomatis lokal:', err);
             setSideNotification({
               id: Date.now(),
-              type: 'warning',
-              title: 'Pemetaan Manual Diperlukan',
-              message: 'AI tidak dapat mendeteksi otomatis. Silakan tentukan kolom secara manual.',
-              duration: 5000
+              type: 'success',
+              title: 'Skema Kolom Terdeteksi Otomatis (Lokal)',
+              message: 'Kolom tanggal, keterangan, debit, dan kredit berhasil dipetakan dari 100 baris sampel.',
+              duration: 4000
             });
-            setSchemaInitialMapping({
-              headerRowIndex: 0,
-              dataStartRowIndex: 1,
-              dateColumnIndex: -1,
-              descriptionColumnIndex: -1,
-              debitColumnIndex: -1,
-              creditColumnIndex: -1,
-              balanceColumnIndex: -1,
-              coaColumnIndex: -1,
-              accountNameColumnIndex: -1,
-              voucherNoColumnIndex: -1,
-              confidence: 0,
-              reasoning: 'Gagal menganalisis otomatis. Silakan petakan kolom sesuai tabel pratinjau.'
-            });
+            setSchemaInitialMapping(localDetected);
             setIsSchemaMappingModalOpen(true);
           })
           .finally(() => {

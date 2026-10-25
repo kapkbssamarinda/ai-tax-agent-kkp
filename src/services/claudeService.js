@@ -12,6 +12,7 @@ import { autoClassifyAccount } from '../tax-engine/taxMapping.js';
 import { DEFAULT_SYNTHETIC_ACCOUNTS } from '../parsers/pasteImportParser.js';
 import { supabase } from '../lib/supabase.js';
 import { jsonrepair } from 'jsonrepair';
+import { autoDetectSchemaFromRows } from '../parsers/schemaDetector.js';
 
 export const TAX_FINDINGS_TOOL = {
   name: 'submit_tax_findings',
@@ -1959,8 +1960,9 @@ export async function generateSP2DKResponseWithClaude({
 }
 
 /**
- * AI Schema Mapping: Menganalisis 10-15 baris sampel spreadsheet Buku Besar
- * menggunakan Claude Haiku 4.5 untuk menentukan indeks kolom (0-based) secara cerdas.
+ * AI Schema Mapping: Menganalisis hingga 100 baris sampel spreadsheet Buku Besar
+ * menggunakan Claude Haiku 4.5 & Algoritma Deteksi Heuristik Otomatis untuk menentukan
+ * indeks kolom (0-based) secara presisi.
  */
 export async function detectSchemaWithClaude({
   sampleRows = [],
@@ -1972,9 +1974,30 @@ export async function detectSchemaWithClaude({
     throw new Error('Sampel baris data tidak boleh kosong.');
   }
 
+  // 1. Jalankan deteksi otomatis lokal terlebih dahulu (analisis 100 baris sampel)
+  const localMapping = autoDetectSchemaFromRows(sampleRows);
+
+  const effectiveRows = sampleRows.slice(0, 100);
+  const sampleForClaude = effectiveRows.length > 35
+    ? [...effectiveRows.slice(0, 25), ...effectiveRows.slice(-10)]
+    : effectiveRows;
+
   const prompt = `
 Anda adalah AI Spesialis Normalisasi Data Akuntansi Indonesia.
-Tugas: Analisis 10-15 baris sampel spreadsheet Buku Besar (GL) berikut dan tentukan indeks kolom (0-based) untuk setiap komponen data akuntansi.
+Tugas: Analisis sampel spreadsheet Buku Besar (GL) berikut (dari total ${effectiveRows.length} baris sampel yang dibaca) dan tentukan indeks kolom (0-based) untuk setiap komponen data akuntansi.
+
+Hasil Analisis Heuristik Lokal Awal:
+- Baris Judul Kolom (headerRowIndex): ${localMapping.headerRowIndex}
+- Baris Mulai Transaksi (dataStartRowIndex): ${localMapping.dataStartRowIndex}
+- Kolom Tanggal: ${localMapping.dateColumnIndex}
+- Kolom Keterangan / Uraian: ${localMapping.descriptionColumnIndex}
+- Kolom Debit: ${localMapping.debitColumnIndex}
+- Kolom Kredit: ${localMapping.creditColumnIndex}
+- Kolom Saldo: ${localMapping.balanceColumnIndex}
+- Kolom COA: ${localMapping.coaColumnIndex}
+- Kolom Nama Akun: ${localMapping.accountNameColumnIndex}
+- Kolom No Bukti: ${localMapping.voucherNoColumnIndex}
+- Catatan: ${localMapping.reasoning}
 
 Format GL Standar yang Harus Ditemukan:
 1. dateColumnIndex: Kolom tanggal transaksi (contoh isi: '02/01/2024', serial '45300', dll).
@@ -1994,7 +2017,7 @@ Pedoman Tambahan:
 - Panggil tool submit_schema_mapping.
 
 Sampel Baris Data:
-${JSON.stringify(sampleRows, null, 2)}
+${JSON.stringify(sampleForClaude, null, 2)}
 `;
 
   try {
@@ -2012,16 +2035,37 @@ ${JSON.stringify(sampleRows, null, 2)}
 
     const toolInput = extractToolInputFromClaudeResponse(data, 'submit_schema_mapping');
     if (toolInput) {
+      // Gabungkan hasil Claude dengan verifikasi lokal: jika Claude mengembalikan -1 untuk field wajib
+      // namun lokal berhasil mendeteksinya, pertahankan hasil deteksi lokal
+      const mergedMapping = {
+        ...localMapping,
+        ...toolInput,
+        dateColumnIndex: toolInput.dateColumnIndex >= 0 ? toolInput.dateColumnIndex : localMapping.dateColumnIndex,
+        descriptionColumnIndex: toolInput.descriptionColumnIndex >= 0 ? toolInput.descriptionColumnIndex : localMapping.descriptionColumnIndex,
+        debitColumnIndex: toolInput.debitColumnIndex >= 0 ? toolInput.debitColumnIndex : localMapping.debitColumnIndex,
+        creditColumnIndex: toolInput.creditColumnIndex >= 0 ? toolInput.creditColumnIndex : localMapping.creditColumnIndex,
+        balanceColumnIndex: toolInput.balanceColumnIndex >= 0 ? toolInput.balanceColumnIndex : localMapping.balanceColumnIndex,
+        confidence: typeof toolInput.confidence === 'number' ? toolInput.confidence : localMapping.confidence,
+        reasoning: toolInput.reasoning || localMapping.reasoning
+      };
+
       return {
         success: true,
-        mapping: toolInput
+        mapping: mergedMapping
       };
     }
 
-    throw new Error('AI tidak mengembalikan skema pemetaan terstruktur.');
+    // Jika Claude tidak mengembalikan tool_use, gunakan deteksi otomatis lokal
+    return {
+      success: true,
+      mapping: localMapping
+    };
   } catch (err) {
-    console.warn('[detectSchemaWithClaude] Gagal mendeteksi skema dengan AI:', err);
-    throw err;
+    console.warn('[detectSchemaWithClaude] Claude API tidak dapat dijangkau, fallback ke deteksi otomatis lokal 100 baris:', err);
+    return {
+      success: true,
+      mapping: localMapping
+    };
   }
 }
 
